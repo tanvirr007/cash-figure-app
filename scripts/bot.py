@@ -312,7 +312,7 @@ def monitor():
         elapsed = time.time() - start_time
         pct = min(int(c / total_tasks * 100), 99) if total_tasks > 0 else 0
         text = (
-            f"<b>Building APK...</b>\n\n"
+            f"<b>Building APK</b>\n\n"
             f"• APP: <code>{escape_html(app_name)}</code>\n"
             f"• VERSION: <code>v{escape_html(version)}</code>\n"
             f"• BRANCH: <code>{escape_html(ref_name)}</code>\n"
