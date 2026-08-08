@@ -1,6 +1,6 @@
 {
-  "versionCode": 1,
-  "versionName": "v0.1.0.1",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v0.1.0.1/CashFigure.apk",
-  "changelog": "* **ci: add Telegram bot and release workflow** (f318c95)\n* **feat: add initial app source code** (c436400)\n  - Add Jetpack Compose UI for Bangladeshi cash counter.\n  - Add Room database, Hilt DI, DataStore, and export utilities.\n  - Add app assets, gradle configuration, and setup project structure.\n* **Initial commit** (e68d453)\n"
+  "versionCode": 2,
+  "versionName": "v0.1.0.2",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v0.1.0.2/CashFigure.apk",
+  "changelog": "* **fix: override node 20 deprecation** (29d76e0)\n  - Allow unsecure node version to override Node 20 deprecation in workflow.\n  - Update building APK progress message format in bot script.\n  - \n  TEST:\n  - Verify workflow file syntax and environment variables.\n  - Verify Telegram bot progress message text format.\n  - \n"
 }
