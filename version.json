@@ -2,5 +2,5 @@
   "versionCode": 1,
   "versionName": "v0.1.0.1",
   "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v0.1.0.1/CashFigure.apk",
-  "changelog": "No changelog provided."
+  "changelog": "* **ci: add Telegram bot and release workflow** (f318c95)\n* **feat: add initial app source code** (c436400)\n  - Add Jetpack Compose UI for Bangladeshi cash counter.\n  - Add Room database, Hilt DI, DataStore, and export utilities.\n  - Add app assets, gradle configuration, and setup project structure.\n* **Initial commit** (e68d453)\n"
 }
