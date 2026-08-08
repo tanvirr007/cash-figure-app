@@ -1,0 +1,38 @@
+package app.cash.tanvir.info.data.repository
+
+import app.cash.tanvir.info.data.local.db.dao.SheetDao
+import app.cash.tanvir.info.data.local.preferences.AppLanguage
+import app.cash.tanvir.info.data.local.preferences.AppTheme
+import app.cash.tanvir.info.data.local.preferences.PreferencesManager
+import app.cash.tanvir.info.domain.repository.SettingsRepository
+import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+import javax.inject.Singleton
+
+/**
+ * Implementation of [SettingsRepository] using DataStore and SheetDao.
+ */
+@Singleton
+class SettingsRepositoryImpl @Inject constructor(
+    private val preferencesManager: PreferencesManager,
+    private val sheetDao: SheetDao
+) : SettingsRepository {
+
+    override fun getTheme(): Flow<AppTheme> = preferencesManager.themeFlow
+
+    override fun getLanguage(): Flow<AppLanguage> = preferencesManager.languageFlow
+
+    override suspend fun setTheme(theme: AppTheme) {
+        preferencesManager.setTheme(theme)
+    }
+
+    override suspend fun setLanguage(language: AppLanguage) {
+        preferencesManager.setLanguage(language)
+    }
+
+    override suspend fun resetAllData() {
+        sheetDao.clearAllHistory()
+        sheetDao.hardDeleteSheet(-1L) // clear current working sheet
+        preferencesManager.clearAll()
+    }
+}
