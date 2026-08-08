@@ -68,7 +68,12 @@ class SheetRepositoryImpl @Inject constructor(
 
     override suspend fun saveSheet(sheet: Sheet): Long {
         val entity = sheet.toEntity()
-        return sheetDao.insertSheet(entity)
+        val id = sheetDao.insertSheet(entity)
+        if (sheet.name.isBlank()) {
+            val updatedEntity = entity.copy(id = id, name = "Sheet #$id")
+            sheetDao.updateSheet(updatedEntity)
+        }
+        return id
     }
 
     override suspend fun updateSheet(sheet: Sheet) {
@@ -116,9 +121,15 @@ class SheetRepositoryImpl @Inject constructor(
             )
         }
 
+        val displayName = when {
+            this.name.isNotBlank() && this.name != "Sheet #1" -> this.name
+            this.id > 0 -> "Sheet #${this.id}"
+            else -> "Sheet #1"
+        }
+
         return Sheet(
             id = this.id,
-            name = this.name,
+            name = displayName,
             rows = rows,
             grandTotal = this.grandTotal,
             totalPieces = this.totalPieces,
@@ -136,7 +147,7 @@ class SheetRepositoryImpl @Inject constructor(
 
         return SheetEntity(
             id = this.id,
-            name = this.name.ifEmpty { "Sheet #${if (this.id > 0) this.id else 1}" },
+            name = this.name,
             grandTotal = this.grandTotal,
             totalPieces = this.totalPieces,
             activeDenominations = this.activeDenominations,

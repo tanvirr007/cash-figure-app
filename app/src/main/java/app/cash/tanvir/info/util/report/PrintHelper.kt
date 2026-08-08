@@ -39,7 +39,7 @@ object PrintHelper {
                         return
                     }
 
-                    pdfData = PdfReportGenerator.generatePdf(sheet, isBangla)
+                    pdfData = PdfReportGenerator.generatePdf(context, sheet, isBangla)
 
                     val info = PrintDocumentInfo.Builder("CashFigure_Report.pdf")
                         .setContentType(PrintDocumentInfo.CONTENT_TYPE_DOCUMENT)

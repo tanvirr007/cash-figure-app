@@ -73,18 +73,6 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    fun duplicateSheet(sheet: Sheet) {
-        viewModelScope.launch {
-            val duplicate = sheet.copy(
-                id = 0L, // new auto-generated ID
-                name = "${sheet.name} (Copy)",
-                createdAt = System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis()
-            )
-            sheetRepository.saveSheet(duplicate)
-        }
-    }
-
     fun deleteSheet(sheetId: Long) {
         viewModelScope.launch {
             sheetRepository.softDeleteSheet(sheetId)

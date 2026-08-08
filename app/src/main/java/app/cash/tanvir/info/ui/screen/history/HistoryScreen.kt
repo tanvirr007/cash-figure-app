@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
@@ -147,7 +146,6 @@ fun HistoryScreen(
                             sheet = sheet,
                             onClick = { onSelectSheet(sheet) },
                             onRename = { viewModel.openRenameDialog(sheet) },
-                            onDuplicate = { viewModel.duplicateSheet(sheet) },
                             onDelete = { viewModel.deleteSheet(sheet.id) }
                         )
                     }
@@ -197,7 +195,6 @@ private fun HistoryCard(
     sheet: Sheet,
     onClick: () -> Unit,
     onRename: () -> Unit,
-    onDuplicate: () -> Unit,
     onDelete: () -> Unit
 ) {
     val dateFormat = remember { SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()) }
@@ -249,9 +246,6 @@ private fun HistoryCard(
             ) {
                 IconButton(onClick = onRename) {
                     Icon(Icons.Default.Edit, contentDescription = "Rename", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                IconButton(onClick = onDuplicate) {
-                    Icon(Icons.Default.ContentCopy, contentDescription = "Duplicate", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 IconButton(onClick = onDelete) {
                     Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))

@@ -72,16 +72,16 @@ class ReportViewModel @Inject constructor(
         val isBangla = uiState.value.isBangla
 
         val (ext, mime, data) = when (format) {
-            ExportFormat.PDF -> Triple("pdf", "application/pdf", PdfReportGenerator.generatePdf(currentSheet, isBangla))
+            ExportFormat.PDF -> Triple("pdf", "application/pdf", PdfReportGenerator.generatePdf(context, currentSheet, isBangla))
             ExportFormat.CSV -> Triple("csv", "text/csv", CsvReportGenerator.generateCsv(currentSheet, isBangla))
             ExportFormat.TXT -> Triple("txt", "text/plain", TxtReportGenerator.generateTxt(currentSheet, isBangla))
         }
 
         val fileName = StorageUtil.generateFileName(ext)
-        val savedUri = StorageUtil.saveReportFile(context, fileName, mime, data)
+        val savedUri = StorageUtil.saveReportFile(context, fileName, mime, data, subFolder = ext)
 
         val message = if (savedUri != null) {
-            "Exported to Downloads/CashFigure/$fileName"
+            "Exported to Downloads/CashFigure/$ext/$fileName"
         } else {
             "Failed to export report"
         }
@@ -95,7 +95,7 @@ class ReportViewModel @Inject constructor(
 
     fun shareReport(context: Context) {
         val currentSheet = uiState.value.sheet ?: return
-        val pdfData = PdfReportGenerator.generatePdf(currentSheet, uiState.value.isBangla)
+        val pdfData = PdfReportGenerator.generatePdf(context, currentSheet, uiState.value.isBangla)
 
         val cacheDir = File(context.cacheDir, "reports")
         if (!cacheDir.exists()) cacheDir.mkdirs()

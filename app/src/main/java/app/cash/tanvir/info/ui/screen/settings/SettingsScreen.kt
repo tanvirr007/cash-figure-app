@@ -259,9 +259,6 @@ fun SettingsScreen(
                     }
                     Spacer(modifier = Modifier.height(6.dp))
                     Text("Version 0.1.0 (Build 1)", style = MaterialTheme.typography.bodyMedium)
-                    Text("Commercial-grade Bangladeshi Cash Counter app.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text("Privacy: 100% Offline. Zero analytics or tracking.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
                 }
             }
         }

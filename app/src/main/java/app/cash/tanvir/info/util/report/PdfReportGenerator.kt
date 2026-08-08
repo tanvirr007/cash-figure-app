@@ -1,7 +1,9 @@
 package app.cash.tanvir.info.util.report
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import app.cash.tanvir.info.domain.model.Sheet
 import app.cash.tanvir.info.util.CurrencyFormatter
@@ -16,7 +18,7 @@ import java.util.Locale
  */
 object PdfReportGenerator {
 
-    fun generatePdf(sheet: Sheet, isBangla: Boolean = false): ByteArray {
+    fun generatePdf(context: Context? = null, sheet: Sheet, isBangla: Boolean = false): ByteArray {
         val pdfDocument = PdfDocument()
         val pageInfo = PdfDocument.PageInfo.Builder(595, 842, 1).create() // A4 page dimensions in points
         val page = pdfDocument.startPage(pageInfo)
@@ -25,6 +27,13 @@ object PdfReportGenerator {
         val paint = Paint().apply {
             isAntiAlias = true
             color = Color.BLACK
+        }
+
+        context?.let { ctx ->
+            try {
+                val banglaTypeface = Typeface.createFromAsset(ctx.assets, "fonts/tiro_bangla.ttf")
+                paint.typeface = banglaTypeface
+            } catch (_: Exception) {}
         }
 
         var y = 50f

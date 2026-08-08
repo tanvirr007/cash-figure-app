@@ -125,10 +125,14 @@ class CalculatorViewModel @Inject constructor(
 
     /**
      * Save current sheet to History explicitly.
+     * Returns false if total amount is 0.
      */
-    fun saveToHistory(name: String = "") {
+    fun saveToHistory(name: String = ""): Boolean {
+        val state = _uiState.value
+        if (state.grandTotal <= 0L) {
+            return false
+        }
         viewModelScope.launch {
-            val state = _uiState.value
             val rows = Denomination.ALL.map { denom ->
                 val qtyStr = state.quantities[denom.value] ?: ""
                 val qty = qtyStr.toLongOrNull() ?: 0L
@@ -149,6 +153,7 @@ class CalculatorViewModel @Inject constructor(
             )
             sheetRepository.saveSheet(newSheet)
         }
+        return true
     }
 
     /**

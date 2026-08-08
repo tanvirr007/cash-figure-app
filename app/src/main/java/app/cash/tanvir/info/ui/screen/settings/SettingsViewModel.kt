@@ -113,9 +113,9 @@ class SettingsViewModel @Inject constructor(
                 val jsonBytes = backupObj.toString(2).toByteArray(Charsets.UTF_8)
 
                 val fileName = "CashFigure_Backup_${System.currentTimeMillis()}.json"
-                val savedUri = StorageUtil.saveReportFile(context, fileName, "application/json", jsonBytes)
+                val savedUri = StorageUtil.saveReportFile(context, fileName, "application/json", jsonBytes, subFolder = "backup")
 
-                val msg = if (savedUri != null) "Backup created in Downloads/CashFigure/$fileName" else "Backup failed"
+                val msg = if (savedUri != null) "Backup created in Downloads/CashFigure/backup/$fileName" else "Backup failed"
                 _uiState.update { it.copy(statusMessage = msg) }
             } catch (e: Exception) {
                 _uiState.update { it.copy(statusMessage = "Error backing up data: ${e.message}") }

@@ -25,20 +25,22 @@ object StorageUtil {
     }
 
     /**
-     * Save report data (byte array) to `Download/CashFigure/`.
+     * Save report data (byte array) to `Download/CashFigure/<subFolder>/`.
      * Automatically handles duplicate filenames by appending a suffix if needed.
      */
     fun saveReportFile(
         context: Context,
         fileName: String,
         mimeType: String,
-        data: ByteArray
+        data: ByteArray,
+        subFolder: String = ""
     ): Uri? {
+        val relativeSubPath = if (subFolder.isBlank()) "CashFigure" else "CashFigure/$subFolder"
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val contentValues = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
                 put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/CashFigure")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/" + relativeSubPath)
             }
             val resolver = context.contentResolver
             val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
@@ -52,7 +54,7 @@ object StorageUtil {
         } else {
             val dir = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "CashFigure"
+                relativeSubPath
             )
             if (!dir.exists()) dir.mkdirs()
 
