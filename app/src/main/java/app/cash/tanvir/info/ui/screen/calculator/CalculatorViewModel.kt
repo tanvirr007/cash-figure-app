@@ -34,7 +34,7 @@ data class CalculatorUiState(
     val activeDenominations: Int = 0,
     val amountInWordsEn: String = "Zero Taka",
     val amountInWordsBn: String = "শূন্য টাকা",
-    val isBreakdownExpanded: Boolean = false,
+
     val quantities: Map<Int, String> = Denomination.ALL.associate { it.value to "" },
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
     val disabledDenominations: Set<Int> = emptySet()
@@ -177,12 +177,7 @@ class CalculatorViewModel @Inject constructor(
         clearAll()
     }
 
-    /**
-     * Toggle the breakdown section open/closed.
-     */
-    fun toggleBreakdown() {
-        _uiState.update { it.copy(isBreakdownExpanded = !it.isBreakdownExpanded) }
-    }
+
 
     /**
      * Recalculate all derived values from current quantities.

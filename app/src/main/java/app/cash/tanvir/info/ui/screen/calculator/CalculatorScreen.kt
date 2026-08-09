@@ -49,7 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
-import app.cash.tanvir.info.ui.screen.calculator.components.BreakdownSection
+
 import app.cash.tanvir.info.ui.screen.calculator.components.DashboardCard
 import app.cash.tanvir.info.ui.screen.calculator.components.DenominationRowItem
 
@@ -215,17 +215,7 @@ fun CalculatorScreen(
                 }
             }
 
-            // Breakdown section
-            item {
-                Spacer(modifier = Modifier.height(12.dp))
-                BreakdownSection(
-                    rows = uiState.rows,
-                    isExpanded = uiState.isBreakdownExpanded,
-                    onToggle = { viewModel.toggleBreakdown() },
-                    isBangla = isBangla,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-            }
+
         }
     }
 
