@@ -94,7 +94,7 @@ jobs:
                   continue
                 fi
                 CHANGELOG="${CHANGELOG}* **$title** (${hash:0:7})"$'\n'
-                body=$(git log -1 --pretty=format:"%b" "$hash" | grep -v -E "^Signed-off-by:|^Change-Id:|^Co-authored-by:" || true)
+                body=$(git log -1 --pretty=format:"%b" "$hash" | grep -v -E "^Signed-off-by:|^Change-Id:|^Co-authored-by:" | sed '/^-\{3,\}$/,$d' | sed '/^TEST:$/,$d' | sed -e :a -e '/^[[:space:]]*$/{ $d; N; ba; }' || true)
                 if [ ! -z "$body" ]; then
                   while IFS= read -r line; do
                     if [ ! -z "$line" ]; then
