@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -60,6 +61,10 @@ fun ReportScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     var pendingExportFormat by remember { mutableStateOf<ExportFormat?>(null) }
+    var showNotesPrompt by remember { mutableStateOf(viewModel.fromSave) }
+    var notesInputText by remember { mutableStateOf("") }
+    var placeholderText by remember { mutableStateOf("") }
+    val fullPlaceholder = "BRAC BANK PLC"
 
     LaunchedEffect(uiState.exportStatusMessage) {
         uiState.exportStatusMessage?.let { message ->
@@ -292,6 +297,95 @@ fun ReportScreen(
             dismissButton = {
                 TextButton(onClick = { pendingExportFormat = null }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            }
+        )
+    }
+
+    // Compulsory Notes Prompt Dialog
+    if (showNotesPrompt) {
+        LaunchedEffect(Unit) {
+            while (true) {
+                for (i in 1..fullPlaceholder.length) {
+                    placeholderText = fullPlaceholder.substring(0, i)
+                    kotlinx.coroutines.delay(150L)
+                }
+                kotlinx.coroutines.delay(2000L)
+                placeholderText = ""
+                kotlinx.coroutines.delay(500L)
+            }
+        }
+
+        AlertDialog(
+            onDismissRequest = {}, // compulsory, cannot be dismissed by clicking outside
+            title = {
+                Text(
+                    text = if (isBangla) "নোট যোগ করুন" else "Add Notes",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = if (isBangla) 
+                            "রিপোর্ট তৈরি করতে অনুগ্রহ করে একটি নোট যোগ করুন (যেমন ব্যাংকের নাম বা উদ্দেশ্য):" 
+                            else "Please add a note to generate the report (e.g. bank name or purpose):",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    val isLimitReached = notesInputText.length == 30
+                    OutlinedTextField(
+                        value = notesInputText,
+                        onValueChange = { input ->
+                            val sanitized = input.replace("\n", " ").replace("\r", " ")
+                            if (sanitized.length <= 30) {
+                                notesInputText = sanitized
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(if (isBangla) "নোট" else "Notes") },
+                        placeholder = { Text(placeholderText) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        supportingText = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                val remaining = 30 - notesInputText.length
+                                val counterText = if (isBangla) {
+                                    "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(remaining)} অবশিষ্ট"
+                                } else {
+                                    "$remaining remaining"
+                                }
+                                Text(
+                                    text = counterText,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (isLimitReached) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (notesInputText.isNotBlank()) {
+                            viewModel.updateSheetRemark(notesInputText.trim())
+                            showNotesPrompt = false
+                        }
+                    },
+                    enabled = notesInputText.isNotBlank(), // only enabled if note is non-blank
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text(if (isBangla) "সম্পাদনা" else "Edit")
                 }
             }
         )

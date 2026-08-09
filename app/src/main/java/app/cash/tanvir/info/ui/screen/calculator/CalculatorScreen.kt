@@ -58,7 +58,7 @@ import app.cash.tanvir.info.ui.screen.calculator.components.DenominationRowItem
 @Composable
 fun CalculatorScreen(
     onNavigateToHistory: () -> Unit = {},
-    onNavigateToReport: (Long) -> Unit = {},
+    onNavigateToReport: (Long, Boolean) -> Unit = { _, _ -> },
     onNavigateToSettings: () -> Unit = {},
     viewModel: CalculatorViewModel = hiltViewModel()
 ) {
@@ -68,7 +68,6 @@ fun CalculatorScreen(
     val isIdle = uiState.quantities.values.all { it.isEmpty() }
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     var showAddNotesDialog by remember { mutableStateOf(false) }
-    var notesInputText by remember { mutableStateOf("") }
     // Denomination value pending single-row clear confirmation (null = no dialog)
     var pendingClearDenomination by remember { mutableStateOf<Int?>(null) }
 
@@ -202,7 +201,6 @@ fun CalculatorScreen(
                                 activeToast?.cancel()
                                 activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                             } else {
-                                notesInputText = ""
                                 showAddNotesDialog = true
                             }
                         },
@@ -303,7 +301,7 @@ fun CalculatorScreen(
             onDismissRequest = { showAddNotesDialog = false },
             title = {
                 Text(
-                    text = if (isBangla) "নোট যোগ করুন" else "Add Notes",
+                    text = if (isBangla) "ক্যাশ ব্রেকডাউন" else "Cash Breakdown",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -315,13 +313,6 @@ fun CalculatorScreen(
                         .padding(vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = if (isBangla) "ক্যাশ ব্রেকডাউন:" else "Cash Breakdown:",
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
@@ -364,82 +355,27 @@ fun CalculatorScreen(
                             }
                         }
                     }
-                    
-                    val isLimitReached = notesInputText.length == 30
-                    OutlinedTextField(
-                        value = notesInputText,
-                        onValueChange = { if (it.length <= 30) notesInputText = it },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(if (isBangla) "নোট" else "Notes") },
-                        placeholder = { Text(if (isBangla) "এখানে নোট লিখুন..." else "Write notes here...") },
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        supportingText = {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                val remaining = 30 - notesInputText.length
-                                val counterText = if (isBangla) {
-                                    "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(remaining)} অবশিষ্ট"
-                                } else {
-                                    "$remaining remaining"
-                                }
-                                Text(
-                                    text = counterText,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = if (isLimitReached) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    )
                 }
             },
             dismissButton = {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                TextButton(
+                    onClick = { showAddNotesDialog = false }
                 ) {
-                    TextButton(
-                        onClick = { showAddNotesDialog = false }
-                    ) {
-                        Text(
-                            text = if (isBangla) "এডিট" else "Edit",
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                    
-                    TextButton(
-                        onClick = {
-                            val savedAmount = viewModel.saveToHistory(remark = "")
-                            val msg = if (savedAmount != null) {
-                                if (isBangla) "লেনদেন সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
-                            } else {
-                                if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
-                            }
-                            activeToast?.cancel()
-                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
-                            showAddNotesDialog = false
-                        }
-                    ) {
-                        Text(
-                            text = if (isBangla) "এড়িয়ে যান" else "Skip",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        text = if (isBangla) "বাতিল" else "Cancel",
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
-                        val savedAmount = viewModel.saveToHistory(remark = notesInputText.trim())
-                        val msg = if (savedAmount != null) {
-                            if (isBangla) "লেনদেন সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
-                        } else {
-                            if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
+                        viewModel.saveToHistory(remark = "") { savedId, savedAmount ->
+                            val msg = if (isBangla) "লেনদেন সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
+                            activeToast?.cancel()
+                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+                            onNavigateToReport(savedId, true)
                         }
-                        activeToast?.cancel()
-                        activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                         showAddNotesDialog = false
                     }
                 ) {

@@ -60,7 +60,9 @@ fun DenominationRowItem(
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.width(64.dp)
+            modifier = Modifier.width(80.dp),
+            maxLines = 1,
+            softWrap = false
         )
 
         // Quantity input
@@ -113,7 +115,7 @@ fun DenominationRowItem(
                 MaterialTheme.colorScheme.onSurface
             else
                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
-            modifier = Modifier.width(100.dp),
+            modifier = Modifier.width(115.dp),
             textAlign = TextAlign.End,
             maxLines = 1
         )

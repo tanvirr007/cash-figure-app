@@ -15,8 +15,8 @@ import app.cash.tanvir.info.ui.screen.settings.SettingsScreen
 sealed class Screen(val route: String) {
     object Calculator : Screen("calculator")
     object History : Screen("history")
-    object Report : Screen("report/{sheetId}") {
-        fun createRoute(sheetId: Long) = "report/$sheetId"
+    object Report : Screen("report/{sheetId}?fromSave={fromSave}") {
+        fun createRoute(sheetId: Long, fromSave: Boolean = false) = "report/$sheetId?fromSave=$fromSave"
     }
     object Settings : Screen("settings")
 }
@@ -32,7 +32,7 @@ fun NavGraph(
         composable(Screen.Calculator.route) {
             CalculatorScreen(
                 onNavigateToHistory = { navController.navigate(Screen.History.route) },
-                onNavigateToReport = { sheetId -> navController.navigate(Screen.Report.createRoute(sheetId)) },
+                onNavigateToReport = { sheetId, fromSave -> navController.navigate(Screen.Report.createRoute(sheetId, fromSave)) },
                 onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
             )
         }
@@ -48,7 +48,13 @@ fun NavGraph(
 
         composable(
             route = Screen.Report.route,
-            arguments = listOf(navArgument("sheetId") { type = NavType.LongType })
+            arguments = listOf(
+                navArgument("sheetId") { type = NavType.LongType },
+                navArgument("fromSave") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
         ) {
             ReportScreen(
                 onNavigateBack = { navController.popBackStack() }

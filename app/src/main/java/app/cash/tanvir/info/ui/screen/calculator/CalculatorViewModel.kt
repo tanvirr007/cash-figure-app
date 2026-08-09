@@ -141,11 +141,16 @@ class CalculatorViewModel @Inject constructor(
      * Save current sheet to History explicitly.
      * Returns false if total amount is 0.
      */
-    fun saveToHistory(name: String = "", remark: String = ""): String? {
+    fun saveToHistory(
+        name: String = "",
+        remark: String = "",
+        onSuccess: (Long, String) -> Unit
+    ) {
         val state = _uiState.value
         if (state.grandTotal <= 0L) {
-            return null
+            return
         }
+        val savedAmountFormatted = state.grandTotalFormatted
         viewModelScope.launch {
             val rows = Denomination.ALL.map { denom ->
                 val qtyStr = state.quantities[denom.value] ?: ""
@@ -166,11 +171,10 @@ class CalculatorViewModel @Inject constructor(
                 updatedAt = System.currentTimeMillis(),
                 remark = remark
             )
-            sheetRepository.saveSheetAndResetCurrent(newSheet)
+            val savedId = sheetRepository.saveSheetAndResetCurrent(newSheet)
+            onSuccess(savedId, savedAmountFormatted)
         }
-        val savedAmountFormatted = state.grandTotalFormatted
         clearAll()
-        return savedAmountFormatted
     }
 
     /**

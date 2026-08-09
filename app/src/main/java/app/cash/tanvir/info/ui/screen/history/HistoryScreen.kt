@@ -272,6 +272,16 @@ private fun HistoryCard(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
 
+            if (!sheet.remark.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                val sanitizedRemark = sheet.remark.replace("\n", " ").replace("\r", " ")
+                Text(
+                    text = if (isBangla) "নোট: $sanitizedRemark" else "Notes: $sanitizedRemark",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             // Action row

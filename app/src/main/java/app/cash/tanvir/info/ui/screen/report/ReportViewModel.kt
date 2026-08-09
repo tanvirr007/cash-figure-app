@@ -41,6 +41,7 @@ class ReportViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val sheetId: Long = savedStateHandle.get<Long>("sheetId") ?: -1L
+    val fromSave: Boolean = savedStateHandle.get<Boolean>("fromSave") ?: false
 
     private val _uiState = MutableStateFlow(ReportUiState())
     val uiState: StateFlow<ReportUiState> = _uiState.asStateFlow()
@@ -115,6 +116,16 @@ class ReportViewModel @Inject constructor(
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(Intent.createChooser(shareIntent, if (isBangla) "ক্যাশ রিপোর্ট শেয়ার করুন" else "Share Cash Report"))
+    }
+
+    fun updateSheetRemark(remark: String) {
+        val currentSheet = _uiState.value.sheet ?: return
+        val sanitizedRemark = remark.replace("\n", " ").replace("\r", " ")
+        val updatedSheet = currentSheet.copy(remark = sanitizedRemark)
+        viewModelScope.launch {
+            sheetRepository.updateSheet(updatedSheet)
+            _uiState.update { it.copy(sheet = updatedSheet) }
+        }
     }
 
     fun clearStatusMessage() {
