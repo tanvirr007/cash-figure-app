@@ -362,7 +362,7 @@ fun SettingsScreen(
                                 )
                                 if (!isHomepageNotesExpanded) {
                                     Text(
-                                        if (isBangla) "হোমপেজে প্রদর্শিত নোটগুলো নিয়ন্ত্রণ করুন" else "Control note denominations displayed on homepage",
+                                        if (isBangla) "হোমপেজের নোটগুলো নিয়ন্ত্রণ করুন" else "Manage homepage notes",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                                     )
@@ -385,7 +385,7 @@ fun SettingsScreen(
                         ) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
-                                if (isBangla) "হোমপেজে প্রদর্শিত নোটগুলো নিয়ন্ত্রণ করুন" else "Control note denominations displayed on homepage",
+                                if (isBangla) "হোমপেজের নোটগুলো নিয়ন্ত্রণ করুন" else "Manage homepage notes",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                             )
@@ -458,7 +458,7 @@ fun SettingsScreen(
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                if (isBangla) "ডাউনলোড ফোল্ডারে একটি JSON ব্যাকআপ ফাইল সেভ করুন" else "Save a JSON backup file to Downloads folder",
+                                if (isBangla) "ব্যাকআপ ফাইল সেভ করুন" else "Save backup file to Downloads",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
@@ -484,7 +484,7 @@ fun SettingsScreen(
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                if (isBangla) "JSON ব্যাকআপ ফাইল থেকে শিট ইমপোর্ট ও রিস্টোর করুন" else "Import and restore sheets from a JSON backup file",
+                                if (isBangla) "ব্যাকআপ ফাইল রিস্টোর করুন" else "Restore from backup file",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
@@ -516,7 +516,7 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.error
                         )
                         Text(
-                            if (isBangla) "সকল ইতিহাস, সেভ করা শিট এবং সেটিংস মুছে ফেলুন" else "Clear all history, saved sheets, and preferences",
+                            if (isBangla) "সব ডাটা ও সেটিংস মুছে ফেলুন" else "Delete all data and settings",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                         )
