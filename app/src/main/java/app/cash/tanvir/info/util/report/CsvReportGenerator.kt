@@ -32,7 +32,11 @@ object CsvReportGenerator {
 
         val content = sb.toString().toByteArray(Charsets.UTF_8)
         // Prepend UTF-8 BOM so spreadsheet apps (Excel, etc.) correctly interpret non-ASCII characters (like Bangla text and the Taka symbol "৳")
-        val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
-        return bom + content
+        return if (isBangla) {
+            val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+            bom + content
+        } else {
+            content
+        }
     }
 }
