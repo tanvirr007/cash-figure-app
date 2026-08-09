@@ -515,7 +515,7 @@ fun SettingsScreen(
                                 )
                                 if (!isMiscExpanded) {
                                     Text(
-                                        if (isBangla) "সিকিউরিটি ও ভাইব্রেশন সেটিংস" else "Security & vibration settings",
+                                        if (isBangla) "অতিরিক্ত ফিচারসমূহ" else "Add-on Features",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                                     )
@@ -574,12 +574,12 @@ fun SettingsScreen(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
                                         Text(
-                                            if (isBangla) "ফিঙ্গারপ্রিন্ট লক" else "Fingerprint Lock",
+                                            if (isBangla) "অ্যাপ লক" else "App Lock",
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.Medium
                                         )
                                         Text(
-                                            if (isBangla) "অ্যাপ ব্যাকগ্রাউন্ডে যাওয়ার ৪০ সেকেন্ড পর সিকিউর অথেন্টিকেশন প্রয়োজন হবে" else "Require secure authentication after app is backgrounded for > 40 seconds",
+                                            if (isBangla) "অ্যাপ লক চালু করুন" else "Enable app lock",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                         )
@@ -631,12 +631,12 @@ fun SettingsScreen(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
                                         Text(
-                                            if (isBangla) "স্ক্রিনশট ও রেকর্ড ব্লক" else "Block Screenshot & Recording",
+                                            if (isBangla) "স্ক্রিন সুরক্ষা" else "Screen Protection",
                                             style = MaterialTheme.typography.bodyMedium,
                                             fontWeight = FontWeight.Medium
                                         )
                                         Text(
-                                            if (isBangla) "অ্যাপের ভেতরে স্ক্রিনশট ও স্ক্রিন রেকর্ডিং নিষ্ক্রিয় করুন" else "Prevent screenshots and screen recording inside the app",
+                                            if (isBangla) "স্ক্রিনশট ও ভিডিও রেকর্ড ব্লক করুন" else "Block screenshots and screen recording",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                         )
@@ -679,7 +679,7 @@ fun SettingsScreen(
                                             fontWeight = FontWeight.Medium
                                         )
                                         Text(
-                                            if (isBangla) "বাটন এবং টগল ইন্টারঅ্যাকশনে কম্পন সক্রিয় করুন" else "Enable tactile vibration on interactions",
+                                            if (isBangla) "বাটন ও টগলে কম্পন সক্রিয় করুন" else "Vibrate on interactions",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                                         )
