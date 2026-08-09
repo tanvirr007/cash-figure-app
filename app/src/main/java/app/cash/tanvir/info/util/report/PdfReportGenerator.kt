@@ -90,7 +90,7 @@ object PdfReportGenerator {
         canvas.drawLine(margin, y, rightMargin, y, paint)
         
         // Table Title
-        y += 25f
+        y += 45f
         paint.textSize = 14f
         paint.isFakeBoldText = true
         paint.color = Color.parseColor("#00695C") // Deep Teal
