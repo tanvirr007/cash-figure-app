@@ -64,13 +64,15 @@ fun ReportScreen(
 
     val sheet = uiState.sheet
 
+    val isBangla = uiState.isBangla
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Export & Print Report") },
+                title = { Text(if (isBangla) "রিপোর্ট এক্সপোর্ট ও প্রিন্ট" else "Export & Print Report") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = if (isBangla) "ফিরে যান" else "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -87,7 +89,7 @@ fun ReportScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text("No sheet loaded for reporting")
+                Text(if (isBangla) "রিপোর্টের জন্য কোনো শিট লোড করা হয়নি" else "No sheet loaded for reporting")
             }
         } else {
             Column(
@@ -108,20 +110,24 @@ fun ReportScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = sheet.name.ifEmpty { "Cash Calculation Report" },
+                            text = sheet.name.ifEmpty { if (isBangla) "ক্যাশ হিসাবের রিপোর্ট" else "Cash Calculation Report" },
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Grand Total: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = uiState.isBangla)}",
+                            text = if (isBangla) {
+                                "সর্বমোট: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = true)}"
+                            } else {
+                                "Grand Total: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = false)}"
+                            },
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
                         )
-                        val words = if (uiState.isBangla) NumberToWordsConverter.toBangla(sheet.grandTotal) else NumberToWordsConverter.toEnglish(sheet.grandTotal)
+                        val words = if (isBangla) NumberToWordsConverter.toBangla(sheet.grandTotal) else NumberToWordsConverter.toEnglish(sheet.grandTotal)
                         Text(
-                            text = "Words: $words",
+                            text = if (isBangla) "কথায়: $words" else "Words: $words",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                         )
@@ -130,7 +136,7 @@ fun ReportScreen(
                         Spacer(modifier = Modifier.height(12.dp))
 
                         Text(
-                            text = "Breakdown:",
+                            text = if (isBangla) "বিস্তারিত হিসাব:" else "Breakdown:",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -140,15 +146,16 @@ fun ReportScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                val label = if (uiState.isBangla) row.denomination.labelBn else row.denomination.label
-                                Text("$label × ${row.quantity}", style = MaterialTheme.typography.bodyMedium)
-                                Text(CurrencyFormatter.format(row.total, useBengaliDigits = uiState.isBangla), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                val label = if (isBangla) row.denomination.labelBn else row.denomination.label
+                                val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
+                                Text("$label × $qtyStr", style = MaterialTheme.typography.bodyMedium)
+                                Text(CurrencyFormatter.format(row.total, useBengaliDigits = isBangla), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
                 }
 
-                Text("Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                Text(if (isBangla) "এক্সপোর্ট অপশন" else "Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -194,7 +201,7 @@ fun ReportScreen(
                     ) {
                         Icon(Icons.Default.Print, contentDescription = null)
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                        Text("Print")
+                        Text(if (isBangla) "প্রিন্ট" else "Print")
                     }
                     OutlinedButton(
                         onClick = { viewModel.shareReport(context) },
@@ -203,7 +210,7 @@ fun ReportScreen(
                     ) {
                         Icon(Icons.Default.Share, contentDescription = null)
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                        Text("Share")
+                        Text(if (isBangla) "শেয়ার" else "Share")
                     }
                 }
             }

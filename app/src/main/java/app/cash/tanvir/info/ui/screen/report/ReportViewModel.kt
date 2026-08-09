@@ -81,9 +81,9 @@ class ReportViewModel @Inject constructor(
         val savedUri = StorageUtil.saveReportFile(context, fileName, mime, data, subFolder = ext)
 
         val message = if (savedUri != null) {
-            "Exported to Downloads/CashFigure/$ext/$fileName"
+            if (isBangla) "ডাউনলোড/CashFigure/$ext/$fileName এ এক্সপোর্ট করা হয়েছে" else "Exported to Downloads/CashFigure/$ext/$fileName"
         } else {
-            "Failed to export report"
+            if (isBangla) "রিপোর্ট এক্সপোর্ট করতে ব্যর্থ হয়েছে" else "Failed to export report"
         }
         _uiState.update { it.copy(exportStatusMessage = message) }
     }
@@ -95,7 +95,8 @@ class ReportViewModel @Inject constructor(
 
     fun shareReport(context: Context) {
         val currentSheet = uiState.value.sheet ?: return
-        val pdfData = PdfReportGenerator.generatePdf(context, currentSheet, uiState.value.isBangla)
+        val isBangla = uiState.value.isBangla
+        val pdfData = PdfReportGenerator.generatePdf(context, currentSheet, isBangla)
 
         val cacheDir = File(context.cacheDir, "reports")
         if (!cacheDir.exists()) cacheDir.mkdirs()
@@ -113,7 +114,7 @@ class ReportViewModel @Inject constructor(
             putExtra(Intent.EXTRA_STREAM, contentUri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(shareIntent, "Share Cash Report"))
+        context.startActivity(Intent.createChooser(shareIntent, if (isBangla) "ক্যাশ রিপোর্ট শেয়ার করুন" else "Share Cash Report"))
     }
 
     fun clearStatusMessage() {

@@ -42,6 +42,7 @@ fun DenominationRowItem(
     isLastRow: Boolean,
     onQuantityChange: (String) -> Unit,
     onClear: () -> Unit,
+    isBangla: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
@@ -80,7 +81,7 @@ fun DenominationRowItem(
             ),
             placeholder = {
                 Text(
-                    text = "0",
+                    text = if (isBangla) "০" else "0",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
@@ -105,7 +106,7 @@ fun DenominationRowItem(
 
         // Row total
         Text(
-            text = CurrencyFormatter.format(rowTotal),
+            text = CurrencyFormatter.format(rowTotal, useBengaliDigits = isBangla),
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = if (rowTotal > 0) FontWeight.SemiBold else FontWeight.Normal,
             color = if (rowTotal > 0)
@@ -125,7 +126,7 @@ fun DenominationRowItem(
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
-                contentDescription = "Clear",
+                contentDescription = if (isBangla) "মুছে ফেলুন" else "Clear",
                 modifier = Modifier.size(18.dp),
                 tint = if (quantityText.isNotEmpty())
                     MaterialTheme.colorScheme.error.copy(alpha = 0.7f)

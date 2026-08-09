@@ -20,17 +20,27 @@ data class HistoryUiState(
     val searchQuery: String = "",
     val lastDeletedSheetId: Long? = null,
     val showRenameDialogForSheet: Sheet? = null,
-    val showDeleteConfirmationForSheet: Sheet? = null
+    val showDeleteConfirmationForSheet: Sheet? = null,
+    val currentLanguage: app.cash.tanvir.info.data.local.preferences.AppLanguage = app.cash.tanvir.info.data.local.preferences.AppLanguage.ENGLISH
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val sheetRepository: SheetRepository
+    private val sheetRepository: SheetRepository,
+    private val settingsRepository: app.cash.tanvir.info.domain.repository.SettingsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryUiState())
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            settingsRepository.getLanguage().collect { lang ->
+                _uiState.update { it.copy(currentLanguage = lang) }
+            }
+        }
+    }
 
     // Observe sheets list reactively based on search query
     val sheets: StateFlow<List<Sheet>> = _uiState

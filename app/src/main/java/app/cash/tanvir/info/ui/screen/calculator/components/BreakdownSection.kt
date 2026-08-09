@@ -41,6 +41,7 @@ fun BreakdownSection(
     rows: List<DenominationRow>,
     isExpanded: Boolean,
     onToggle: () -> Unit,
+    isBangla: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val activeRows = rows.filter { it.quantity > 0 }
@@ -65,14 +66,14 @@ fun BreakdownSection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Cash Breakdown",
+                    text = if (isBangla) "ক্যাশ ব্রেকডাউন" else "Cash Breakdown",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.weight(1f),
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "${activeRows.size} items",
+                    text = if (isBangla) "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(activeRows.size)} টি এন্ট্রি" else "${activeRows.size} items",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                     modifier = Modifier.padding(end = 8.dp)
@@ -82,7 +83,11 @@ fun BreakdownSection(
                         Icons.Default.KeyboardArrowUp
                     else
                         Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (isExpanded) "Collapse" else "Expand",
+                    contentDescription = if (isExpanded) {
+                        if (isBangla) "সংকুচিত করুন" else "Collapse"
+                    } else {
+                        if (isBangla) "সম্প্রসারিত করুন" else "Expand"
+                    },
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -107,7 +112,7 @@ fun BreakdownSection(
                                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.1f)
                             )
                         }
-                        BreakdownItem(row)
+                        BreakdownItem(row, isBangla = isBangla)
                     }
 
                     // Grand Total
@@ -124,14 +129,14 @@ fun BreakdownSection(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Grand Total",
+                            text = if (isBangla) "সর্বমোট" else "Grand Total",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.weight(1f)
                         )
                         Text(
-                            text = "= ${CurrencyFormatter.format(grandTotal)}",
+                            text = "= ${CurrencyFormatter.format(grandTotal, useBengaliDigits = isBangla)}",
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.primary
@@ -144,7 +149,10 @@ fun BreakdownSection(
 }
 
 @Composable
-private fun BreakdownItem(row: DenominationRow) {
+private fun BreakdownItem(row: DenominationRow, isBangla: Boolean = false) {
+    val denomLabel = if (isBangla) row.denomination.labelBn else row.denomination.label
+    val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -152,13 +160,13 @@ private fun BreakdownItem(row: DenominationRow) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "${row.denomination.label} × ${row.quantity}",
+            text = "$denomLabel × $qtyStr",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = "= ${CurrencyFormatter.format(row.total)}",
+            text = "= ${CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)}",
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurfaceVariant

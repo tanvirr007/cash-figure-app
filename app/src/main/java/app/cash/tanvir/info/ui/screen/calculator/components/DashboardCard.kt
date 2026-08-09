@@ -28,6 +28,7 @@ fun DashboardCard(
     amountInWords: String,
     totalPieces: Long,
     activeDenominations: Int,
+    isBangla: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -74,12 +75,12 @@ fun DashboardCard(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 StatItem(
-                    value = totalPieces.toString(),
-                    label = "pieces"
+                    value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(totalPieces) else totalPieces.toString(),
+                    label = if (isBangla) "টি নোট" else "pieces"
                 )
                 StatItem(
-                    value = activeDenominations.toString(),
-                    label = "denominations"
+                    value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(activeDenominations) else activeDenominations.toString(),
+                    label = if (isBangla) "টি নোটের ধরণ" else "denominations"
                 )
             }
         }

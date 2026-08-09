@@ -97,17 +97,17 @@ fun CalculatorScreen(
                 actions = {
                     // History icon button
                     IconButton(onClick = onNavigateToHistory) {
-                        Icon(Icons.Default.History, contentDescription = "History")
+                        Icon(Icons.Default.History, contentDescription = if (isBangla) "ইতিহাস" else "History")
                     }
                     // Settings icon button
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                        Icon(Icons.Default.Settings, contentDescription = if (isBangla) "সেটিংস" else "Settings")
                     }
                     // Clear all button with confirmation
                     IconButton(onClick = { showClearAllConfirmation = true }) {
                         Icon(
                             imageVector = Icons.Default.DeleteSweep,
-                            contentDescription = "Clear All",
+                            contentDescription = if (isBangla) "সব মুছুন" else "Clear All",
                             tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                         )
                     }
@@ -135,6 +135,7 @@ fun CalculatorScreen(
                     amountInWords = words,
                     totalPieces = uiState.totalPieces,
                     activeDenominations = uiState.activeDenominations,
+                    isBangla = isBangla,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))
@@ -153,7 +154,8 @@ fun CalculatorScreen(
                     rowTotal = row.total,
                     isLastRow = index == uiState.rows.lastIndex,
                     onQuantityChange = { viewModel.updateQuantity(row.denomination.value, it) },
-                    onClear = { pendingClearDenomination = row.denomination.value }
+                    onClear = { pendingClearDenomination = row.denomination.value },
+                    isBangla = isBangla
                 )
             }
 
@@ -196,6 +198,7 @@ fun CalculatorScreen(
                     rows = uiState.rows,
                     isExpanded = uiState.isBreakdownExpanded,
                     onToggle = { viewModel.toggleBreakdown() },
+                    isBangla = isBangla,
                     modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }

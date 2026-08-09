@@ -76,13 +76,15 @@ fun SettingsScreen(
         }
     }
 
+    val isBangla = uiState.language == AppLanguage.BANGLA
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = { Text(if (isBangla) "সেটিংস" else "Settings") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = if (isBangla) "ফিরে যান" else "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -109,7 +111,11 @@ fun SettingsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                        Text("App Theme", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(
+                            if (isBangla) "অ্যাপ থিম" else "App Theme",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     AppTheme.entries.forEach { theme ->
@@ -126,9 +132,9 @@ fun SettingsScreen(
                             )
                             Text(
                                 text = when (theme) {
-                                    AppTheme.SYSTEM -> "Follow System"
-                                    AppTheme.LIGHT -> "Light Theme"
-                                    AppTheme.DARK -> "Dark Theme"
+                                    AppTheme.SYSTEM -> if (isBangla) "সিস্টেম অনুকরণ" else "Follow System"
+                                    AppTheme.LIGHT -> if (isBangla) "লাইট থিম" else "Light Theme"
+                                    AppTheme.DARK -> if (isBangla) "ডার্ক থিম" else "Dark Theme"
                                 },
                                 style = MaterialTheme.typography.bodyMedium
                             )
@@ -147,7 +153,11 @@ fun SettingsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Language, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                        Text("Language", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(
+                            if (isBangla) "ভাষা" else "Language",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
@@ -161,7 +171,7 @@ fun SettingsScreen(
                             selected = uiState.language == AppLanguage.ENGLISH,
                             onClick = { viewModel.setLanguage(AppLanguage.ENGLISH) }
                         )
-                        Text("English", style = MaterialTheme.typography.bodyMedium)
+                        Text(if (isBangla) "ইংরেজি" else "English", style = MaterialTheme.typography.bodyMedium)
                     }
                     Row(
                         modifier = Modifier
@@ -174,7 +184,7 @@ fun SettingsScreen(
                             selected = uiState.language == AppLanguage.BANGLA,
                             onClick = { viewModel.setLanguage(AppLanguage.BANGLA) }
                         )
-                        Text("বাংলা", style = MaterialTheme.typography.bodyMedium)
+                        Text(if (isBangla) "বাংলা" else "Bangla", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
@@ -190,14 +200,14 @@ fun SettingsScreen(
                         Icon(Icons.Default.Payments, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                         Text(
-                            if (uiState.language == AppLanguage.BANGLA) "হোমপেজ নোটসমূহ" else "Homepage Notes",
+                            if (isBangla) "হোমপেজ নোটসমূহ" else "Homepage Notes",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        if (uiState.language == AppLanguage.BANGLA) "হোমপেজে প্রদর্শিত নোটগুলো নিয়ন্ত্রণ করুন" else "Control note denominations displayed on homepage",
+                        if (isBangla) "হোমপেজে প্রদর্শিত নোটগুলো নিয়ন্ত্রণ করুন" else "Control note denominations displayed on homepage",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
@@ -223,7 +233,7 @@ fun SettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = if (uiState.language == AppLanguage.BANGLA) labelBn else labelEn,
+                                text = if (isBangla) labelBn else labelEn,
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium
                             )
@@ -243,7 +253,11 @@ fun SettingsScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Data Backup & Restore", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(
+                        if (isBangla) "ডাটা ব্যাকআপ ও রিস্টোর" else "Data Backup & Restore",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Row(
@@ -256,8 +270,16 @@ fun SettingsScreen(
                         Icon(Icons.Default.Backup, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                         Column {
-                            Text("Backup Data (JSON)", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                            Text("Save a JSON backup file to Downloads folder", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                            Text(
+                                if (isBangla) "ডাটা ব্যাকআপ নিন (JSON)" else "Backup Data (JSON)",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                if (isBangla) "ডাউনলোড ফোল্ডারে একটি JSON ব্যাকআপ ফাইল সেভ করুন" else "Save a JSON backup file to Downloads folder",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
                         }
                     }
 
@@ -273,8 +295,16 @@ fun SettingsScreen(
                         Icon(Icons.Default.Restore, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                         Column {
-                            Text("Restore Data", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                            Text("Import and restore sheets from a JSON backup file", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                            Text(
+                                if (isBangla) "ডাটা রিস্টোর করুন" else "Restore Data",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                if (isBangla) "JSON ব্যাকআপ ফাইল থেকে শিট ইমপোর্ট ও রিস্টোর করুন" else "Import and restore sheets from a JSON backup file",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
                         }
                     }
                 }
@@ -297,8 +327,17 @@ fun SettingsScreen(
                         Icon(Icons.Default.DeleteForever, contentDescription = null, tint = MaterialTheme.colorScheme.error)
                         Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                         Column {
-                            Text("Reset All Data", style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
-                            Text("Clear all history, saved sheets, and preferences", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
+                            Text(
+                                if (isBangla) "সকল ডাটা রিসেট করুন" else "Reset All Data",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            Text(
+                                if (isBangla) "সকল ইতিহাস, সেভ করা শিট এবং সেটিংস মুছে ফেলুন" else "Clear all history, saved sheets, and preferences",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                            )
                         }
                     }
                 }
@@ -314,10 +353,17 @@ fun SettingsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                        Text("About Cash Figure", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(
+                            if (isBangla) "ক্যাশ ফিগার সম্পর্কে" else "About Cash Figure",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                     Spacer(modifier = Modifier.height(6.dp))
-                    Text("Version 0.1.0 (Build 1)", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        if (isBangla) "ভার্সন ০.১.০ (বিল্ড ১)" else "Version 0.1.0 (Build 1)",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }
@@ -327,18 +373,27 @@ fun SettingsScreen(
     if (uiState.showResetConfirmationDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.dismissResetDialog() },
-            title = { Text("Reset All Data?") },
-            text = { Text("This will permanently delete all saved calculations, history, and user settings. This action cannot be undone.") },
+            title = { Text(if (isBangla) "সকল ডাটা রিসেট করবেন?" else "Reset All Data?") },
+            text = {
+                Text(
+                    if (isBangla) "এটি সেভ করা সকল হিসাব, ইতিহাস এবং সেটিংস স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।"
+                    else "This will permanently delete all saved calculations, history, and user settings. This action cannot be undone."
+                )
+            },
             confirmButton = {
                 TextButton(
                     onClick = { viewModel.confirmResetAllData() }
                 ) {
-                    Text("Reset Everything", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                    Text(
+                        if (isBangla) "সবকিছু রিসেট করুন" else "Reset Everything",
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissResetDialog() }) {
-                    Text("Cancel")
+                    Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
         )

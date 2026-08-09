@@ -62,7 +62,9 @@ class CalculatorViewModel @Inject constructor(
         // Observe language settings
         viewModelScope.launch {
             settingsRepository.getLanguage().collect { lang ->
-                _uiState.update { it.copy(currentLanguage = lang) }
+                _uiState.update { state ->
+                    recalculate(state.copy(currentLanguage = lang))
+                }
             }
         }
 

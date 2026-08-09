@@ -66,13 +66,14 @@ fun HistoryScreen(
     val uiState by viewModel.uiState.collectAsState()
     val sheets by viewModel.sheets.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val isBangla = uiState.currentLanguage == app.cash.tanvir.info.data.local.preferences.AppLanguage.BANGLA
 
     // Show undo snackbar when item is deleted
     LaunchedEffect(uiState.lastDeletedSheetId) {
         if (uiState.lastDeletedSheetId != null) {
             val result = snackbarHostState.showSnackbar(
-                message = "Sheet deleted",
-                actionLabel = "Undo",
+                message = if (isBangla) "শিটটি মুছে ফেলা হয়েছে" else "Sheet deleted",
+                actionLabel = if (isBangla) "পূর্বাবস্থায় আনুন" else "Undo",
                 duration = SnackbarDuration.Short
             )
             if (result == SnackbarResult.ActionPerformed) {
@@ -84,10 +85,10 @@ fun HistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Calculation History") },
+                title = { Text(if (isBangla) "হিসাবের ইতিহাস" else "Calculation History") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.Default.ArrowBack, contentDescription = if (isBangla) "ফিরে যান" else "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -109,8 +110,8 @@ fun HistoryScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
-                placeholder = { Text("Search by name or amount...") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                placeholder = { Text(if (isBangla) "নাম বা পরিমাণ দিয়ে খুঁজুন..." else "Search by name or amount...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = if (isBangla) "খুঁজুন" else "Search") },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp)
             )
@@ -129,7 +130,11 @@ fun HistoryScreen(
                             tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                         )
                         Text(
-                            text = if (uiState.searchQuery.isEmpty()) "No saved calculations yet" else "No matching calculations found",
+                            text = if (uiState.searchQuery.isEmpty()) {
+                                if (isBangla) "এখনো কোনো সেভ করা হিসাব নেই" else "No saved calculations yet"
+                            } else {
+                                if (isBangla) "কোনো মিল থাকা হিসাব পাওয়া যায়নি" else "No matching calculations found"
+                            },
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                         )
@@ -144,6 +149,7 @@ fun HistoryScreen(
                     items(sheets, key = { it.id }) { sheet ->
                         HistoryCard(
                             sheet = sheet,
+                            isBangla = isBangla,
                             onClick = { onSelectSheet(sheet) },
                             onRename = { viewModel.openRenameDialog(sheet) },
                             onDelete = { viewModel.openDeleteConfirmation(sheet) }
@@ -161,13 +167,13 @@ fun HistoryScreen(
 
         AlertDialog(
             onDismissRequest = { viewModel.dismissRenameDialog() },
-            title = { Text("Rename Sheet") },
+            title = { Text(if (isBangla) "শিটের নাম পরিবর্তন" else "Rename Sheet") },
             text = {
                 OutlinedTextField(
                     value = renameText,
                     onValueChange = { renameText = it },
                     singleLine = true,
-                    label = { Text("Sheet Name") }
+                    label = { Text(if (isBangla) "শিটের নাম" else "Sheet Name") }
                 )
             },
             confirmButton = {
@@ -178,12 +184,12 @@ fun HistoryScreen(
                         }
                     }
                 ) {
-                    Text("Save")
+                    Text(if (isBangla) "সেভ করুন" else "Save")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissRenameDialog() }) {
-                    Text("Cancel")
+                    Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
         )
@@ -192,37 +198,62 @@ fun HistoryScreen(
     // Delete Confirmation Dialog
     if (uiState.showDeleteConfirmationForSheet != null) {
         val targetSheet = uiState.showDeleteConfirmationForSheet!!
-        val sheetName = targetSheet.name.ifEmpty { "Saved Sheet" }
+        val sheetName = targetSheet.name.ifEmpty { if (isBangla) "সেভ করা হিসাব" else "Saved Sheet" }
 
         AlertDialog(
             onDismissRequest = { viewModel.dismissDeleteConfirmation() },
-            title = { Text("Delete Calculation?") },
-            text = { Text("Are you sure you want to delete \"$sheetName\"?") },
+            title = { Text(if (isBangla) "হিসাবটি মুছে ফেলবেন?" else "Delete Calculation?") },
+            text = { Text(if (isBangla) "আপনি কি সত্যিই \"$sheetName\" মুছে ফেলতে চান?" else "Are you sure you want to delete \"$sheetName\"?") },
             confirmButton = {
                 TextButton(
                     onClick = { viewModel.confirmDeleteSheet() }
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                    Text(if (isBangla) "মুছে ফেলুন" else "Delete", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissDeleteConfirmation() }) {
-                    Text("Cancel")
+                    Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
         )
     }
 }
 
+private fun formatHistoryDate(timestamp: Long, isBangla: Boolean): String {
+    val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.ENGLISH)
+    val str = dateFormat.format(Date(timestamp))
+    if (!isBangla) return str
+
+    var bnStr = app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(str)
+    bnStr = bnStr.replace("Jan", "জানুয়ারি")
+        .replace("Feb", "ফেব্রুয়ারি")
+        .replace("Mar", "মার্চ")
+        .replace("Apr", "এপ্রিল")
+        .replace("May", "মে")
+        .replace("Jun", "জুন")
+        .replace("Jul", "জুলাই")
+        .replace("Aug", "আগস্ট")
+        .replace("Sep", "সেপ্টেম্বর")
+        .replace("Oct", "অক্টোবর")
+        .replace("Nov", "নভেম্বর")
+        .replace("Dec", "ডিসেম্বর")
+        .replace("AM", "এএম")
+        .replace("PM", "পিএম")
+        .replace("am", "এএম")
+        .replace("pm", "পিএম")
+    return bnStr
+}
+
 @Composable
 private fun HistoryCard(
     sheet: Sheet,
+    isBangla: Boolean,
     onClick: () -> Unit,
     onRename: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val dateFormat = remember { SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault()) }
-    val formattedDate = dateFormat.format(Date(sheet.updatedAt))
+    val formattedDate = formatHistoryDate(sheet.updatedAt, isBangla)
 
     Card(
         modifier = Modifier
@@ -240,13 +271,13 @@ private fun HistoryCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = sheet.name.ifEmpty { "Saved Sheet" },
+                    text = sheet.name.ifEmpty { if (isBangla) "সেভ করা হিসাব" else "Saved Sheet" },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = CurrencyFormatter.format(sheet.grandTotal),
+                    text = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
@@ -256,7 +287,11 @@ private fun HistoryCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "$formattedDate · ${sheet.totalPieces} pieces · ${sheet.activeDenominations} denom.",
+                text = if (isBangla) {
+                    "$formattedDate · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)} টি নোট · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)} টি নোটের ধরণ"
+                } else {
+                    "$formattedDate · ${sheet.totalPieces} pieces · ${sheet.activeDenominations} denom."
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
@@ -269,10 +304,10 @@ private fun HistoryCard(
                 horizontalArrangement = Arrangement.End
             ) {
                 IconButton(onClick = onRename) {
-                    Icon(Icons.Default.Edit, contentDescription = "Rename", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Icons.Default.Edit, contentDescription = if (isBangla) "নাম পরিবর্তন" else "Rename", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
+                    Icon(Icons.Default.Delete, contentDescription = if (isBangla) "মুছে ফেলুন" else "Delete", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
                 }
             }
         }

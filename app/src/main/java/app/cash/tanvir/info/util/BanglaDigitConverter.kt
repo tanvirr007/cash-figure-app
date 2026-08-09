@@ -28,6 +28,9 @@ object BanglaDigitConverter {
         return sb.toString()
     }
 
+    fun toBangla(number: Number): String = toBengali(number.toString())
+    fun toBangla(text: String): String = toBengali(text)
+
     /**
      * Convert all Bengali digits in a string to Western digits.
      *
