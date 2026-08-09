@@ -12,5 +12,6 @@ data class Sheet(
     val totalPieces: Long = rows.sumOf { it.quantity },
     val activeDenominations: Int = rows.count { it.quantity > 0 },
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val remark: String = ""
 )

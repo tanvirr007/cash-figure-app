@@ -118,6 +118,23 @@ object PdfReportGenerator {
 
         y += 15f
         canvas.drawLine(40f, y, 555f, y, paint)
+        y += 20f
+
+        // Notes section
+        paint.textSize = 12f
+        paint.isFakeBoldText = true
+        paint.color = Color.BLACK
+        canvas.drawText(if (isBangla) "নোট:" else "Notes:", 40f, y, paint)
+        y += 18f
+        paint.isFakeBoldText = false
+        val notesText = if (sheet.remark.isNotBlank()) sheet.remark else "N/A"
+        val notesTextLines = wrapText(notesText, paint, 515f)
+        notesTextLines.forEach { line ->
+            canvas.drawText(line, 40f, y, paint)
+            y += 16f
+        }
+        y += 10f
+        canvas.drawLine(40f, y, 555f, y, paint)
         y += 30f
 
         // Footer
@@ -131,6 +148,30 @@ object PdfReportGenerator {
         pdfDocument.writeTo(stream)
         pdfDocument.close()
         return stream.toByteArray()
+    }
+
+    private fun wrapText(text: String, paint: Paint, maxWidth: Float): List<String> {
+        val lines = mutableListOf<String>()
+        val paragraphs = text.split("\n")
+        for (paragraph in paragraphs) {
+            val words = paragraph.split(" ")
+            var currentLine = ""
+            for (word in words) {
+                val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+                if (paint.measureText(testLine) <= maxWidth) {
+                    currentLine = testLine
+                } else {
+                    if (currentLine.isNotEmpty()) {
+                        lines.add(currentLine)
+                    }
+                    currentLine = word
+                }
+            }
+            if (currentLine.isNotEmpty()) {
+                lines.add(currentLine)
+            }
+        }
+        return lines
     }
 
     private fun formatPdfDate(timestamp: Long, isBangla: Boolean): String {

@@ -141,7 +141,7 @@ class CalculatorViewModel @Inject constructor(
      * Save current sheet to History explicitly.
      * Returns false if total amount is 0.
      */
-    fun saveToHistory(name: String = ""): String? {
+    fun saveToHistory(name: String = "", remark: String = ""): String? {
         val state = _uiState.value
         if (state.grandTotal <= 0L) {
             return null
@@ -163,7 +163,8 @@ class CalculatorViewModel @Inject constructor(
                 totalPieces = state.totalPieces,
                 activeDenominations = state.activeDenominations,
                 createdAt = System.currentTimeMillis(),
-                updatedAt = System.currentTimeMillis()
+                updatedAt = System.currentTimeMillis(),
+                remark = remark
             )
             sheetRepository.saveSheetAndResetCurrent(newSheet)
         }

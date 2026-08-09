@@ -20,5 +20,6 @@ data class SheetEntity(
     val isFavorite: Boolean = false,
     val isPinned: Boolean = false,
     val isDeleted: Boolean = false,
-    val quantitiesJson: String = "{}" // JSON map of denominationValue -> quantity
+    val quantitiesJson: String = "{}", // JSON map of denominationValue -> quantity
+    val remark: String = ""
 )

@@ -10,7 +10,7 @@ import app.cash.tanvir.info.data.local.db.entity.SheetEntity
  */
 @Database(
     entities = [SheetEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class CashFigureDatabase : RoomDatabase() {

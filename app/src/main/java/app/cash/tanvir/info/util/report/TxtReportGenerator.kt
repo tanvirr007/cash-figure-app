@@ -21,6 +21,8 @@ object TxtReportGenerator {
         sb.append(if (isBangla) "কথায়: $words\n" else "In Words: $words\n")
         sb.append(if (isBangla) "মোট নোট: $totalPiecesStr\n" else "Total Pieces: $totalPiecesStr\n")
         sb.append(if (isBangla) "নোটের ধরণ: $activeDenomStr\n" else "Active Denominations: $activeDenomStr\n")
+        val notesText = if (sheet.remark.isNotBlank()) sheet.remark else "N/A"
+        sb.append(if (isBangla) "নোট: $notesText\n" else "Notes: $notesText\n")
         sb.append("-----------------------------------------\n")
         sb.append(if (isBangla) "নোটের বিস্তারিত হিসাব:\n" else "CASH BREAKDOWN:\n")
 

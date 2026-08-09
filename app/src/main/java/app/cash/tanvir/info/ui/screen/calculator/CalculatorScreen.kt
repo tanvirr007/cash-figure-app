@@ -60,6 +60,8 @@ fun CalculatorScreen(
     val isBangla = uiState.currentLanguage == AppLanguage.BANGLA
     val isIdle = uiState.quantities.values.all { it.isEmpty() }
     var showClearAllConfirmation by remember { mutableStateOf(false) }
+    var showAddNotesDialog by remember { mutableStateOf(false) }
+    var notesInputText by remember { mutableStateOf("") }
     // Denomination value pending single-row clear confirmation (null = no dialog)
     var pendingClearDenomination by remember { mutableStateOf<Int?>(null) }
 
@@ -188,18 +190,14 @@ fun CalculatorScreen(
                             if (now - lastSaveClick < 500) return@Button
                             lastSaveClick = now
 
-                            val savedAmount = viewModel.saveToHistory()
-                            val msg = if (savedAmount != null) {
-                                if (isBangla) {
-                                    "লেনদেন সেভ হয়েছে: $savedAmount"
-                                } else {
-                                    "Transaction saved: $savedAmount"
-                                }
+                            if (uiState.grandTotal <= 0L) {
+                                val msg = if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
+                                activeToast?.cancel()
+                                activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                             } else {
-                                if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
+                                notesInputText = ""
+                                showAddNotesDialog = true
                             }
-                            activeToast?.cancel()
-                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -286,6 +284,159 @@ fun CalculatorScreen(
             dismissButton = {
                 TextButton(onClick = { pendingClearDenomination = null }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            }
+        )
+    }
+
+    // Add Notes Dialog on Save
+    if (showAddNotesDialog) {
+        val activeRows = uiState.rows.filter { it.quantity > 0 }
+        AlertDialog(
+            onDismissRequest = { showAddNotesDialog = false },
+            title = {
+                Text(
+                    text = if (isBangla) "নোট যোগ করুন" else "Add Notes",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = if (isBangla) "ক্যাশ ব্রেকডাউন:" else "Cash Breakdown:",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            activeRows.forEach { row ->
+                                val denomLabel = if (isBangla) row.denomination.labelBn else row.denomination.label
+                                val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
+                                val rowTotalFormatted = app.cash.tanvir.info.util.CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text("$denomLabel × $qtyStr", style = MaterialTheme.typography.bodyMedium)
+                                    Text(rowTotalFormatted, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
+                                }
+                            }
+                            androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = if (isBangla) "সর্বমোট" else "Grand Total",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = uiState.grandTotalFormatted,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+                    
+                    val isLimitReached = notesInputText.length == 30
+                    OutlinedTextField(
+                        value = notesInputText,
+                        onValueChange = { if (it.length <= 30) notesInputText = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(if (isBangla) "নোট" else "Notes") },
+                        placeholder = { Text(if (isBangla) "এখানে নোট লিখুন..." else "Write notes here...") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        supportingText = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                val remaining = 30 - notesInputText.length
+                                val counterText = if (isBangla) {
+                                    "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(remaining)} অবশিষ্ট"
+                                } else {
+                                    "$remaining remaining"
+                                }
+                                Text(
+                                    text = counterText,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (isLimitReached) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    )
+                }
+            },
+            dismissButton = {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(
+                        onClick = { showAddNotesDialog = false }
+                    ) {
+                        Text(
+                            text = if (isBangla) "সম্পাদনা" else "Edit",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                    
+                    TextButton(
+                        onClick = {
+                            val savedAmount = viewModel.saveToHistory(remark = "")
+                            val msg = if (savedAmount != null) {
+                                if (isBangla) "লেনদেন সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
+                            } else {
+                                if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
+                            }
+                            activeToast?.cancel()
+                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+                            showAddNotesDialog = false
+                        }
+                    ) {
+                        Text(
+                            text = if (isBangla) "এড়িয়ে যান" else "Skip",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        val savedAmount = viewModel.saveToHistory(remark = notesInputText.trim())
+                        val msg = if (savedAmount != null) {
+                            if (isBangla) "লেনদেন সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
+                        } else {
+                            if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
+                        }
+                        activeToast?.cancel()
+                        activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+                        showAddNotesDialog = false
+                    }
+                ) {
+                    Text(if (isBangla) "সেভ করুন" else "Save")
                 }
             }
         )

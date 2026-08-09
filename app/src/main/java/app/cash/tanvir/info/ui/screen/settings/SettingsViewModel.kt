@@ -149,6 +149,7 @@ class SettingsViewModel @Inject constructor(
                         quantitiesObj.put(row.denomination.value.toString(), row.quantity.toString())
                     }
                     sheetObj.put("quantities", quantitiesObj)
+                    sheetObj.put("remark", sheet.remark)
                     sheetsArray.put(sheetObj)
                 }
 
@@ -227,6 +228,7 @@ class SettingsViewModel @Inject constructor(
                         )
                     }
 
+                    val remark = sheetObj.optString("remark", "")
                     val sheet = Sheet(
                         id = id,
                         name = name,
@@ -235,7 +237,8 @@ class SettingsViewModel @Inject constructor(
                         totalPieces = totalPieces,
                         activeDenominations = activeDenom,
                         createdAt = createdAt,
-                        updatedAt = updatedAt
+                        updatedAt = updatedAt,
+                        remark = remark
                     )
                     restoredSheets.add(sheet)
                 }

@@ -169,7 +169,8 @@ class SheetRepositoryImpl @Inject constructor(
             totalPieces = this.totalPieces,
             activeDenominations = this.activeDenominations,
             createdAt = this.createdAt,
-            updatedAt = this.updatedAt
+            updatedAt = this.updatedAt,
+            remark = this.remark
         )
     }
 
@@ -187,7 +188,8 @@ class SheetRepositoryImpl @Inject constructor(
             activeDenominations = this.activeDenominations,
             createdAt = if (this.createdAt > 0) this.createdAt else System.currentTimeMillis(),
             updatedAt = if (this.updatedAt > 0) this.updatedAt else System.currentTimeMillis(),
-            quantitiesJson = jsonObj.toString()
+            quantitiesJson = jsonObj.toString(),
+            remark = this.remark
         )
     }
 }
