@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -145,11 +146,19 @@ fun SettingsScreen(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column {
+                    val headerShape = RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp,
+                        bottomStart = if (isThemeExpanded) 0.dp else 16.dp,
+                        bottomEnd = if (isThemeExpanded) 0.dp else 16.dp
+                    )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { isThemeExpanded = !isThemeExpanded },
+                            .clip(headerShape)
+                            .clickable { isThemeExpanded = !isThemeExpanded }
+                            .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -190,14 +199,17 @@ fun SettingsScreen(
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
-                        Column {
+                        Column(
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                        ) {
                             Spacer(modifier = Modifier.height(8.dp))
                             AppTheme.entries.forEach { theme ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .clip(RoundedCornerShape(8.dp))
                                         .clickable { viewModel.setTheme(theme) }
-                                        .padding(vertical = 4.dp),
+                                        .padding(vertical = 8.dp, horizontal = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     RadioButton(
@@ -225,11 +237,19 @@ fun SettingsScreen(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column {
+                    val headerShape = RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp,
+                        bottomStart = if (isLanguageExpanded) 0.dp else 16.dp,
+                        bottomEnd = if (isLanguageExpanded) 0.dp else 16.dp
+                    )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { isLanguageExpanded = !isLanguageExpanded },
+                            .clip(headerShape)
+                            .clickable { isLanguageExpanded = !isLanguageExpanded }
+                            .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -269,13 +289,16 @@ fun SettingsScreen(
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
-                        Column {
+                        Column(
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                        ) {
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
                                     .clickable { viewModel.setLanguage(AppLanguage.ENGLISH) }
-                                    .padding(vertical = 4.dp),
+                                    .padding(vertical = 8.dp, horizontal = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
@@ -287,8 +310,9 @@ fun SettingsScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
                                     .clickable { viewModel.setLanguage(AppLanguage.BANGLA) }
-                                    .padding(vertical = 4.dp),
+                                    .padding(vertical = 8.dp, horizontal = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 RadioButton(
@@ -308,11 +332,19 @@ fun SettingsScreen(
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column {
+                    val headerShape = RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp,
+                        bottomStart = if (isHomepageNotesExpanded) 0.dp else 16.dp,
+                        bottomEnd = if (isHomepageNotesExpanded) 0.dp else 16.dp
+                    )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { isHomepageNotesExpanded = !isHomepageNotesExpanded },
+                            .clip(headerShape)
+                            .clickable { isHomepageNotesExpanded = !isHomepageNotesExpanded }
+                            .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -348,7 +380,9 @@ fun SettingsScreen(
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
-                        Column {
+                        Column(
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                        ) {
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 if (isBangla) "হোমপেজে প্রদর্শিত নোটগুলো নিয়ন্ত্রণ করুন" else "Control note denominations displayed on homepage",
@@ -365,14 +399,15 @@ fun SettingsScreen(
                                 Triple(50, "50 Tk", "৫০ টাকা")
                             ).forEachIndexed { index, (value, labelEn, labelBn) ->
                                 if (index > 0) {
-                                    HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
                                 }
                                 val isEnabled = value !in uiState.disabledDenominations
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .clip(RoundedCornerShape(8.dp))
                                         .clickable { viewModel.toggleDenomination(value, !isEnabled) }
-                                        .padding(vertical = 4.dp),
+                                        .padding(vertical = 8.dp, horizontal = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
@@ -409,8 +444,9 @@ fun SettingsScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
                             .clickable { viewModel.backupData(context) }
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 8.dp, horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(Icons.Default.Backup, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
@@ -434,8 +470,9 @@ fun SettingsScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
                             .clickable { restoreFileLauncher.launch("application/json") }
-                            .padding(vertical = 8.dp),
+                            .padding(vertical = 8.dp, horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(Icons.Default.Restore, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
@@ -458,33 +495,31 @@ fun SettingsScreen(
 
             // Destructive Actions Card
             Card(
+                onClick = { viewModel.openResetDialog() },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f))
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { viewModel.openResetDialog() }
-                            .padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Default.DeleteForever, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                        Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                        Column {
-                            Text(
-                                if (isBangla) "সকল ডাটা রিসেট করুন" else "Reset All Data",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.error
-                            )
-                            Text(
-                                if (isBangla) "সকল ইতিহাস, সেভ করা শিট এবং সেটিংস মুছে ফেলুন" else "Clear all history, saved sheets, and preferences",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-                            )
-                        }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.DeleteForever, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+                    Column {
+                        Text(
+                            if (isBangla) "সকল ডাটা রিসেট করুন" else "Reset All Data",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                        Text(
+                            if (isBangla) "সকল ইতিহাস, সেভ করা শিট এবং সেটিংস মুছে ফেলুন" else "Clear all history, saved sheets, and preferences",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                        )
                     }
                 }
             }

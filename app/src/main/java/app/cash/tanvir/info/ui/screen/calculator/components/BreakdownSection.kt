@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -58,9 +59,16 @@ fun BreakdownSection(
     ) {
         Column {
             // Header — clickable to toggle
+            val headerShape = RoundedCornerShape(
+                topStart = 16.dp,
+                topEnd = 16.dp,
+                bottomStart = if (isExpanded) 0.dp else 16.dp,
+                bottomEnd = if (isExpanded) 0.dp else 16.dp
+            )
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .clip(headerShape)
                     .clickable { onToggle() }
                     .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
