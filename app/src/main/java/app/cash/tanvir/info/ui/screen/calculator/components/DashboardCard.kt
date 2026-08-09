@@ -57,14 +57,16 @@ fun DashboardCard(
                 maxLines = 1
             )
 
-            // Amount in words
-            Text(
-                text = amountInWords,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
-                modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
-                maxLines = 3
-            )
+            // Amount in words — only show when there's a non-zero amount
+            if (totalPieces > 0) {
+                Text(
+                    text = amountInWords,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
+                    modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
+                    maxLines = 3
+                )
+            }
 
             // Stats row: pieces + denominations
             Row(
