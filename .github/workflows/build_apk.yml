@@ -196,7 +196,7 @@ jobs:
             --title "v${{ env.VERSION_NAME }}" \
             -F release_notes.md \
             app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.apk \
-            app/build/outputs/apk/release/CashFigure.apk --clobber || \
+            app/build/outputs/apk/release/CashFigure.apk || \
           (gh release edit "v${{ env.VERSION_NAME }}" -F release_notes.md && \
            gh release upload "v${{ env.VERSION_NAME }}" \
             app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.apk \
