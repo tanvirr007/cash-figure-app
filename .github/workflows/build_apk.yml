@@ -43,27 +43,54 @@ jobs:
             echo ${{ secrets.KEYSTORE }} | base64 --decode > ${{ github.workspace }}/key.jks
           fi
 
-      - name: Get application version name
-        run: echo "VERSION_NAME=$(${{ github.workspace }}/gradlew -q printVersionName | tail -n 1)" >> $GITHUB_ENV
+      - name: Calculate next version name
+        run: |
+          GRADLE_VER=$(${{ github.workspace }}/gradlew -q printVersionName | tail -n 1)
+          cat << 'EOF' > calculate_version.py
+          import re, subprocess, sys
+          def parse_version(v_str):
+              match = re.search(r'(\d+)\.(\d+)\.(\d+)', v_str)
+              return tuple(map(int, match.groups())) if match else (0, 0, 0)
+          
+          gradle_ver = sys.argv[1]
+          g_maj, g_min, g_pat = parse_version(gradle_ver)
+          
+          try:
+              latest_tag = subprocess.check_output(['git', 'describe', '--tags', '--abbrev=0'], text=True).strip()
+          except Exception:
+              latest_tag = 'v0.0.0'
+          
+          t_maj, t_min, t_pat = parse_version(latest_tag)
+          
+          if (g_maj, g_min, g_pat) > (t_maj, t_min, t_pat):
+              next_ver = f"{g_maj}.{g_min}.{g_pat}"
+          else:
+              next_ver = f"{t_maj}.{t_min}.{t_pat + 1}"
+          print(next_ver)
+          EOF
+          VERSION_NAME=$(python3 calculate_version.py "$GRADLE_VER")
+          echo "VERSION_NAME=$VERSION_NAME" >> $GITHUB_ENV
+          echo "Calculated version: $VERSION_NAME"
+          rm calculate_version.py
 
       - name: Set application version name
         uses: chkfung/android-version-actions@v1.2.3
         with:
           gradlePath: app/build.gradle.kts
           versionCode: ${{ github.run_number }}
-          versionName: "${{ env.VERSION_NAME }}.${{ github.run_number }}"
+          versionName: "${{ env.VERSION_NAME }}"
 
       - name: Build with Gradle
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          VERSION: "${{ env.VERSION_NAME }}.${{ github.run_number }}"
+          VERSION: "${{ env.VERSION_NAME }}"
           APP_NAME: "Cash Figure"
         run: python3 scripts/bot.py monitor
 
       - name: Prepare APK files for release
         run: |
-          cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.${{ github.run_number }}.apk
+          cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.apk
           cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/CashFigure.apk
 
       - name: Get build metadata
@@ -118,17 +145,17 @@ jobs:
           **Cash Figure — Bangladeshi Cash Counter**
           
           > [!NOTE]
-          > This release tracks build \`v${{ env.VERSION_NAME }}.${{ github.run_number }}\`
+          > This release tracks build \`v${{ env.VERSION_NAME }}\` (Build ${{ github.run_number }})
           
           ### 📦 Build Information
-          * **Version:** \`v${{ env.VERSION_NAME }}.${{ github.run_number }}\`
+          * **Version:** \`v${{ env.VERSION_NAME }}\`
           * **Commit:** [\`$COMMIT_HASH\`](https://github.com/${{ github.repository }}/commit/$COMMIT_HASH)
           * **Build Time:** \`${BUILD_TIME}\`
           * **Android:** \`7.0+\`
           * **SHA-256:** \`$APK_SHA\`
           
           ### 🔗 Direct Downloads
-          * **Versioned APK:** [CashFigure-v${{ env.VERSION_NAME }}.${{ github.run_number }}.apk](https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION_NAME }}.${{ github.run_number }}/CashFigure-v${{ env.VERSION_NAME }}.${{ github.run_number }}.apk)
+          * **Versioned APK:** [CashFigure-v${{ env.VERSION_NAME }}.apk](https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION_NAME }}/CashFigure-v${{ env.VERSION_NAME }}.apk)
           * **Latest APK (Permanent Link):** [CashFigure.apk](https://github.com/${{ github.repository }}/releases/latest/download/CashFigure.apk)
           
           ### 📝 Changelog
@@ -142,8 +169,8 @@ jobs:
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: "CashFigure-v${{ env.VERSION_NAME }}.${{ github.run_number }}"
-          path: app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.${{ github.run_number }}.apk
+          name: "CashFigure-v${{ env.VERSION_NAME }}"
+          path: app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.apk
           if-no-files-found: error
 
       - name: Update Raw CDN version.json
@@ -158,29 +185,33 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add version.json
-          git commit -s -m "release: OTA manifest v${{ env.VERSION_NAME }}.${{ github.run_number }} [skip ci]" -m "- Auto-updated version manifest for raw GitHub CDN OTA checks"$'\n\n'"$CHANGE_ID" || exit 0
+          git commit -s -m "release: OTA manifest v${{ env.VERSION_NAME }} [skip ci]" -m "- Auto-updated version manifest for raw GitHub CDN OTA checks"$'\n\n'"$CHANGE_ID" || exit 0
           git push origin main || echo "Warning: Failed to push version.json to main branch"
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "v${{ env.VERSION_NAME }}.${{ github.run_number }}" \
-            --title "v${{ env.VERSION_NAME }}.${{ github.run_number }}" \
+          gh release create "v${{ env.VERSION_NAME }}" \
+            --title "v${{ env.VERSION_NAME }}" \
             -F release_notes.md \
-            app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.${{ github.run_number }}.apk \
-            app/build/outputs/apk/release/CashFigure.apk
+            app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.apk \
+            app/build/outputs/apk/release/CashFigure.apk --clobber || \
+          (gh release edit "v${{ env.VERSION_NAME }}" -F release_notes.md && \
+           gh release upload "v${{ env.VERSION_NAME }}" \
+            app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.apk \
+            app/build/outputs/apk/release/CashFigure.apk --clobber)
 
       - name: Send Telegram Notification
         continue-on-error: true
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          VERSION: "${{ env.VERSION_NAME }}.${{ github.run_number }}"
+          VERSION: "${{ env.VERSION_NAME }}"
           COMMIT_HASH: "${{ env.COMMIT_HASH }}"
           BUILD_TIME: "${{ env.BUILD_TIME }}"
           APK_SHA: "${{ env.APK_SHA }}"
           CHANGELOG: "${{ env.CHANGELOG }}"
-          APK_VERSIONED_PATH: "app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.${{ github.run_number }}.apk"
+          APK_VERSIONED_PATH: "app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.apk"
           APK_LATEST_PATH: "app/build/outputs/apk/release/CashFigure.apk"
         run: python3 scripts/bot.py release

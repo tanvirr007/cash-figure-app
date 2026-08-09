@@ -665,7 +665,7 @@ def ota():
     except ValueError:
         version_code = 1
 
-    full_version_name = f"v{version_name}.{version_code}"
+    full_version_name = f"v{version_name}"
     download_url = f"https://github.com/{repo}/releases/download/{full_version_name}/CashFigure.apk"
 
     manifest = {
