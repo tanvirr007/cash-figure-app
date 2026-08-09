@@ -88,22 +88,30 @@ object PdfReportGenerator {
 
         y += 30f
         canvas.drawLine(margin, y, rightMargin, y, paint)
+        
+        // Table Title
         y += 25f
+        paint.textSize = 14f
+        paint.isFakeBoldText = true
+        paint.color = Color.parseColor("#00695C") // Deep Teal
+        canvas.drawText(if (isBangla) "ক্যাশ ব্রেকডাউন" else "Cash Breakdown", margin, y, paint)
+
+        y += 28f
 
         // Breakdown Table Header
         val tableTop = y - 16f
         paint.textSize = 12f
         paint.isFakeBoldText = true
+        paint.color = Color.BLACK
         
         // Draw top horizontal line
         canvas.drawLine(margin, tableTop, rightMargin, tableTop, paint)
         
         // Draw header text
-        canvas.drawText(if (isBangla) "নোটের মান" else "Denomination", margin + 8f, y, paint)
         paint.textAlign = Paint.Align.CENTER
+        canvas.drawText(if (isBangla) "নোটের মান" else "Denomination", (margin + 240f) / 2f, y, paint)
         canvas.drawText(if (isBangla) "সংখ্যা" else "Quantity", 300f, y, paint)
-        paint.textAlign = Paint.Align.RIGHT
-        canvas.drawText(if (isBangla) "সাবটোটাল" else "Subtotal", rightMargin - 8f, y, paint)
+        canvas.drawText(if (isBangla) "সাবটোটাল" else "Subtotal", (360f + rightMargin) / 2f, y, paint)
         paint.textAlign = Paint.Align.LEFT
         paint.isFakeBoldText = false
 
@@ -132,11 +140,10 @@ object PdfReportGenerator {
                 val subtotalFormatted = CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)
                 val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
 
-                canvas.drawText(denomLabel, margin + 8f, y, paint)
                 paint.textAlign = Paint.Align.CENTER
+                canvas.drawText(denomLabel, (margin + 240f) / 2f, y, paint)
                 canvas.drawText(qtyStr, 300f, y, paint)
-                paint.textAlign = Paint.Align.RIGHT
-                canvas.drawText(subtotalFormatted, rightMargin - 8f, y, paint)
+                canvas.drawText(subtotalFormatted, (360f + rightMargin) / 2f, y, paint)
                 paint.textAlign = Paint.Align.LEFT
                 
                 y += 8f
@@ -150,8 +157,8 @@ object PdfReportGenerator {
             canvas.drawText(totalLabel, margin + 8f, y, paint)
             
             val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
-            paint.textAlign = Paint.Align.RIGHT
-            canvas.drawText(totalFormatted, rightMargin - 8f, y, paint)
+            paint.textAlign = Paint.Align.CENTER
+            canvas.drawText(totalFormatted, (360f + rightMargin) / 2f, y, paint)
             paint.textAlign = Paint.Align.LEFT
             paint.isFakeBoldText = false
             
