@@ -241,8 +241,8 @@ fun CalculatorScreen(
             onDismissRequest = { pendingClearDenomination = null },
             title = {
                 Text(
-                    if (isBangla) "$denomLabel মুছে ফেলবেন?"
-                    else "Clear $denomLabel?"
+                    if (isBangla) "মুছে ফেলবেন?"
+                    else "Clear?"
                 )
             },
             text = {
