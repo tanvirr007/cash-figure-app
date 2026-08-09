@@ -22,6 +22,9 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -174,7 +177,7 @@ fun HistoryScreen(
                 )
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         if (renameText.isNotBlank()) {
                             viewModel.renameSheet(targetSheet, renameText.trim())
@@ -185,7 +188,7 @@ fun HistoryScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.dismissRenameDialog() }) {
+                OutlinedButton(onClick = { viewModel.dismissRenameDialog() }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
@@ -202,14 +205,18 @@ fun HistoryScreen(
             title = { Text(if (isBangla) "হিসাবটি মুছে ফেলবেন?" else "Delete Calculation?") },
             text = { Text(if (isBangla) "আপনি কি সত্যিই \"$sheetName\" মুছে ফেলতে চান?" else "Are you sure you want to delete \"$sheetName\"?") },
             confirmButton = {
-                TextButton(
-                    onClick = { viewModel.confirmDeleteSheet() }
+                Button(
+                    onClick = { viewModel.confirmDeleteSheet() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
                 ) {
-                    Text(if (isBangla) "মুছে ফেলুন" else "Delete", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                    Text(if (isBangla) "মুছে ফেলুন" else "Delete", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.dismissDeleteConfirmation() }) {
+                OutlinedButton(onClick = { viewModel.dismissDeleteConfirmation() }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }

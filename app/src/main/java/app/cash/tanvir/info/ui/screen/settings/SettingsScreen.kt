@@ -35,6 +35,9 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -568,18 +571,21 @@ fun SettingsScreen(
                 )
             },
             confirmButton = {
-                TextButton(
-                    onClick = { viewModel.confirmResetAllData() }
+                Button(
+                    onClick = { viewModel.confirmResetAllData() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
                 ) {
                     Text(
                         if (isBangla) "সবকিছু রিসেট করুন" else "Reset Everything",
-                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.Bold
                     )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.dismissResetDialog() }) {
+                OutlinedButton(onClick = { viewModel.dismissResetDialog() }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
@@ -598,18 +604,17 @@ fun SettingsScreen(
                 )
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = { viewModel.confirmRestore(context) }
                 ) {
                     Text(
                         if (isBangla) "রিস্টোর করুন" else "Restore",
-                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold
                     )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.dismissRestoreDialog() }) {
+                OutlinedButton(onClick = { viewModel.dismissRestoreDialog() }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }

@@ -21,6 +21,8 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -234,17 +236,21 @@ fun CalculatorScreen(
             title = { Text(if (isBangla) "সব এন্ট্রি মুছে ফেলবেন?" else "Clear All Entries?") },
             text = { Text(if (isBangla) "আপনি কি সমস্ত ইনপুট সংখ্যা মুছে নতুন হিসাব শুরু করতে চান?" else "Are you sure you want to clear all denomination entries?") },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         viewModel.clearAll()
                         showClearAllConfirmation = false
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
                 ) {
-                    Text(if (isBangla) "মুছে ফেলুন" else "Clear All", color = MaterialTheme.colorScheme.error)
+                    Text(if (isBangla) "মুছে ফেলুন" else "Clear All")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showClearAllConfirmation = false }) {
+                OutlinedButton(onClick = { showClearAllConfirmation = false }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
@@ -274,20 +280,21 @@ fun CalculatorScreen(
                 )
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         viewModel.clearRow(denomValue)
                         pendingClearDenomination = null
-                    }
-                ) {
-                    Text(
-                        if (isBangla) "মুছে ফেলুন" else "Clear",
-                        color = MaterialTheme.colorScheme.error
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
                     )
+                ) {
+                    Text(if (isBangla) "মুছে ফেলুন" else "Clear")
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingClearDenomination = null }) {
+                OutlinedButton(onClick = { pendingClearDenomination = null }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
@@ -358,12 +365,11 @@ fun CalculatorScreen(
                 }
             },
             dismissButton = {
-                TextButton(
+                OutlinedButton(
                     onClick = { showAddNotesDialog = false }
                 ) {
                     Text(
-                        text = if (isBangla) "বাতিল" else "Cancel",
-                        color = MaterialTheme.colorScheme.error
+                        text = if (isBangla) "বাতিল" else "Cancel"
                     )
                 }
             },

@@ -285,7 +285,7 @@ fun ReportScreen(
             title = { Text(titleText) },
             text = { Text(messageText) },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         viewModel.exportReport(context, format)
                         pendingExportFormat = null
@@ -295,7 +295,7 @@ fun ReportScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { pendingExportFormat = null }) {
+                OutlinedButton(onClick = { pendingExportFormat = null }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
