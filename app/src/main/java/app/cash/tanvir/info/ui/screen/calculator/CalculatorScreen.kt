@@ -378,7 +378,7 @@ fun CalculatorScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = if (isBangla) "নোটের বিবরণ" else "Denomination Detail",
+                                text = if (isBangla) "নোটের বিবরণ" else "Denom.",
                                 modifier = Modifier
                                     .weight(1.3f)
                                     .padding(12.dp),
