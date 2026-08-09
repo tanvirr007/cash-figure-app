@@ -181,8 +181,8 @@ class MainActivity : FragmentActivity() {
             })
 
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle(if (isBangla) "অ্যাপ আনলক করুন" else "Unlock Cash Figure")
-            .setSubtitle(if (isBangla) "ডিভাইস অথেন্টিকেশন ব্যবহার করুন" else "Use device authentication to continue")
+            .setTitle(if (isBangla) "ক্যাশ ফিগার অ্যাপ আনলক করুন" else "Unlock Cash Figure App")
+            .setSubtitle(if (isBangla) "আপনার ফিঙ্গারপ্রিন্ট স্ক্যান করুন" else "Scan your fingerprint")
             .setNegativeButtonText(if (isBangla) "বাতিল" else "Cancel")
             .build()
 
