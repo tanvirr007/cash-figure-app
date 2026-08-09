@@ -146,7 +146,7 @@ fun HistoryScreen(
                             sheet = sheet,
                             onClick = { onSelectSheet(sheet) },
                             onRename = { viewModel.openRenameDialog(sheet) },
-                            onDelete = { viewModel.deleteSheet(sheet.id) }
+                            onDelete = { viewModel.openDeleteConfirmation(sheet) }
                         )
                     }
                 }
@@ -183,6 +183,30 @@ fun HistoryScreen(
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissRenameDialog() }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Delete Confirmation Dialog
+    if (uiState.showDeleteConfirmationForSheet != null) {
+        val targetSheet = uiState.showDeleteConfirmationForSheet!!
+        val sheetName = targetSheet.name.ifEmpty { "Saved Sheet" }
+
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissDeleteConfirmation() },
+            title = { Text("Delete Calculation?") },
+            text = { Text("Are you sure you want to delete \"$sheetName\"?") },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.confirmDeleteSheet() }
+                ) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.dismissDeleteConfirmation() }) {
                     Text("Cancel")
                 }
             }

@@ -19,7 +19,8 @@ import javax.inject.Inject
 data class HistoryUiState(
     val searchQuery: String = "",
     val lastDeletedSheetId: Long? = null,
-    val showRenameDialogForSheet: Sheet? = null
+    val showRenameDialogForSheet: Sheet? = null,
+    val showDeleteConfirmationForSheet: Sheet? = null
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -94,5 +95,19 @@ class HistoryViewModel @Inject constructor(
 
     fun dismissRenameDialog() {
         _uiState.update { it.copy(showRenameDialogForSheet = null) }
+    }
+
+    fun openDeleteConfirmation(sheet: Sheet) {
+        _uiState.update { it.copy(showDeleteConfirmationForSheet = sheet) }
+    }
+
+    fun dismissDeleteConfirmation() {
+        _uiState.update { it.copy(showDeleteConfirmationForSheet = null) }
+    }
+
+    fun confirmDeleteSheet() {
+        val sheetToDelete = _uiState.value.showDeleteConfirmationForSheet ?: return
+        deleteSheet(sheetToDelete.id)
+        _uiState.update { it.copy(showDeleteConfirmationForSheet = null) }
     }
 }
