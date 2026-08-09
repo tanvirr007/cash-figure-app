@@ -30,18 +30,22 @@ object HapticHelper {
         val amplitude = (intensity * 254 + 1).toInt().coerceIn(1, 255)
         val durationMs = 30L // Short click duration
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val effect = VibrationEffect.createOneShot(durationMs, amplitude)
                 vibrator.vibrate(effect)
-            } catch (e: Exception) {
-                // Fallback for devices where custom amplitude fails
+            } else {
                 @Suppress("DEPRECATION")
                 vibrator.vibrate(durationMs)
             }
-        } else {
+        } catch (e: Exception) {
+            // Fallback for devices where custom amplitude fails or permission is missing
             @Suppress("DEPRECATION")
-            vibrator.vibrate(durationMs)
+            try {
+                vibrator.vibrate(durationMs)
+            } catch (ignored: Exception) {
+                // Never crash haptics (e.g. SecurityException when VIBRATE permission denied)
+            }
         }
     }
 }
