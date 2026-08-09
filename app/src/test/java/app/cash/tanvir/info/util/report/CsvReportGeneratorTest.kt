@@ -1,0 +1,58 @@
+package app.cash.tanvir.info.util.report
+
+import app.cash.tanvir.info.domain.model.Denomination
+import app.cash.tanvir.info.domain.model.DenominationRow
+import app.cash.tanvir.info.domain.model.Sheet
+import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class CsvReportGeneratorTest {
+
+    @Test
+    fun testGenerateCsv_EnglishPrependBom() {
+        val rows = listOf(
+            DenominationRow(Denomination.ALL.first(), quantity = 100) // 1000 * 100 = 100,000
+        )
+        val sheet = Sheet(
+            rows = rows,
+            grandTotal = 100000L,
+            totalPieces = 100L,
+            activeDenominations = 1,
+            updatedAt = 1786270304000L // Some specific timestamp
+        )
+
+        val csvBytes = CsvReportGenerator.generateCsv(sheet, isBangla = false)
+
+        // Verify it starts with the 3 UTF-8 BOM bytes: 0xEF, 0xBB, 0xBF
+        val expectedBom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+        assertArrayEquals(expectedBom, csvBytes.take(3).toByteArray())
+
+        // Verify the content contains BDT symbol
+        val csvText = String(csvBytes.drop(3).toByteArray(), Charsets.UTF_8)
+        assertTrue(csvText.contains("BDT"))
+        assertTrue(csvText.contains("CASH REPORT"))
+    }
+
+    @Test
+    fun testGenerateCsv_BanglaPrependBom() {
+        val rows = listOf(
+            DenominationRow(Denomination.ALL.first(), quantity = 100)
+        )
+        val sheet = Sheet(
+            rows = rows,
+            grandTotal = 100000L,
+            totalPieces = 100L,
+            activeDenominations = 1,
+            updatedAt = 1786270304000L
+        )
+
+        val csvBytes = CsvReportGenerator.generateCsv(sheet, isBangla = true)
+
+        val expectedBom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+        assertArrayEquals(expectedBom, csvBytes.take(3).toByteArray())
+
+        val csvText = String(csvBytes.drop(3).toByteArray(), Charsets.UTF_8)
+        assertTrue(csvText.contains("ক্যাশ রিপোর্ট"))
+    }
+}

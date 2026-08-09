@@ -29,7 +29,7 @@ import javax.inject.Inject
 data class CalculatorUiState(
     val rows: List<DenominationRow> = Denomination.ALL.map { DenominationRow(it) },
     val grandTotal: Long = 0L,
-    val grandTotalFormatted: String = "৳0",
+    val grandTotalFormatted: String = "BDT 0",
     val totalPieces: Long = 0L,
     val activeDenominations: Int = 0,
     val amountInWordsEn: String = "Zero Taka",

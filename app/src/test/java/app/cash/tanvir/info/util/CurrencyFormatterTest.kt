@@ -11,43 +11,43 @@ class CurrencyFormatterTest {
     @Test
     fun testWesternFormatting_SmallNumber() {
         val formatted = CurrencyFormatter.format(500)
-        assertEquals("৳500", formatted)
+        assertEquals("BDT 500", formatted)
     }
 
     @Test
     fun testWesternFormatting_OneThousand() {
         val formatted = CurrencyFormatter.format(1000)
-        assertEquals("৳1,000", formatted)
+        assertEquals("BDT 1,000", formatted)
     }
 
     @Test
     fun testWesternFormatting_BangladeshiGrouping_OneLakh() {
         val formatted = CurrencyFormatter.format(100000)
-        assertEquals("৳1,00,000", formatted)
+        assertEquals("BDT 1,00,000", formatted)
     }
 
     @Test
     fun testWesternFormatting_BangladeshiGrouping_Complex() {
         val formatted = CurrencyFormatter.format(125650)
-        assertEquals("৳1,25,650", formatted)
+        assertEquals("BDT 1,25,650", formatted)
     }
 
     @Test
     fun testWesternFormatting_BangladeshiGrouping_TenLakh() {
         val formatted = CurrencyFormatter.format(1250000)
-        assertEquals("৳12,50,000", formatted)
+        assertEquals("BDT 12,50,000", formatted)
     }
 
     @Test
     fun testWesternFormatting_BangladeshiGrouping_OneCrore() {
         val formatted = CurrencyFormatter.format(10000000)
-        assertEquals("৳1,00,00,000", formatted)
+        assertEquals("BDT 1,00,00,000", formatted)
     }
 
     @Test
     fun testBengaliFormatting_BangladeshiGrouping_Complex() {
         val formatted = CurrencyFormatter.format(125650, useBengaliDigits = true)
-        assertEquals("৳১,২৫,৬৫০", formatted)
+        assertEquals("৳১,২৫,৬৫০/-", formatted)
     }
 
     @Test

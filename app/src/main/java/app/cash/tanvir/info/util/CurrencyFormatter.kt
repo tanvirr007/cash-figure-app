@@ -47,11 +47,14 @@ object CurrencyFormatter {
 
         val prefix = buildString {
             if (isNegative) append("-")
-            if (withSymbol) append("৳")
+            if (withSymbol) {
+                if (useBengaliDigits) append("৳") else append("BDT ")
+            }
         }
 
         val result = "$prefix$grouped"
-        return if (useBengaliDigits) BanglaDigitConverter.toBengali(result) else result
+        val suffix = if (useBengaliDigits && withSymbol) "/-" else ""
+        return if (useBengaliDigits) BanglaDigitConverter.toBengali(result) + suffix else result
     }
 
     /**
