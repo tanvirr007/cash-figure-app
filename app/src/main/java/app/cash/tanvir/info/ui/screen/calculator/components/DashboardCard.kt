@@ -70,18 +70,20 @@ fun DashboardCard(
             }
 
             // Stats row: pieces + denominations
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                StatItem(
-                    value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(totalPieces) else totalPieces.toString(),
-                    label = if (isBangla) "টি নোট" else "pieces"
-                )
-                StatItem(
-                    value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(activeDenominations) else activeDenominations.toString(),
-                    label = if (isBangla) "টি নোটের ধরণ" else "denominations"
-                )
+            if (totalPieces > 0) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    StatItem(
+                        value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(totalPieces) else totalPieces.toString(),
+                        label = if (isBangla) "টি নোট" else "pieces"
+                    )
+                    StatItem(
+                        value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(activeDenominations) else activeDenominations.toString(),
+                        label = if (isBangla) "টি নোটের ধরণ" else "denominations"
+                    )
+                }
             }
         }
     }
