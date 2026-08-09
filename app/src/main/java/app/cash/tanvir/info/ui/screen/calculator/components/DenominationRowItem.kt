@@ -129,7 +129,7 @@ fun DenominationRowItem(
                 contentDescription = if (isBangla) "মুছে ফেলুন" else "Clear",
                 modifier = Modifier.size(18.dp),
                 tint = if (quantityText.isNotEmpty())
-                    MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                    MaterialTheme.colorScheme.error
                 else
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f)
             )

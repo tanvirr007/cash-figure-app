@@ -283,7 +283,7 @@ private fun HistoryCard(
                     Icon(Icons.Default.Edit, contentDescription = if (isBangla) "নাম পরিবর্তন" else "Rename", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = if (isBangla) "মুছে ফেলুন" else "Delete", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
+                    Icon(Icons.Default.Delete, contentDescription = if (isBangla) "মুছে ফেলুন" else "Delete", tint = MaterialTheme.colorScheme.error)
                 }
             }
         }

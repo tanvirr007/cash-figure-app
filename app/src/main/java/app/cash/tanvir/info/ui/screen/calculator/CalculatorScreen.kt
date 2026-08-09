@@ -122,7 +122,7 @@ fun CalculatorScreen(
                             tint = if (isIdle) {
                                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                             } else {
-                                MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                                MaterialTheme.colorScheme.error
                             }
                         )
                     }
