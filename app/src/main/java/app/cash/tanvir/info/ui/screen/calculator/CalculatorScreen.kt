@@ -404,7 +404,7 @@ fun CalculatorScreen(
                         onClick = { showAddNotesDialog = false }
                     ) {
                         Text(
-                            text = if (isBangla) "সম্পাদনা" else "Edit",
+                            text = if (isBangla) "এডিট" else "Edit",
                             color = MaterialTheme.colorScheme.error
                         )
                     }

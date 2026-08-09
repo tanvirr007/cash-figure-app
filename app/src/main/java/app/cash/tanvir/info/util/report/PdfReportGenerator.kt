@@ -162,7 +162,7 @@ object PdfReportGenerator {
             val originalWidth = processedBitmap.width.toFloat()
             val originalHeight = processedBitmap.height.toFloat()
             val aspectRatio = originalWidth / originalHeight
-            val targetWidth = 100f
+            val targetWidth = 150f
             val targetHeight = targetWidth / aspectRatio
 
             val sealLeft = (595f - targetWidth) / 2f
