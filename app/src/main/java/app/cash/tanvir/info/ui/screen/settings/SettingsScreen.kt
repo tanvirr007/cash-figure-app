@@ -1,5 +1,7 @@
 package app.cash.tanvir.info.ui.screen.settings
 
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -43,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -51,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
+import app.cash.tanvir.info.util.BanglaDigitConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +81,27 @@ fun SettingsScreen(
     }
 
     val isBangla = uiState.language == AppLanguage.BANGLA
+
+    val (versionName, versionCode) = remember(context) {
+        try {
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, 0)
+            }
+            val vName = packageInfo.versionName ?: "0.1.0"
+            val vCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo.longVersionCode
+            } else {
+                @Suppress("DEPRECATION")
+                packageInfo.versionCode.toLong()
+            }
+            Pair(vName, vCode)
+        } catch (e: Exception) {
+            Pair("0.1.0", 1L)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -360,8 +385,14 @@ fun SettingsScreen(
                         )
                     }
                     Spacer(modifier = Modifier.height(6.dp))
+                    val formattedVersionName = versionName.removePrefix("v")
+                    val versionText = if (isBangla) {
+                        "ভার্সন ${BanglaDigitConverter.toBangla(formattedVersionName)} (বিল্ড ${BanglaDigitConverter.toBangla(versionCode)})"
+                    } else {
+                        "Version $formattedVersionName (Build $versionCode)"
+                    }
                     Text(
-                        if (isBangla) "ভার্সন ০.১.০ (বিল্ড ১)" else "Version 0.1.0 (Build 1)",
+                        text = versionText,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
