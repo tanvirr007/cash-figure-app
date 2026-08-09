@@ -470,13 +470,6 @@ fun CalculatorScreen(
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold
                             )
-                            // Vertical divider
-                            Box(
-                                modifier = Modifier
-                                    .width(1.dp)
-                                    .height(44.dp)
-                                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
-                            )
                             Text(
                                 text = uiState.grandTotalFormatted,
                                 modifier = Modifier
