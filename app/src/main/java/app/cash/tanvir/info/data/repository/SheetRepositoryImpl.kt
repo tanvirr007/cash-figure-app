@@ -97,6 +97,28 @@ class SheetRepositoryImpl @Inject constructor(
         sheetDao.clearAllHistory()
     }
 
+    override suspend fun restoreSheets(sheets: List<Sheet>) {
+        sheetDao.clearAllHistory()
+        sheetDao.resetAutoIncrement()
+
+        val sortedSheets = sheets.sortedBy { it.createdAt }
+        val defaultNameRegex = Regex("^(Sheet #\\d+|Saved Sheet|Restored Sheet)$", RegexOption.IGNORE_CASE)
+
+        sortedSheets.forEachIndexed { index, sheet ->
+            val serialNumber = index + 1
+            val assignedName = if (sheet.name.isBlank() || defaultNameRegex.matches(sheet.name.trim())) {
+                "Sheet #$serialNumber"
+            } else {
+                sheet.name
+            }
+            val entityToInsert = sheet.toEntity().copy(
+                id = 0L,
+                name = assignedName
+            )
+            sheetDao.insertSheet(entityToInsert)
+        }
+    }
+
     // ── Mapping extension functions ──
 
     private fun SheetEntity.toDomainModel(): Sheet {
@@ -148,8 +170,8 @@ class SheetRepositoryImpl @Inject constructor(
             grandTotal = this.grandTotal,
             totalPieces = this.totalPieces,
             activeDenominations = this.activeDenominations,
-            createdAt = this.createdAt,
-            updatedAt = System.currentTimeMillis(),
+            createdAt = if (this.createdAt > 0) this.createdAt else System.currentTimeMillis(),
+            updatedAt = if (this.updatedAt > 0) this.updatedAt else System.currentTimeMillis(),
             quantitiesJson = jsonObj.toString()
         )
     }

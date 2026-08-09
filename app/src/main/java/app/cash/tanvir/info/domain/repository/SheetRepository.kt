@@ -18,4 +18,5 @@ interface SheetRepository {
     suspend fun restoreSheet(id: Long)
     suspend fun hardDeleteSheet(id: Long)
     suspend fun clearAllHistory()
+    suspend fun restoreSheets(sheets: List<Sheet>)
 }

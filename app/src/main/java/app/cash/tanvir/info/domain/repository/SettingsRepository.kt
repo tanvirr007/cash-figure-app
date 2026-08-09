@@ -15,4 +15,5 @@ interface SettingsRepository {
     suspend fun setLanguage(language: AppLanguage)
     suspend fun setDenominationEnabled(denomination: Int, enabled: Boolean)
     suspend fun resetAllData()
+    suspend fun restoreSettings(theme: AppTheme, language: AppLanguage, disabledDenominations: Set<Int>)
 }

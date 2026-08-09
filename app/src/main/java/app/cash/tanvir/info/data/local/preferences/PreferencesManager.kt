@@ -74,6 +74,12 @@ class PreferencesManager @Inject constructor(
         }
     }
 
+    suspend fun setDisabledDenominations(disabled: Set<Int>) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.DISABLED_DENOMINATIONS] = disabled.map { it.toString() }.toSet()
+        }
+    }
+
     suspend fun clearAll() {
         context.dataStore.edit { prefs ->
             prefs.clear()

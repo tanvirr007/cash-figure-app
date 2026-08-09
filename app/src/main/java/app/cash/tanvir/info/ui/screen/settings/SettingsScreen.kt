@@ -69,7 +69,7 @@ fun SettingsScreen(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         if (uri != null) {
-            viewModel.restoreDataFromUri(context, uri)
+            viewModel.onRestoreFileSelected(uri)
         }
     }
 
@@ -424,6 +424,36 @@ fun SettingsScreen(
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.dismissResetDialog() }) {
+                    Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            }
+        )
+    }
+
+    // Warning Dialog for Restore Data
+    if (uiState.showRestoreWarningDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissRestoreDialog() },
+            title = { Text(if (isBangla) "ডাটা রিস্টোর করবেন?" else "Restore Data?") },
+            text = {
+                Text(
+                    if (isBangla) "পুরানো বা পূর্বের ডাটা রিস্টোর করলে আপনার বর্তমান ডাটা ওভাররাইট বা ক্ষতিগ্রস্ত হতে পারে।"
+                    else "Restoring outdated/old data might corrupt or overwrite your present data."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.confirmRestore(context) }
+                ) {
+                    Text(
+                        if (isBangla) "রিস্টোর করুন" else "Restore",
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.dismissRestoreDialog() }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }

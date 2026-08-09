@@ -42,4 +42,10 @@ class SettingsRepositoryImpl @Inject constructor(
         sheetDao.resetAutoIncrement() // reset auto-increment so IDs restart from 1
         preferencesManager.clearAll()
     }
+
+    override suspend fun restoreSettings(theme: AppTheme, language: AppLanguage, disabledDenominations: Set<Int>) {
+        preferencesManager.setTheme(theme)
+        preferencesManager.setLanguage(language)
+        preferencesManager.setDisabledDenominations(disabledDenominations)
+    }
 }

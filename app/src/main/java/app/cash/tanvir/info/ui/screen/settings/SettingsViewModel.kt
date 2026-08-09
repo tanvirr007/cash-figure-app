@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
+import app.cash.tanvir.info.domain.model.Denomination
+import app.cash.tanvir.info.domain.model.DenominationRow
 import app.cash.tanvir.info.domain.model.Sheet
 import app.cash.tanvir.info.domain.repository.SettingsRepository
 import app.cash.tanvir.info.domain.repository.SheetRepository
@@ -26,6 +28,8 @@ data class SettingsUiState(
     val language: AppLanguage = AppLanguage.ENGLISH,
     val disabledDenominations: Set<Int> = emptySet(),
     val showResetConfirmationDialog: Boolean = false,
+    val showRestoreWarningDialog: Boolean = false,
+    val pendingRestoreUri: Uri? = null,
     val statusMessage: String? = null
 )
 
@@ -94,6 +98,22 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    fun onRestoreFileSelected(uri: Uri) {
+        _uiState.update { it.copy(pendingRestoreUri = uri, showRestoreWarningDialog = true) }
+    }
+
+    fun dismissRestoreDialog() {
+        _uiState.update { it.copy(showRestoreWarningDialog = false, pendingRestoreUri = null) }
+    }
+
+    fun confirmRestore(context: Context) {
+        val uri = uiState.value.pendingRestoreUri
+        _uiState.update { it.copy(showRestoreWarningDialog = false, pendingRestoreUri = null) }
+        if (uri != null) {
+            restoreDataFromUri(context, uri)
+        }
+    }
+
     fun backupData(context: Context) {
         viewModelScope.launch {
             try {
@@ -102,6 +122,17 @@ class SettingsViewModel @Inject constructor(
                 backupObj.put("version", 1)
                 backupObj.put("timestamp", System.currentTimeMillis())
 
+                // Backup App Settings
+                val settingsObj = JSONObject().apply {
+                    put("theme", uiState.value.theme.name)
+                    put("language", uiState.value.language.name)
+                    val disabledArray = JSONArray()
+                    uiState.value.disabledDenominations.forEach { disabledArray.put(it) }
+                    put("disabledDenominations", disabledArray)
+                }
+                backupObj.put("settings", settingsObj)
+
+                // Backup Calculation Sheets
                 val sheetsArray = JSONArray()
                 sheets.forEach { sheet ->
                     val sheetObj = JSONObject()
@@ -144,28 +175,73 @@ class SettingsViewModel @Inject constructor(
 
                 val backupObj = JSONObject(jsonStr)
                 val version = backupObj.optInt("version", 1)
-                val sheetsArray = backupObj.optJSONArray("sheets") ?: JSONArray()
 
-                var restoredCount = 0
+                // Restore Settings if present in JSON
+                val settingsObj = backupObj.optJSONObject("settings")
+                if (settingsObj != null) {
+                    val themeStr = settingsObj.optString("theme", "SYSTEM")
+                    val langStr = settingsObj.optString("language", "ENGLISH")
+                    val restoredTheme = try { AppTheme.valueOf(themeStr) } catch (_: Exception) { AppTheme.SYSTEM }
+                    val restoredLang = try { AppLanguage.valueOf(langStr) } catch (_: Exception) { AppLanguage.ENGLISH }
+
+                    val disabledArray = settingsObj.optJSONArray("disabledDenominations")
+                    val restoredDisabled = mutableSetOf<Int>()
+                    if (disabledArray != null) {
+                        for (i in 0 until disabledArray.length()) {
+                            val denomVal = disabledArray.optInt(i, -1)
+                            if (denomVal != -1) restoredDisabled.add(denomVal)
+                        }
+                    }
+                    settingsRepository.restoreSettings(restoredTheme, restoredLang, restoredDisabled)
+                }
+
+                // Restore Calculation Sheets
+                val sheetsArray = backupObj.optJSONArray("sheets") ?: JSONArray()
+                val restoredSheets = mutableListOf<Sheet>()
                 for (i in 0 until sheetsArray.length()) {
                     val sheetObj = sheetsArray.getJSONObject(i)
-                    val name = sheetObj.optString("name", "Restored Sheet")
+                    val id = sheetObj.optLong("id", 0L)
+                    val name = sheetObj.optString("name", "")
                     val grandTotal = sheetObj.optLong("grandTotal", 0L)
                     val totalPieces = sheetObj.optLong("totalPieces", 0L)
                     val activeDenom = sheetObj.optInt("activeDenominations", 0)
+                    val createdAt = sheetObj.optLong("createdAt", System.currentTimeMillis())
+                    val updatedAt = sheetObj.optLong("updatedAt", System.currentTimeMillis())
 
                     val quantitiesObj = sheetObj.optJSONObject("quantities") ?: JSONObject()
-                    val restoredMap = mutableMapOf<Int, String>()
+                    val quantitiesMap = mutableMapOf<Int, Long>()
                     quantitiesObj.keys().forEach { k ->
                         val v = k.toIntOrNull()
-                        if (v != null) restoredMap[v] = quantitiesObj.optString(k, "0")
+                        if (v != null) {
+                            val q = quantitiesObj.optString(k, "0").toLongOrNull() ?: 0L
+                            quantitiesMap[v] = q
+                        }
                     }
 
-                    sheetRepository.saveCurrentSheet(restoredMap, grandTotal, totalPieces, activeDenom)
-                    restoredCount++
+                    val rows = Denomination.ALL.map { denom ->
+                        val q = quantitiesMap[denom.value] ?: 0L
+                        DenominationRow(
+                            denomination = denom,
+                            quantity = q,
+                            total = denom.value.toLong() * q
+                        )
+                    }
+
+                    val sheet = Sheet(
+                        id = id,
+                        name = name,
+                        rows = rows,
+                        grandTotal = grandTotal,
+                        totalPieces = totalPieces,
+                        activeDenominations = activeDenom,
+                        createdAt = createdAt,
+                        updatedAt = updatedAt
+                    )
+                    restoredSheets.add(sheet)
                 }
 
-                _uiState.update { it.copy(statusMessage = "Successfully restored $restoredCount item(s) from backup (v$version)") }
+                sheetRepository.restoreSheets(restoredSheets)
+                _uiState.update { it.copy(statusMessage = "Successfully restored ${restoredSheets.size} item(s) from backup (v$version)") }
             } catch (e: Exception) {
                 _uiState.update { it.copy(statusMessage = "Failed to restore backup: ${e.message}") }
             }
