@@ -470,6 +470,45 @@ def monitor():
 # Release — Post-build notification
 # ═══════════════════════════════════════════════════════════════════
 
+def send_changelog_in_chunks(token, chat_id, header, changelog_lines):
+    """Sends a changelog to Telegram, chunking it if it exceeds the limit."""
+    limit = 4000
+    if not changelog_lines:
+        if header:
+            send_message(token, chat_id, header, None)
+        return
+
+    current_chunk = []
+    if header:
+        current_chunk.append(header)
+
+    current_length = sum(len(c) for c in current_chunk) + len(current_chunk) - 1 if current_chunk else 0
+
+    part_index = 1
+    for line in changelog_lines:
+        line_len = len(line)
+        # Ensure single line doesn't exceed limit
+        if line_len > limit - 100:
+            line = line[:limit - 100] + "..."
+            line_len = len(line)
+
+        extra_len = 1 if current_chunk else 0
+        if current_length + line_len + extra_len > limit:
+            if current_chunk:
+                send_message(token, chat_id, "\n".join(current_chunk), None)
+            
+            part_index += 1
+            continuation_header = f"📝 <b>Changelog (continued - Part {part_index}):</b>"
+            current_chunk = [continuation_header, line]
+            current_length = len(continuation_header) + 1 + line_len
+        else:
+            current_chunk.append(line)
+            current_length += line_len + extra_len
+
+    if current_chunk:
+        send_message(token, chat_id, "\n".join(current_chunk), None)
+
+
 def release():
     token = os.environ.get("TELEGRAM_BOT_TOKEN")
     chat_id = os.environ.get("TELEGRAM_CHAT_ID")
@@ -531,22 +570,61 @@ def release():
             send_separate_changelog = True
 
         print(f"Uploading banner: {banner_path} with message caption...")
+        photo_sent = False
         try:
             send_photo(token, chat_id, banner_path, photo_caption, reply_markup)
             print("Successfully sent photo post.")
-            if send_separate_changelog:
-                changelog_message = (
-                    f"📝 <b>Changelog for v{version}:</b>\n"
-                    f"{changelog_html}"
-                )
-                send_message(token, chat_id, changelog_message, None)
-                print("Successfully sent separate changelog message.")
+            photo_sent = True
         except Exception as e:
-            print(f"Error sending photo, falling back to text: {e}")
-            send_message(token, chat_id, message, reply_markup)
+            print(f"Error sending photo: {e}")
+
+        if photo_sent:
+            if send_separate_changelog:
+                try:
+                    changelog_header = f"📝 <b>Changelog for v{version}:</b>"
+                    changelog_lines = changelog_html.splitlines()
+                    send_changelog_in_chunks(token, chat_id, changelog_header, changelog_lines)
+                    print("Successfully sent separate changelog message(s).")
+                except Exception as cle:
+                    print(f"Error sending separate changelog: {cle}")
+        else:
+            # Fallback to text post
+            try:
+                main_info = (
+                    f"<b>New update available (v{version})</b>\n\n"
+                    f"📦 <b>Build Information:</b>\n"
+                    f"- <b>Version:</b> <code>v{version}</code>\n"
+                    f"- <b>Commit:</b> {commit_link}\n"
+                    f"- <b>Build Time:</b> <code>{build_time}</code>\n"
+                    f"- <b>Android:</b> <code>7.0+</code>\n"
+                    f"- <b>SHA-256:</b> <code>{apk_sha}</code>\n\n"
+                    f"📝 <b>Changelog:</b>"
+                )
+                send_message(token, chat_id, main_info, reply_markup)
+                changelog_lines = changelog_html.splitlines()
+                send_changelog_in_chunks(token, chat_id, "", changelog_lines)
+                print("Successfully sent fallback text messages.")
+            except Exception as fe:
+                print(f"Error sending fallback text: {fe}")
     else:
         print("assets/update.png not found, sending as text post...")
-        send_message(token, chat_id, message, reply_markup)
+        try:
+            main_info = (
+                f"<b>New update available (v{version})</b>\n\n"
+                f"📦 <b>Build Information:</b>\n"
+                f"- <b>Version:</b> <code>v{version}</code>\n"
+                f"- <b>Commit:</b> {commit_link}\n"
+                f"- <b>Build Time:</b> <code>{build_time}</code>\n"
+                f"- <b>Android:</b> <code>7.0+</code>\n"
+                f"- <b>SHA-256:</b> <code>{apk_sha}</code>\n\n"
+                f"📝 <b>Changelog:</b>"
+            )
+            send_message(token, chat_id, main_info, reply_markup)
+            changelog_lines = changelog_html.splitlines()
+            send_changelog_in_chunks(token, chat_id, "", changelog_lines)
+            print("Successfully sent text post.")
+        except Exception as e:
+            print(f"Error sending text post: {e}")
 
     # Collect existing APKs
     apks_to_upload = []
@@ -573,6 +651,7 @@ def release():
                     print(f"Successfully uploaded {apk_file} individually.")
                 except Exception as doc_err:
                     print(f"Failed to upload {apk_file}: {doc_err}")
+
 
 
 def ota():
