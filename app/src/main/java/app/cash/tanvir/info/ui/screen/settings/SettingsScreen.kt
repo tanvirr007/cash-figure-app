@@ -399,7 +399,7 @@ fun SettingsScreen(
                             Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                             Column {
                                 Text(
-                                    if (isBangla) "হোমপেজ নোটসমূহ" else "Homepage Notes",
+                                    if (isBangla) "নোটসমূহ" else "Currency",
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
