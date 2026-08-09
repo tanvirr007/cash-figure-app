@@ -77,16 +77,18 @@ class CalculatorViewModel @Inject constructor(
             }
         }
 
-        // Restore active working sheet on startup
+        // Restore active working sheet on startup or database updates (including reset)
         viewModelScope.launch {
             sheetRepository.getCurrentSheet().collect { sheet ->
-                if (sheet != null) {
-                    val restoredQuantities = sheet.rows.associate {
+                val restoredQuantities = if (sheet != null) {
+                    sheet.rows.associate {
                         it.denomination.value to if (it.quantity > 0) it.quantity.toString() else ""
                     }
-                    _uiState.update { state ->
-                        recalculate(state.copy(quantities = restoredQuantities))
-                    }
+                } else {
+                    Denomination.ALL.associate { it.value to "" }
+                }
+                _uiState.update { state ->
+                    recalculate(state.copy(quantities = restoredQuantities))
                 }
             }
         }
@@ -139,10 +141,10 @@ class CalculatorViewModel @Inject constructor(
      * Save current sheet to History explicitly.
      * Returns false if total amount is 0.
      */
-    fun saveToHistory(name: String = ""): Boolean {
+    fun saveToHistory(name: String = ""): String? {
         val state = _uiState.value
         if (state.grandTotal <= 0L) {
-            return false
+            return null
         }
         viewModelScope.launch {
             val rows = Denomination.ALL.map { denom ->
@@ -163,10 +165,11 @@ class CalculatorViewModel @Inject constructor(
                 createdAt = System.currentTimeMillis(),
                 updatedAt = System.currentTimeMillis()
             )
-            sheetRepository.saveSheet(newSheet)
+            sheetRepository.saveSheetAndResetCurrent(newSheet)
         }
+        val savedAmountFormatted = state.grandTotalFormatted
         clearAll()
-        return true
+        return savedAmountFormatted
     }
 
     /**

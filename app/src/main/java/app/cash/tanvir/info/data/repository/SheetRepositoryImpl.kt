@@ -77,6 +77,21 @@ class SheetRepositoryImpl @Inject constructor(
         return id
     }
 
+    override suspend fun saveSheetAndResetCurrent(sheet: Sheet): Long {
+        val entity = sheet.toEntity()
+        val jsonObj = org.json.JSONObject()
+        val currentEntity = SheetEntity(
+            id = -1L,
+            name = "Current Working Sheet",
+            grandTotal = 0L,
+            totalPieces = 0L,
+            activeDenominations = 0,
+            updatedAt = System.currentTimeMillis(),
+            quantitiesJson = jsonObj.toString()
+        )
+        return sheetDao.saveSheetAndResetCurrent(entity, currentEntity)
+    }
+
     override suspend fun updateSheet(sheet: Sheet) {
         sheetDao.updateSheet(sheet.toEntity())
     }

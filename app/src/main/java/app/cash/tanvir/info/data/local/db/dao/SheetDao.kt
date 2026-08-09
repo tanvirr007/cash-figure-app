@@ -35,6 +35,18 @@ interface SheetDao {
     @Update
     suspend fun updateSheet(sheet: SheetEntity)
 
+    @androidx.room.Transaction
+    suspend fun saveSheetAndResetCurrent(newSheet: SheetEntity, currentSheet: SheetEntity): Long {
+        val id = insertSheet(newSheet)
+        if (newSheet.name.isBlank()) {
+            val sheetNumber = getHistorySheetCount()
+            val updatedEntity = newSheet.copy(id = id, name = "Sheet #$sheetNumber")
+            updateSheet(updatedEntity)
+        }
+        insertSheet(currentSheet)
+        return id
+    }
+
     @Query("UPDATE sheets SET isDeleted = 1, updatedAt = :updatedAt WHERE id = :id")
     suspend fun softDeleteSheet(id: Long, updatedAt: Long = System.currentTimeMillis())
 

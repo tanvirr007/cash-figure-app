@@ -13,6 +13,7 @@ interface SheetRepository {
     suspend fun getSheetById(id: Long): Sheet?
     suspend fun saveCurrentSheet(quantities: Map<Int, String>, grandTotal: Long, totalPieces: Long, activeDenominations: Int)
     suspend fun saveSheet(sheet: Sheet): Long
+    suspend fun saveSheetAndResetCurrent(sheet: Sheet): Long
     suspend fun updateSheet(sheet: Sheet)
     suspend fun softDeleteSheet(id: Long)
     suspend fun restoreSheet(id: Long)

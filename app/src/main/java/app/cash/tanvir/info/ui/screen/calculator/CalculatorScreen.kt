@@ -188,9 +188,13 @@ fun CalculatorScreen(
                             if (now - lastSaveClick < 500) return@Button
                             lastSaveClick = now
 
-                            val saved = viewModel.saveToHistory()
-                            val msg = if (saved) {
-                                if (isBangla) "হিস্ট্রিতে সেভ করা হয়েছে" else "Saved to history"
+                            val savedAmount = viewModel.saveToHistory()
+                            val msg = if (savedAmount != null) {
+                                if (isBangla) {
+                                    "লেনদেন সেভ হয়েছে: $savedAmount"
+                                } else {
+                                    "Transaction saved: $savedAmount"
+                                }
                             } else {
                                 if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
                             }
