@@ -14,7 +14,7 @@ object TxtReportGenerator {
 
         val sb = StringBuilder()
         sb.append("=========================================\n")
-        sb.append(if (isBangla) "         ক্যাশ ফিগার ক্যাশ রিপোর্ট         \n" else "         CASH FIGURE CASH REPORT         \n")
+        sb.append(if (isBangla) "              ক্যাশ রিপোর্ট               \n" else "               CASH REPORT               \n")
         sb.append("=========================================\n")
         sb.append(if (isBangla) "তারিখ: $dateStr\n" else "Date: $dateStr\n")
         sb.append(if (isBangla) "সর্বমোট: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = true)}\n" else "Grand Total: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = false)}\n")
