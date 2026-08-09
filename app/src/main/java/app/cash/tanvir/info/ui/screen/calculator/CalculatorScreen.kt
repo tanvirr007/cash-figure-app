@@ -60,6 +60,11 @@ fun CalculatorScreen(
     val isBangla = uiState.currentLanguage == AppLanguage.BANGLA
     var showClearAllConfirmation by remember { mutableStateOf(false) }
 
+    // Single toast reference — cancel the previous before showing a new one to avoid stacking
+    var activeToast by remember { mutableStateOf<Toast?>(null) }
+    // Debounce save clicks: ignore rapid repeated taps within 500ms
+    var lastSaveClick by remember { mutableLongStateOf(0L) }
+
     // Back-to-exit: require two presses within 2 seconds
     var lastBackPress by remember { mutableLongStateOf(0L) }
     BackHandler {
@@ -69,7 +74,8 @@ fun CalculatorScreen(
         } else {
             lastBackPress = now
             val msg = if (isBangla) "বের হতে আবার ব্যাক চাপুন" else "Press back again to exit"
-            Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+            activeToast?.cancel()
+            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
         }
     }
 
@@ -159,14 +165,18 @@ fun CalculatorScreen(
                 ) {
                     Button(
                         onClick = {
+                            val now = System.currentTimeMillis()
+                            if (now - lastSaveClick < 500) return@Button
+                            lastSaveClick = now
+
                             val saved = viewModel.saveToHistory()
-                            if (saved) {
-                                val msg = if (isBangla) "হিস্ট্রিতে সেভ করা হয়েছে" else "Saved to history"
-                                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                            val msg = if (saved) {
+                                if (isBangla) "হিস্ট্রিতে সেভ করা হয়েছে" else "Saved to history"
                             } else {
-                                val msg = if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
-                                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+                                if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
                             }
+                            activeToast?.cancel()
+                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
