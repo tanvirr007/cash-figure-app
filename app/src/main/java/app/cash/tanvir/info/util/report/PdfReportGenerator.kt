@@ -110,6 +110,9 @@ object PdfReportGenerator {
         val activeRows = sheet.rows.filter { it.quantity > 0 }
         if (activeRows.isEmpty()) {
             canvas.drawText(if (isBangla) "কোনো হিসাব নেই।" else "No cash counted.", margin, y, paint)
+            y += 15f
+            canvas.drawLine(margin, y, rightMargin, y, paint)
+            y += 20f
         } else {
             activeRows.forEach { row ->
                 val denomLabel = if (isBangla) row.denomination.labelBn else row.denomination.label
@@ -123,11 +126,25 @@ object PdfReportGenerator {
                 paint.textAlign = Paint.Align.LEFT
                 y += 22f
             }
+            
+            y -= 4f
+            canvas.drawLine(margin, y, rightMargin, y, paint)
+            y += 18f
+            
+            paint.isFakeBoldText = true
+            val totalLabel = if (isBangla) "সর্বমোট" else "Grand Total"
+            canvas.drawText(totalLabel, margin, y, paint)
+            
+            val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
+            paint.textAlign = Paint.Align.RIGHT
+            canvas.drawText(totalFormatted, rightMargin, y, paint)
+            paint.textAlign = Paint.Align.LEFT
+            paint.isFakeBoldText = false
+            
+            y += 14f
+            canvas.drawLine(margin, y, rightMargin, y, paint)
+            y += 20f
         }
-
-        y += 15f
-        canvas.drawLine(margin, y, rightMargin, y, paint)
-        y += 20f
 
         // Notes section
         paint.textSize = 12f

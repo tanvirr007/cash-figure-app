@@ -29,6 +29,9 @@ object CsvReportGenerator {
             val subtotal = CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)
             sb.append("\"$denomLabel\",$qtyStr,\"$subtotal\"\n")
         }
+        val totalLabel = if (isBangla) "সর্বমোট" else "Grand Total"
+        val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
+        sb.append("\"$totalLabel\",,\"$totalFormatted\"\n")
 
         val content = sb.toString().toByteArray(Charsets.UTF_8)
         // Prepend UTF-8 BOM so spreadsheet apps (Excel, etc.) correctly interpret non-ASCII characters (like Bangla text and the Taka symbol "৳")

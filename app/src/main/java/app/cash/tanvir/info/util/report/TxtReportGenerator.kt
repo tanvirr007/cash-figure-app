@@ -40,6 +40,14 @@ object TxtReportGenerator {
                     sb.append(String.format("%-10s x %-8d = %s\n", denomLabel, row.quantity, subtotal))
                 }
             }
+            sb.append("-----------------------------------------\n")
+            val totalLabel = if (isBangla) "সর্বমোট" else "Grand Total"
+            val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
+            if (isBangla) {
+                sb.append("$totalLabel = $totalFormatted\n")
+            } else {
+                sb.append(String.format("%-21s = %s\n", totalLabel, totalFormatted))
+            }
         }
 
         sb.append("=========================================\n")
