@@ -70,7 +70,8 @@ class SheetRepositoryImpl @Inject constructor(
         val entity = sheet.toEntity()
         val id = sheetDao.insertSheet(entity)
         if (sheet.name.isBlank()) {
-            val updatedEntity = entity.copy(id = id, name = "Sheet #$id")
+            val sheetNumber = sheetDao.getHistorySheetCount()
+            val updatedEntity = entity.copy(id = id, name = "Sheet #$sheetNumber")
             sheetDao.updateSheet(updatedEntity)
         }
         return id
@@ -121,11 +122,7 @@ class SheetRepositoryImpl @Inject constructor(
             )
         }
 
-        val displayName = when {
-            this.name.isNotBlank() && this.name != "Sheet #1" -> this.name
-            this.id > 0 -> "Sheet #${this.id}"
-            else -> "Sheet #1"
-        }
+        val displayName = if (this.name.isNotBlank()) this.name else "Sheet #1"
 
         return Sheet(
             id = this.id,

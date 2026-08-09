@@ -39,6 +39,7 @@ class SettingsRepositoryImpl @Inject constructor(
     override suspend fun resetAllData() {
         sheetDao.clearAllHistory()
         sheetDao.hardDeleteSheet(-1L) // clear current working sheet
+        sheetDao.resetAutoIncrement() // reset auto-increment so IDs restart from 1
         preferencesManager.clearAll()
     }
 }

@@ -44,6 +44,12 @@ interface SheetDao {
     @Query("DELETE FROM sheets WHERE id = :id")
     suspend fun hardDeleteSheet(id: Long)
 
+    @Query("SELECT COUNT(*) FROM sheets WHERE isDeleted = 0 AND id != -1")
+    suspend fun getHistorySheetCount(): Int
+
+    @Query("DELETE FROM sqlite_sequence WHERE name = 'sheets'")
+    suspend fun resetAutoIncrement()
+
     @Query("DELETE FROM sheets WHERE id != -1")
     suspend fun clearAllHistory()
 }
