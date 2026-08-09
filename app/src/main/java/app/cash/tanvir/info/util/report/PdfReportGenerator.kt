@@ -1,8 +1,11 @@
 package app.cash.tanvir.info.util.report
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.RectF
 import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import app.cash.tanvir.info.domain.model.Sheet
@@ -39,23 +42,25 @@ object PdfReportGenerator {
             }
         }
 
-        var y = 50f
+        val margin = 72f
+        val rightMargin = 595f - margin // 523f
+        var y = margin + 24f // Start below top margin: 72 + 24 = 96f
 
         // Title Header
         paint.textSize = 24f
         paint.isFakeBoldText = true
         paint.color = Color.parseColor("#00695C") // Deep Teal
-        canvas.drawText(if (isBangla) "ক্যাশ রিপোর্ট" else "Cash Report", 40f, y, paint)
+        canvas.drawText(if (isBangla) "ক্যাশ রিপোর্ট" else "Cash Report", margin, y, paint)
 
         y += 25f
         paint.textSize = 12f
         paint.isFakeBoldText = false
         paint.color = Color.DKGRAY
         val dateStr = formatPdfDate(sheet.updatedAt, isBangla)
-        canvas.drawText(if (isBangla) "তারিখ: $dateStr" else "Date: $dateStr", 40f, y, paint)
+        canvas.drawText(if (isBangla) "তারিখ: $dateStr" else "Date: $dateStr", margin, y, paint)
 
         y += 20f
-        canvas.drawLine(40f, y, 555f, y, paint)
+        canvas.drawLine(margin, y, rightMargin, y, paint)
         y += 30f
 
         // Summary Card
@@ -63,13 +68,13 @@ object PdfReportGenerator {
         paint.isFakeBoldText = true
         paint.color = Color.BLACK
         val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
-        canvas.drawText(if (isBangla) "সর্বমোট: $totalFormatted" else "Grand Total: $totalFormatted", 40f, y, paint)
+        canvas.drawText(if (isBangla) "সর্বমোট: $totalFormatted" else "Grand Total: $totalFormatted", margin, y, paint)
 
         y += 20f
         paint.textSize = 11f
         paint.isFakeBoldText = false
         val words = if (isBangla) NumberToWordsConverter.toBangla(sheet.grandTotal) else NumberToWordsConverter.toEnglish(sheet.grandTotal)
-        canvas.drawText(if (isBangla) "কথায়: $words" else "In Words: $words", 40f, y, paint)
+        canvas.drawText(if (isBangla) "কথায়: $words" else "In Words: $words", margin, y, paint)
 
         y += 20f
         canvas.drawText(
@@ -78,22 +83,24 @@ object PdfReportGenerator {
             } else {
                 "Total Pieces: ${sheet.totalPieces}  |  Active Denominations: ${sheet.activeDenominations}"
             },
-            40f, y, paint
+            margin, y, paint
         )
 
         y += 30f
-        canvas.drawLine(40f, y, 555f, y, paint)
+        canvas.drawLine(margin, y, rightMargin, y, paint)
         y += 25f
 
         // Breakdown Table Header
         paint.textSize = 14f
         paint.isFakeBoldText = true
-        canvas.drawText(if (isBangla) "নোটের মান" else "Denomination", 40f, y, paint)
-        canvas.drawText(if (isBangla) "সংখ্যা" else "Quantity", 250f, y, paint)
-        canvas.drawText(if (isBangla) "সাবটোটাল" else "Subtotal", 440f, y, paint)
+        canvas.drawText(if (isBangla) "নোটের মান" else "Denomination", margin, y, paint)
+        canvas.drawText(if (isBangla) "সংখ্যা" else "Quantity", 260f, y, paint)
+        paint.textAlign = Paint.Align.RIGHT
+        canvas.drawText(if (isBangla) "সাবটোটাল" else "Subtotal", rightMargin, y, paint)
+        paint.textAlign = Paint.Align.LEFT
 
         y += 10f
-        canvas.drawLine(40f, y, 555f, y, paint)
+        canvas.drawLine(margin, y, rightMargin, y, paint)
         y += 20f
 
         // Breakdown Items (exclude 0 quantity)
@@ -102,45 +109,67 @@ object PdfReportGenerator {
 
         val activeRows = sheet.rows.filter { it.quantity > 0 }
         if (activeRows.isEmpty()) {
-            canvas.drawText(if (isBangla) "কোনো হিসাব নেই।" else "No cash counted.", 40f, y, paint)
+            canvas.drawText(if (isBangla) "কোনো হিসাব নেই।" else "No cash counted.", margin, y, paint)
         } else {
             activeRows.forEach { row ->
                 val denomLabel = if (isBangla) row.denomination.labelBn else row.denomination.label
                 val subtotalFormatted = CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)
                 val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
 
-                canvas.drawText(denomLabel, 40f, y, paint)
-                canvas.drawText(qtyStr, 250f, y, paint)
-                canvas.drawText(subtotalFormatted, 440f, y, paint)
+                canvas.drawText(denomLabel, margin, y, paint)
+                canvas.drawText(qtyStr, 260f, y, paint)
+                paint.textAlign = Paint.Align.RIGHT
+                canvas.drawText(subtotalFormatted, rightMargin, y, paint)
+                paint.textAlign = Paint.Align.LEFT
                 y += 22f
             }
         }
 
         y += 15f
-        canvas.drawLine(40f, y, 555f, y, paint)
+        canvas.drawLine(margin, y, rightMargin, y, paint)
         y += 20f
 
         // Notes section
         paint.textSize = 12f
         paint.isFakeBoldText = true
         paint.color = Color.BLACK
-        canvas.drawText(if (isBangla) "নোট:" else "Notes:", 40f, y, paint)
+        canvas.drawText(if (isBangla) "নোট:" else "Notes:", margin, y, paint)
         y += 18f
         paint.isFakeBoldText = false
         val notesText = if (sheet.remark.isNotBlank()) sheet.remark else "N/A"
-        val notesTextLines = wrapText(notesText, paint, 515f)
+        val notesTextLines = wrapText(notesText, paint, rightMargin - margin)
         notesTextLines.forEach { line ->
-            canvas.drawText(line, 40f, y, paint)
+            canvas.drawText(line, margin, y, paint)
             y += 16f
         }
         y += 10f
-        canvas.drawLine(40f, y, 555f, y, paint)
-        y += 30f
+        canvas.drawLine(margin, y, rightMargin, y, paint)
 
-        // Footer
-        paint.textSize = 10f
-        paint.color = Color.GRAY
-        canvas.drawText(if (isBangla) "ক্যাশ ফিগার অ্যাপ দ্বারা প্রস্তুতকৃত" else "Generated by Cash Figure App", 40f, y, paint)
+        // Seal Image
+        var sealBitmap: Bitmap? = null
+        try {
+            context?.let { ctx ->
+                ctx.assets.open("seal.png").use { inputStream ->
+                    sealBitmap = BitmapFactory.decodeStream(inputStream)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        if (sealBitmap != null) {
+            val processedBitmap = removeOuterWhiteBackground(sealBitmap!!)
+            val originalWidth = processedBitmap.width.toFloat()
+            val originalHeight = processedBitmap.height.toFloat()
+            val aspectRatio = originalWidth / originalHeight
+            val targetWidth = 100f
+            val targetHeight = targetWidth / aspectRatio
+
+            val sealLeft = (595f - targetWidth) / 2f
+            val sealTop = maxOf(y + 30f, 842f - 72f - targetHeight)
+
+            canvas.drawBitmap(processedBitmap, null, RectF(sealLeft, sealTop, sealLeft + targetWidth, sealTop + targetHeight), paint)
+        }
 
         pdfDocument.finishPage(page)
 
@@ -176,5 +205,65 @@ object PdfReportGenerator {
 
     private fun formatPdfDate(timestamp: Long, isBangla: Boolean): String {
         return app.cash.tanvir.info.util.DateTimeFormatter.format(timestamp, isBangla)
+    }
+
+    private fun removeOuterWhiteBackground(src: Bitmap): Bitmap {
+        val width = src.width
+        val height = src.height
+        val mutableBitmap = src.copy(Bitmap.Config.ARGB_8888, true)
+        val pixels = IntArray(width * height)
+        mutableBitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+
+        val visited = java.util.BitSet(width * height)
+        val queue = java.util.LinkedList<Int>()
+
+        // Helper to check if pixel is white or close to white (RGB > 240)
+        fun isWhite(color: Int): Boolean {
+            val r = (color shr 16) and 0xFF
+            val g = (color shr 8) and 0xFF
+            val b = color and 0xFF
+            return r > 240 && g > 240 && b > 240
+        }
+
+        // Add 4 corners as seeds for flood fill
+        val corners = intArrayOf(
+            0,
+            width - 1,
+            (height - 1) * width,
+            height * width - 1
+        )
+        for (corner in corners) {
+            if (isWhite(pixels[corner])) {
+                queue.add(corner)
+                visited.set(corner)
+            }
+        }
+
+        val dx = intArrayOf(-1, 1, 0, 0)
+        val dy = intArrayOf(0, 0, -1, 1)
+
+        while (!queue.isEmpty()) {
+            val idx = queue.poll()!!
+            val x = idx % width
+            val y = idx / width
+
+            // Make the outer background white pixel completely transparent (alpha = 0)
+            pixels[idx] = pixels[idx] and 0x00FFFFFF
+
+            for (i in 0 until 4) {
+                val nx = x + dx[i]
+                val ny = y + dy[i]
+                if (nx in 0 until width && ny in 0 until height) {
+                    val nIdx = ny * width + nx
+                    if (!visited.get(nIdx) && isWhite(pixels[nIdx])) {
+                        visited.set(nIdx)
+                        queue.add(nIdx)
+                    }
+                }
+            }
+        }
+
+        mutableBitmap.setPixels(pixels, 0, width, 0, 0, width, height)
+        return mutableBitmap
     }
 }

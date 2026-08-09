@@ -435,7 +435,7 @@ fun SettingsScreen(
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
-                        if (isBangla) "ডাটা ব্যাকআপ ও রিস্টোর" else "Data Backup & Restore",
+                        if (isBangla) "ব্যাকআপ ও রিস্টোর" else "Backup & Restore",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -453,7 +453,7 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                         Column {
                             Text(
-                                if (isBangla) "ডাটা ব্যাকআপ নিন (JSON)" else "Backup Data (JSON)",
+                                if (isBangla) "ব্যাকআপ ডাটা" else "Backup Data",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -479,7 +479,7 @@ fun SettingsScreen(
                         Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                         Column {
                             Text(
-                                if (isBangla) "ডাটা রিস্টোর করুন" else "Restore Data",
+                                if (isBangla) "রিস্টোর ডাটা" else "Restore Data",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -510,7 +510,7 @@ fun SettingsScreen(
                     Spacer(modifier = Modifier.padding(horizontal = 8.dp))
                     Column {
                         Text(
-                            if (isBangla) "সকল ডাটা রিসেট করুন" else "Reset All Data",
+                            if (isBangla) "রিসেট করুন" else "Reset All",
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.error
