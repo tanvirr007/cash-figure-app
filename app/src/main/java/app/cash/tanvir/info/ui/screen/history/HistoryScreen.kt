@@ -52,9 +52,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.domain.model.Sheet
 import app.cash.tanvir.info.util.CurrencyFormatter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -221,28 +218,7 @@ fun HistoryScreen(
 }
 
 private fun formatHistoryDate(timestamp: Long, isBangla: Boolean): String {
-    val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.ENGLISH)
-    val str = dateFormat.format(Date(timestamp))
-    if (!isBangla) return str
-
-    var bnStr = app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(str)
-    bnStr = bnStr.replace("Jan", "জানুয়ারি")
-        .replace("Feb", "ফেব্রুয়ারি")
-        .replace("Mar", "মার্চ")
-        .replace("Apr", "এপ্রিল")
-        .replace("May", "মে")
-        .replace("Jun", "জুন")
-        .replace("Jul", "জুলাই")
-        .replace("Aug", "আগস্ট")
-        .replace("Sep", "সেপ্টেম্বর")
-        .replace("Oct", "অক্টোবর")
-        .replace("Nov", "নভেম্বর")
-        .replace("Dec", "ডিসেম্বর")
-        .replace("AM", "এএম")
-        .replace("PM", "পিএম")
-        .replace("am", "এএম")
-        .replace("pm", "পিএম")
-    return bnStr
+    return app.cash.tanvir.info.util.DateTimeFormatter.format(timestamp, isBangla)
 }
 
 @Composable

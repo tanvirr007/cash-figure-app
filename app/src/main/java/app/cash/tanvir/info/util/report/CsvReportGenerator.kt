@@ -3,16 +3,11 @@ package app.cash.tanvir.info.util.report
 import app.cash.tanvir.info.domain.model.Sheet
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.NumberToWordsConverter
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 object CsvReportGenerator {
 
     fun generateCsv(sheet: Sheet, isBangla: Boolean = false): ByteArray {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH)
-        val rawDate = dateFormat.format(Date(sheet.updatedAt))
-        val dateStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(rawDate) else rawDate
+        val dateStr = app.cash.tanvir.info.util.DateTimeFormatter.format(sheet.updatedAt, isBangla)
         val words = if (isBangla) NumberToWordsConverter.toBangla(sheet.grandTotal) else NumberToWordsConverter.toEnglish(sheet.grandTotal)
         val totalPiecesStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces) else sheet.totalPieces.toString()
         val activeDenomStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations) else sheet.activeDenominations.toString()
