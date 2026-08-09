@@ -181,7 +181,8 @@ fun ReportScreen(
                                         .weight(1.3f)
                                         .padding(12.dp),
                                     style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold
+                                    fontWeight = FontWeight.Bold,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )
                                 // Vertical divider
                                 Box(
