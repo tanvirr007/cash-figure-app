@@ -51,7 +51,7 @@ fun DashboardCard(
             Text(
                 text = grandTotalFormatted,
                 style = MaterialTheme.typography.displayLarge.copy(
-                    fontSize = 38.sp,
+                    fontSize = 32.sp,
                     fontWeight = FontWeight.Bold
                 ),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
