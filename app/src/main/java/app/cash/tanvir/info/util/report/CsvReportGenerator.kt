@@ -29,6 +29,13 @@ object CsvReportGenerator {
             sb.append("\"$denomLabel\",${row.quantity},\"$subtotal\"\n")
         }
 
-        return sb.toString().toByteArray(Charsets.UTF_8)
+        val content = sb.toString().toByteArray(Charsets.UTF_8)
+        // Prepend UTF-8 BOM so spreadsheet apps (Excel, etc.) correctly interpret Bangla text
+        return if (isBangla) {
+            val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+            bom + content
+        } else {
+            content
+        }
     }
 }
