@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -29,6 +31,10 @@ class PreferencesManager @Inject constructor(
         val THEME = stringPreferencesKey("app_theme")
         val LANGUAGE = stringPreferencesKey("app_language")
         val DISABLED_DENOMINATIONS = stringSetPreferencesKey("disabled_note_denominations")
+        val BIOMETRIC_ENABLED = booleanPreferencesKey("biometric_enabled")
+        val SCREENSHOT_BLOCK_ENABLED = booleanPreferencesKey("screenshot_block_enabled")
+        val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
+        val HAPTIC_FEEDBACK_INTENSITY = floatPreferencesKey("haptic_feedback_intensity")
     }
 
     val themeFlow: Flow<AppTheme> = context.dataStore.data.map { prefs ->
@@ -48,6 +54,22 @@ class PreferencesManager @Inject constructor(
 
     val disabledDenominationsFlow: Flow<Set<Int>> = context.dataStore.data.map { prefs ->
         prefs[Keys.DISABLED_DENOMINATIONS]?.mapNotNull { it.toIntOrNull() }?.toSet() ?: emptySet()
+    }
+
+    val biometricEnabledFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.BIOMETRIC_ENABLED] ?: false
+    }
+
+    val screenshotBlockEnabledFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.SCREENSHOT_BLOCK_ENABLED] ?: false
+    }
+
+    val hapticFeedbackEnabledFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.HAPTIC_FEEDBACK_ENABLED] ?: false
+    }
+
+    val hapticFeedbackIntensityFlow: Flow<Float> = context.dataStore.data.map { prefs ->
+        prefs[Keys.HAPTIC_FEEDBACK_INTENSITY] ?: 0.5f
     }
 
     suspend fun setTheme(theme: AppTheme) {
@@ -77,6 +99,30 @@ class PreferencesManager @Inject constructor(
     suspend fun setDisabledDenominations(disabled: Set<Int>) {
         context.dataStore.edit { prefs ->
             prefs[Keys.DISABLED_DENOMINATIONS] = disabled.map { it.toString() }.toSet()
+        }
+    }
+
+    suspend fun setBiometricEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.BIOMETRIC_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setScreenshotBlockEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.SCREENSHOT_BLOCK_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setHapticFeedbackEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.HAPTIC_FEEDBACK_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setHapticFeedbackIntensity(intensity: Float) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.HAPTIC_FEEDBACK_INTENSITY] = intensity
         }
     }
 

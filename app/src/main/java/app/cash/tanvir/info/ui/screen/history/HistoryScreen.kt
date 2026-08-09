@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.domain.model.Sheet
 import app.cash.tanvir.info.util.CurrencyFormatter
+import app.cash.tanvir.info.util.HapticHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +66,7 @@ fun HistoryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val sheets by viewModel.sheets.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val isBangla = uiState.currentLanguage == app.cash.tanvir.info.data.local.preferences.AppLanguage.BANGLA
 
@@ -77,6 +79,7 @@ fun HistoryScreen(
                 duration = SnackbarDuration.Short
             )
             if (result == SnackbarResult.ActionPerformed) {
+                HapticHelper.vibrate(context)
                 viewModel.undoDelete()
             }
         }
@@ -87,7 +90,10 @@ fun HistoryScreen(
             TopAppBar(
                 title = { Text(if (isBangla) "হিসাবের ইতিহাস" else "Calculation History") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateBack()
+                    }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = if (isBangla) "ফিরে যান" else "Back")
                     }
                 },
@@ -150,9 +156,18 @@ fun HistoryScreen(
                         HistoryCard(
                             sheet = sheet,
                             isBangla = isBangla,
-                            onClick = { onSelectSheet(sheet) },
-                            onRename = { viewModel.openRenameDialog(sheet) },
-                            onDelete = { viewModel.openDeleteConfirmation(sheet) }
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                onSelectSheet(sheet)
+                            },
+                            onRename = {
+                                HapticHelper.vibrate(context)
+                                viewModel.openRenameDialog(sheet)
+                            },
+                            onDelete = {
+                                HapticHelper.vibrate(context)
+                                viewModel.openDeleteConfirmation(sheet)
+                            }
                         )
                     }
                 }
@@ -166,7 +181,10 @@ fun HistoryScreen(
         var renameText by remember { mutableStateOf(targetSheet.name) }
 
         AlertDialog(
-            onDismissRequest = { viewModel.dismissRenameDialog() },
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                viewModel.dismissRenameDialog()
+            },
             title = { Text(if (isBangla) "শিটের নাম পরিবর্তন" else "Rename Sheet") },
             text = {
                 OutlinedTextField(
@@ -179,6 +197,7 @@ fun HistoryScreen(
             confirmButton = {
                 Button(
                     onClick = {
+                        HapticHelper.vibrate(context)
                         if (renameText.isNotBlank()) {
                             viewModel.renameSheet(targetSheet, renameText.trim())
                         }
@@ -188,7 +207,10 @@ fun HistoryScreen(
                 }
             },
             dismissButton = {
-                OutlinedButton(onClick = { viewModel.dismissRenameDialog() }) {
+                OutlinedButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    viewModel.dismissRenameDialog()
+                }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
@@ -201,12 +223,18 @@ fun HistoryScreen(
         val sheetName = targetSheet.name.ifEmpty { if (isBangla) "সেভ করা হিসাব" else "Saved Sheet" }
 
         AlertDialog(
-            onDismissRequest = { viewModel.dismissDeleteConfirmation() },
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                viewModel.dismissDeleteConfirmation()
+            },
             title = { Text(if (isBangla) "হিসাবটি মুছে ফেলবেন?" else "Delete Calculation?") },
             text = { Text(if (isBangla) "আপনি কি সত্যিই \"$sheetName\" মুছে ফেলতে চান?" else "Are you sure you want to delete \"$sheetName\"?") },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.confirmDeleteSheet() },
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        viewModel.confirmDeleteSheet()
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError
@@ -216,7 +244,10 @@ fun HistoryScreen(
                 }
             },
             dismissButton = {
-                OutlinedButton(onClick = { viewModel.dismissDeleteConfirmation() }) {
+                OutlinedButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    viewModel.dismissDeleteConfirmation()
+                }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }

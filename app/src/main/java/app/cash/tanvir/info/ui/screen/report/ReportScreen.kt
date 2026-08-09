@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.NumberToWordsConverter
+import app.cash.tanvir.info.util.HapticHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -82,7 +83,10 @@ fun ReportScreen(
             TopAppBar(
                 title = { Text(if (isBangla) "রিপোর্ট এক্সপোর্ট ও প্রিন্ট" else "Export & Print Report") },
                 navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
+                    IconButton(onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateBack()
+                    }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = if (isBangla) "ফিরে যান" else "Back")
                     }
                 },
@@ -216,7 +220,10 @@ fun ReportScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { pendingExportFormat = ExportFormat.PDF },
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            pendingExportFormat = ExportFormat.PDF
+                        },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -225,7 +232,10 @@ fun ReportScreen(
                         Text("PDF")
                     }
                     Button(
-                        onClick = { pendingExportFormat = ExportFormat.CSV },
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            pendingExportFormat = ExportFormat.CSV
+                        },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -234,7 +244,10 @@ fun ReportScreen(
                         Text("CSV")
                     }
                     Button(
-                        onClick = { pendingExportFormat = ExportFormat.TXT },
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            pendingExportFormat = ExportFormat.TXT
+                        },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -249,7 +262,10 @@ fun ReportScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     OutlinedButton(
-                        onClick = { viewModel.printReport(context) },
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            viewModel.printReport(context)
+                        },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -258,7 +274,10 @@ fun ReportScreen(
                         Text(if (isBangla) "প্রিন্ট" else "Print")
                     }
                     OutlinedButton(
-                        onClick = { viewModel.shareReport(context) },
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            viewModel.shareReport(context)
+                        },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -281,12 +300,16 @@ fun ReportScreen(
             "Are you sure you want to export the calculation as a $formatName file?"
         }
         AlertDialog(
-            onDismissRequest = { pendingExportFormat = null },
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                pendingExportFormat = null
+            },
             title = { Text(titleText) },
             text = { Text(messageText) },
             confirmButton = {
                 Button(
                     onClick = {
+                        HapticHelper.vibrate(context)
                         viewModel.exportReport(context, format)
                         pendingExportFormat = null
                     }
@@ -295,7 +318,10 @@ fun ReportScreen(
                 }
             },
             dismissButton = {
-                OutlinedButton(onClick = { pendingExportFormat = null }) {
+                OutlinedButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    pendingExportFormat = null
+                }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
@@ -377,6 +403,7 @@ fun ReportScreen(
             confirmButton = {
                 Button(
                     onClick = {
+                        HapticHelper.vibrate(context)
                         if (notesInputText.isNotBlank()) {
                             viewModel.updateSheetRemark(notesInputText.trim())
                             showNotesPrompt = false

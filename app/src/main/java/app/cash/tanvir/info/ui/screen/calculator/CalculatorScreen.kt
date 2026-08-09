@@ -49,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
+import app.cash.tanvir.info.util.HapticHelper
 
 import app.cash.tanvir.info.ui.screen.calculator.components.DashboardCard
 import app.cash.tanvir.info.ui.screen.calculator.components.DenominationRowItem
@@ -107,16 +108,23 @@ fun CalculatorScreen(
                 ),
                 actions = {
                     // History icon button
-                    IconButton(onClick = onNavigateToHistory) {
+                    IconButton(onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateToHistory()
+                    }) {
                         Icon(Icons.Default.History, contentDescription = if (isBangla) "ইতিহাস" else "History")
                     }
                     // Settings icon button
-                    IconButton(onClick = onNavigateToSettings) {
+                    IconButton(onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateToSettings()
+                    }) {
                         Icon(Icons.Default.Settings, contentDescription = if (isBangla) "সেটিংস" else "Settings")
                     }
                     // Clear all button with confirmation or idle toast
                     IconButton(
                         onClick = {
+                            HapticHelper.vibrate(context)
                             if (isIdle) {
                                 val msg = if (isBangla) "মুছে ফেলার মতো কিছু নেই" else "Nothing to clear"
                                 activeToast?.cancel()
@@ -179,7 +187,10 @@ fun CalculatorScreen(
                     rowTotal = row.total,
                     isLastRow = index == uiState.rows.lastIndex,
                     onQuantityChange = { viewModel.updateQuantity(row.denomination.value, it) },
-                    onClear = { pendingClearDenomination = row.denomination.value },
+                    onClear = {
+                        HapticHelper.vibrate(context)
+                        pendingClearDenomination = row.denomination.value
+                    },
                     isBangla = isBangla
                 )
             }
@@ -194,6 +205,7 @@ fun CalculatorScreen(
                 ) {
                     Button(
                         onClick = {
+                            HapticHelper.vibrate(context)
                             val now = System.currentTimeMillis()
                             if (now - lastSaveClick < 500) return@Button
                             lastSaveClick = now
@@ -222,12 +234,16 @@ fun CalculatorScreen(
     // Confirmation dialog for Header Clear All button
     if (showClearAllConfirmation) {
         AlertDialog(
-            onDismissRequest = { showClearAllConfirmation = false },
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                showClearAllConfirmation = false
+            },
             title = { Text(if (isBangla) "সব এন্ট্রি মুছে ফেলবেন?" else "Clear All Entries?") },
             text = { Text(if (isBangla) "আপনি কি সমস্ত ইনপুট সংখ্যা মুছে নতুন হিসাব শুরু করতে চান?" else "Are you sure you want to clear all denomination entries?") },
             confirmButton = {
                 Button(
                     onClick = {
+                        HapticHelper.vibrate(context)
                         viewModel.clearAll()
                         showClearAllConfirmation = false
                     },
@@ -240,7 +256,10 @@ fun CalculatorScreen(
                 }
             },
             dismissButton = {
-                OutlinedButton(onClick = { showClearAllConfirmation = false }) {
+                OutlinedButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    showClearAllConfirmation = false
+                }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
@@ -256,7 +275,10 @@ fun CalculatorScreen(
             denomValue.toString()
         }
         AlertDialog(
-            onDismissRequest = { pendingClearDenomination = null },
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                pendingClearDenomination = null
+            },
             title = {
                 Text(
                     if (isBangla) "মুছে ফেলবেন?"
@@ -272,6 +294,7 @@ fun CalculatorScreen(
             confirmButton = {
                 Button(
                     onClick = {
+                        HapticHelper.vibrate(context)
                         viewModel.clearRow(denomValue)
                         pendingClearDenomination = null
                     },
@@ -284,7 +307,10 @@ fun CalculatorScreen(
                 }
             },
             dismissButton = {
-                OutlinedButton(onClick = { pendingClearDenomination = null }) {
+                OutlinedButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    pendingClearDenomination = null
+                }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
@@ -295,7 +321,10 @@ fun CalculatorScreen(
     if (showAddNotesDialog) {
         val activeRows = uiState.rows.filter { it.quantity > 0 }
         AlertDialog(
-            onDismissRequest = { showAddNotesDialog = false },
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                showAddNotesDialog = false
+            },
             title = {
                 Text(
                     text = if (isBangla) "ক্যাশ ব্রেকডাউন" else "Cash Breakdown",
@@ -356,7 +385,10 @@ fun CalculatorScreen(
             },
             dismissButton = {
                 OutlinedButton(
-                    onClick = { showAddNotesDialog = false }
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        showAddNotesDialog = false
+                    }
                 ) {
                     Text(
                         text = if (isBangla) "বাতিল" else "Cancel"
@@ -366,6 +398,7 @@ fun CalculatorScreen(
             confirmButton = {
                 Button(
                     onClick = {
+                        HapticHelper.vibrate(context)
                         viewModel.saveToHistory(remark = "") { savedId, savedAmount ->
                             val msg = if (isBangla) "লেনদেন সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
                             activeToast?.cancel()

@@ -24,6 +24,14 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override fun getDisabledDenominations(): Flow<Set<Int>> = preferencesManager.disabledDenominationsFlow
 
+    override fun getBiometricEnabled(): Flow<Boolean> = preferencesManager.biometricEnabledFlow
+
+    override fun getScreenshotBlockEnabled(): Flow<Boolean> = preferencesManager.screenshotBlockEnabledFlow
+
+    override fun getHapticFeedbackEnabled(): Flow<Boolean> = preferencesManager.hapticFeedbackEnabledFlow
+
+    override fun getHapticFeedbackIntensity(): Flow<Float> = preferencesManager.hapticFeedbackIntensityFlow
+
     override suspend fun setTheme(theme: AppTheme) {
         preferencesManager.setTheme(theme)
     }
@@ -34,6 +42,22 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setDenominationEnabled(denomination: Int, enabled: Boolean) {
         preferencesManager.setDenominationEnabled(denomination, enabled)
+    }
+
+    override suspend fun setBiometricEnabled(enabled: Boolean) {
+        preferencesManager.setBiometricEnabled(enabled)
+    }
+
+    override suspend fun setScreenshotBlockEnabled(enabled: Boolean) {
+        preferencesManager.setScreenshotBlockEnabled(enabled)
+    }
+
+    override suspend fun setHapticFeedbackEnabled(enabled: Boolean) {
+        preferencesManager.setHapticFeedbackEnabled(enabled)
+    }
+
+    override suspend fun setHapticFeedbackIntensity(intensity: Float) {
+        preferencesManager.setHapticFeedbackIntensity(intensity)
     }
 
     override suspend fun resetAllData() {

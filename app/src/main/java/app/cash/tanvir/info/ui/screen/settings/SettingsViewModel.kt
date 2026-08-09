@@ -30,7 +30,11 @@ data class SettingsUiState(
     val showResetConfirmationDialog: Boolean = false,
     val showRestoreWarningDialog: Boolean = false,
     val pendingRestoreUri: Uri? = null,
-    val statusMessage: String? = null
+    val statusMessage: String? = null,
+    val biometricEnabled: Boolean = false,
+    val screenshotBlockEnabled: Boolean = false,
+    val hapticFeedbackEnabled: Boolean = false,
+    val hapticFeedbackIntensity: Float = 0.5f
 )
 
 @HiltViewModel
@@ -58,6 +62,26 @@ class SettingsViewModel @Inject constructor(
                 _uiState.update { it.copy(disabledDenominations = disabled) }
             }
         }
+        viewModelScope.launch {
+            settingsRepository.getBiometricEnabled().collect { enabled ->
+                _uiState.update { it.copy(biometricEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.getScreenshotBlockEnabled().collect { enabled ->
+                _uiState.update { it.copy(screenshotBlockEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.getHapticFeedbackEnabled().collect { enabled ->
+                _uiState.update { it.copy(hapticFeedbackEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.getHapticFeedbackIntensity().collect { intensity ->
+                _uiState.update { it.copy(hapticFeedbackIntensity = intensity) }
+            }
+        }
     }
 
     fun setTheme(theme: AppTheme) {
@@ -75,6 +99,30 @@ class SettingsViewModel @Inject constructor(
     fun toggleDenomination(denomination: Int, enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setDenominationEnabled(denomination, enabled)
+        }
+    }
+
+    fun setBiometricEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setBiometricEnabled(enabled)
+        }
+    }
+
+    fun setScreenshotBlockEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setScreenshotBlockEnabled(enabled)
+        }
+    }
+
+    fun setHapticFeedbackEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setHapticFeedbackEnabled(enabled)
+        }
+    }
+
+    fun setHapticFeedbackIntensity(intensity: Float) {
+        viewModelScope.launch {
+            settingsRepository.setHapticFeedbackIntensity(intensity)
         }
     }
 
