@@ -48,7 +48,7 @@ Rules: data flows one way (Screen → ViewModel → Repository → DB/DataStore)
 
 ## Git
 
-Follow the `git` skill (`.opencode/skills/git/SKILL.md`): commit message pattern with Change-Id footer, `-s` signoff, clean staging, never force push, always ask before committing or pushing.
+Commit messages follow the repo pattern: title + bullet description + TEST section with a Change-Id footer, always signed off with `-s`; keep staging clean; never force push; always ask before committing or pushing.
 
 ## References
 
