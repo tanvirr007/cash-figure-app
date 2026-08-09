@@ -153,6 +153,7 @@ class CalculatorViewModel @Inject constructor(
             )
             sheetRepository.saveSheet(newSheet)
         }
+        clearAll()
         return true
     }
 
