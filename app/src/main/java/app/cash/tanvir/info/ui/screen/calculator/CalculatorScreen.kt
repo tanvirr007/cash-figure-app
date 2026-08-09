@@ -582,19 +582,26 @@ fun CalculatorScreen(
                     onClick = {
                         HapticHelper.vibrate(context)
                         showAddNotesDialog = false
+                        showBreakdownDialog = true
                     },
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    Text(if (isBangla) "বাতিল" else "Cancel")
+                    Text(if (isBangla) "পিছনে" else "Back")
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
                         HapticHelper.vibrate(context)
+                        if (notesInputText.trim().isBlank()) {
+                            val msg = if (isBangla) "নোট ছাড়া সেভ করা যাবে না" else "Cannot save without a note"
+                            activeToast?.cancel()
+                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+                            return@Button
+                        }
                         viewModel.saveToHistory(remark = notesInputText.trim()) { savedId, savedAmount ->
                             val msg = if (isBangla) "লেনদেন সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
                             activeToast?.cancel()
@@ -603,6 +610,7 @@ fun CalculatorScreen(
                         }
                         showAddNotesDialog = false
                     },
+                    enabled = notesInputText.isNotBlank(),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
