@@ -280,7 +280,7 @@ fun ReportScreen(
                                 )
                             }
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
