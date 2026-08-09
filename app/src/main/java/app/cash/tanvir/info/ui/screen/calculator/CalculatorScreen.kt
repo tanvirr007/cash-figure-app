@@ -58,6 +58,7 @@ fun CalculatorScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isBangla = uiState.currentLanguage == AppLanguage.BANGLA
+    val isIdle = uiState.quantities.values.all { it.isEmpty() }
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     // Denomination value pending single-row clear confirmation (null = no dialog)
     var pendingClearDenomination by remember { mutableStateOf<Int?>(null) }
@@ -103,12 +104,26 @@ fun CalculatorScreen(
                     IconButton(onClick = onNavigateToSettings) {
                         Icon(Icons.Default.Settings, contentDescription = if (isBangla) "সেটিংস" else "Settings")
                     }
-                    // Clear all button with confirmation
-                    IconButton(onClick = { showClearAllConfirmation = true }) {
+                    // Clear all button with confirmation or idle toast
+                    IconButton(
+                        onClick = {
+                            if (isIdle) {
+                                val msg = if (isBangla) "মুছে ফেলার মতো কিছু নেই" else "Nothing to clear"
+                                activeToast?.cancel()
+                                activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+                            } else {
+                                showClearAllConfirmation = true
+                            }
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Default.DeleteSweep,
                             contentDescription = if (isBangla) "সব মুছুন" else "Clear All",
-                            tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                            tint = if (isIdle) {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                            } else {
+                                MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                            }
                         )
                     }
                 }
