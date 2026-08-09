@@ -24,6 +24,7 @@ import javax.inject.Inject
 data class SettingsUiState(
     val theme: AppTheme = AppTheme.SYSTEM,
     val language: AppLanguage = AppLanguage.ENGLISH,
+    val disabledDenominations: Set<Int> = emptySet(),
     val showResetConfirmationDialog: Boolean = false,
     val statusMessage: String? = null
 )
@@ -48,6 +49,11 @@ class SettingsViewModel @Inject constructor(
                 _uiState.update { it.copy(language = lang) }
             }
         }
+        viewModelScope.launch {
+            settingsRepository.getDisabledDenominations().collect { disabled ->
+                _uiState.update { it.copy(disabledDenominations = disabled) }
+            }
+        }
     }
 
     fun setTheme(theme: AppTheme) {
@@ -59,6 +65,12 @@ class SettingsViewModel @Inject constructor(
     fun setLanguage(language: AppLanguage) {
         viewModelScope.launch {
             settingsRepository.setLanguage(language)
+        }
+    }
+
+    fun toggleDenomination(denomination: Int, enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setDenominationEnabled(denomination, enabled)
         }
     }
 

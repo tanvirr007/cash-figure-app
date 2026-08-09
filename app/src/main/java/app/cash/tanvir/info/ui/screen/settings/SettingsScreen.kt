@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
@@ -33,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -173,6 +175,63 @@ fun SettingsScreen(
                             onClick = { viewModel.setLanguage(AppLanguage.BANGLA) }
                         )
                         Text("বাংলা (Bangla)", style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+
+            // Homepage Notes Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Payments, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                        Text(
+                            if (uiState.language == AppLanguage.BANGLA) "হোমপেজ নোটসমূহ" else "Homepage Notes",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        if (uiState.language == AppLanguage.BANGLA) "হোমপেজে প্রদর্শিত নোটগুলো নিয়ন্ত্রণ করুন" else "Control note denominations displayed on homepage",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    listOf(
+                        Triple(1, "1 Tk", "১ টাকা"),
+                        Triple(2, "2 Tk", "২ টাকা"),
+                        Triple(5, "5 Tk", "৫ টাকা"),
+                        Triple(10, "10 Tk", "১০ টাকা"),
+                        Triple(20, "20 Tk", "২০ টাকা"),
+                        Triple(50, "50 Tk", "৫০ টাকা")
+                    ).forEachIndexed { index, (value, labelEn, labelBn) ->
+                        if (index > 0) {
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 2.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                        }
+                        val isEnabled = value !in uiState.disabledDenominations
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { viewModel.toggleDenomination(value, !isEnabled) }
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = if (uiState.language == AppLanguage.BANGLA) labelBn else labelEn,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Switch(
+                                checked = isEnabled,
+                                onCheckedChange = { checked -> viewModel.toggleDenomination(value, checked) }
+                            )
+                        }
                     }
                 }
             }

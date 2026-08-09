@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     fun getTheme(): Flow<AppTheme>
     fun getLanguage(): Flow<AppLanguage>
+    fun getDisabledDenominations(): Flow<Set<Int>>
     suspend fun setTheme(theme: AppTheme)
     suspend fun setLanguage(language: AppLanguage)
+    suspend fun setDenominationEnabled(denomination: Int, enabled: Boolean)
     suspend fun resetAllData()
 }

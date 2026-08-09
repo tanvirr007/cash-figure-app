@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +28,7 @@ class PreferencesManager @Inject constructor(
     private object Keys {
         val THEME = stringPreferencesKey("app_theme")
         val LANGUAGE = stringPreferencesKey("app_language")
+        val DISABLED_DENOMINATIONS = stringSetPreferencesKey("disabled_note_denominations")
     }
 
     val themeFlow: Flow<AppTheme> = context.dataStore.data.map { prefs ->
@@ -44,6 +46,10 @@ class PreferencesManager @Inject constructor(
         }
     }
 
+    val disabledDenominationsFlow: Flow<Set<Int>> = context.dataStore.data.map { prefs ->
+        prefs[Keys.DISABLED_DENOMINATIONS]?.mapNotNull { it.toIntOrNull() }?.toSet() ?: emptySet()
+    }
+
     suspend fun setTheme(theme: AppTheme) {
         context.dataStore.edit { prefs ->
             prefs[Keys.THEME] = theme.name
@@ -53,6 +59,18 @@ class PreferencesManager @Inject constructor(
     suspend fun setLanguage(language: AppLanguage) {
         context.dataStore.edit { prefs ->
             prefs[Keys.LANGUAGE] = language.name
+        }
+    }
+
+    suspend fun setDenominationEnabled(denomination: Int, enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            val current = prefs[Keys.DISABLED_DENOMINATIONS]?.toMutableSet() ?: mutableSetOf()
+            if (enabled) {
+                current.remove(denomination.toString())
+            } else {
+                current.add(denomination.toString())
+            }
+            prefs[Keys.DISABLED_DENOMINATIONS] = current
         }
     }
 

@@ -36,7 +36,8 @@ data class CalculatorUiState(
     val amountInWordsBn: String = "শূন্য টাকা",
     val isBreakdownExpanded: Boolean = false,
     val quantities: Map<Int, String> = Denomination.ALL.associate { it.value to "" },
-    val currentLanguage: AppLanguage = AppLanguage.ENGLISH
+    val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
+    val disabledDenominations: Set<Int> = emptySet()
 )
 
 /**
@@ -62,6 +63,15 @@ class CalculatorViewModel @Inject constructor(
         viewModelScope.launch {
             settingsRepository.getLanguage().collect { lang ->
                 _uiState.update { it.copy(currentLanguage = lang) }
+            }
+        }
+
+        // Observe disabled denominations settings
+        viewModelScope.launch {
+            settingsRepository.getDisabledDenominations().collect { disabled ->
+                _uiState.update { state ->
+                    recalculate(state.copy(disabledDenominations = disabled))
+                }
             }
         }
 
@@ -168,7 +178,8 @@ class CalculatorViewModel @Inject constructor(
      * Recalculate all derived values from current quantities.
      */
     private fun recalculate(state: CalculatorUiState): CalculatorUiState {
-        val rows = Denomination.ALL.map { denom ->
+        val visibleDenominations = Denomination.ALL.filter { it.value !in state.disabledDenominations }
+        val rows = visibleDenominations.map { denom ->
             val qtyStr = state.quantities[denom.value] ?: ""
             val qty = qtyStr.toLongOrNull() ?: 0L
             DenominationRow(

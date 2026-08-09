@@ -22,12 +22,18 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override fun getLanguage(): Flow<AppLanguage> = preferencesManager.languageFlow
 
+    override fun getDisabledDenominations(): Flow<Set<Int>> = preferencesManager.disabledDenominationsFlow
+
     override suspend fun setTheme(theme: AppTheme) {
         preferencesManager.setTheme(theme)
     }
 
     override suspend fun setLanguage(language: AppLanguage) {
         preferencesManager.setLanguage(language)
+    }
+
+    override suspend fun setDenominationEnabled(denomination: Int, enabled: Boolean) {
+        preferencesManager.setDenominationEnabled(denomination, enabled)
     }
 
     override suspend fun resetAllData() {
