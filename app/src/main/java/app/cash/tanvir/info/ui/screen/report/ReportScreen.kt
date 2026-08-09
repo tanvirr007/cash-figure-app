@@ -19,10 +19,12 @@ import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.filled.TextSnippet
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,6 +39,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -54,6 +59,7 @@ fun ReportScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    var pendingExportFormat by remember { mutableStateOf<ExportFormat?>(null) }
 
     LaunchedEffect(uiState.exportStatusMessage) {
         uiState.exportStatusMessage?.let { message ->
@@ -186,7 +192,7 @@ fun ReportScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
-                        onClick = { viewModel.exportReport(context, ExportFormat.PDF) },
+                        onClick = { pendingExportFormat = ExportFormat.PDF },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -195,7 +201,7 @@ fun ReportScreen(
                         Text("PDF")
                     }
                     Button(
-                        onClick = { viewModel.exportReport(context, ExportFormat.CSV) },
+                        onClick = { pendingExportFormat = ExportFormat.CSV },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -204,7 +210,7 @@ fun ReportScreen(
                         Text("CSV")
                     }
                     Button(
-                        onClick = { viewModel.exportReport(context, ExportFormat.TXT) },
+                        onClick = { pendingExportFormat = ExportFormat.TXT },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
@@ -239,5 +245,36 @@ fun ReportScreen(
                 }
             }
         }
+    }
+
+    // Export Confirmation Dialog
+    pendingExportFormat?.let { format ->
+        val formatName = format.name
+        val titleText = if (isBangla) "এক্সপোর্ট নিশ্চিত করুন" else "Confirm Export"
+        val messageText = if (isBangla) {
+            "আপনি কি নিশ্চিত যে আপনি হিসাবটি $formatName ফাইল হিসেবে এক্সপোর্ট করতে চান?"
+        } else {
+            "Are you sure you want to export the calculation as a $formatName file?"
+        }
+        AlertDialog(
+            onDismissRequest = { pendingExportFormat = null },
+            title = { Text(titleText) },
+            text = { Text(messageText) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.exportReport(context, format)
+                        pendingExportFormat = null
+                    }
+                ) {
+                    Text(if (isBangla) "নিশ্চিত করুন" else "Confirm", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingExportFormat = null }) {
+                    Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            }
+        )
     }
 }
