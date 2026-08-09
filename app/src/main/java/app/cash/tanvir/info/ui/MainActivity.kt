@@ -14,6 +14,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.data.local.preferences.PreferencesManager
 import app.cash.tanvir.info.ui.navigation.NavGraph
@@ -32,6 +33,7 @@ class MainActivity : ComponentActivity() {
     lateinit var preferencesManager: PreferencesManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
 
         // Keep screen on while the calculator is active

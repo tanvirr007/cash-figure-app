@@ -1,4 +1,4 @@
-# Cash Figure — Bangladeshi Cash Counter
+# Cash Figure App
 
 [![Build APK](https://github.com/tanvirr007/cash-figure-app/actions/workflows/build_apk.yml/badge.svg)](https://github.com/tanvirr007/cash-figure-app/actions/workflows/build_apk.yml)
 
