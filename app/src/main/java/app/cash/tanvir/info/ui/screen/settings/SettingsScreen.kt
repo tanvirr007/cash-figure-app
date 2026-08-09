@@ -147,7 +147,7 @@ fun SettingsScreen(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Language, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                        Text("Language / ভাষা", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text("Language", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
@@ -174,7 +174,7 @@ fun SettingsScreen(
                             selected = uiState.language == AppLanguage.BANGLA,
                             onClick = { viewModel.setLanguage(AppLanguage.BANGLA) }
                         )
-                        Text("বাংলা (Bangla)", style = MaterialTheme.typography.bodyMedium)
+                        Text("বাংলা", style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
