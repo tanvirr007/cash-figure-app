@@ -5,11 +5,17 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
@@ -71,8 +77,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.util.BanglaDigitConverter
@@ -108,6 +112,34 @@ fun SettingsScreen(
     var isMiscExpanded by remember { mutableStateOf(false) }
 
     val isBangla = uiState.language == AppLanguage.BANGLA
+
+    val onBiometricToggle: (Boolean) -> Unit = { checked ->
+        HapticHelper.vibrate(context)
+        val biometricManager = BiometricManager.from(context)
+        when (biometricManager.canAuthenticate(BIOMETRIC_STRONG)) {
+            BiometricManager.BIOMETRIC_SUCCESS -> {
+                authenticateWithFingerprint(context, isBangla) {
+                    viewModel.setBiometricEnabled(checked)
+                }
+            }
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
+                if (checked) {
+                    val msg = if (isBangla) "অনুগ্রহ করে আপনার ডিভাইসের সেটিংসে ফিঙ্গারপ্রিন্ট সেটআপ করুন।" else "Please set up fingerprint/biometrics in your device settings."
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                } else {
+                    viewModel.setBiometricEnabled(false)
+                }
+            }
+            else -> {
+                if (checked) {
+                    val msg = if (isBangla) "এই ডিভাইসে বায়োমেট্রিক অথেন্টিকেশন সমর্থিত বা উপলব্ধ নয়।" else "Biometric authentication is not supported or available on this device."
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                } else {
+                    viewModel.setBiometricEnabled(false)
+                }
+            }
+        }
+    }
 
     val (versionName, versionCode) = remember(context) {
         try {
@@ -544,23 +576,7 @@ fun SettingsScreen(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
                                     .clickable {
-                                        HapticHelper.vibrate(context)
-                                        val targetState = !uiState.biometricEnabled
-                                        if (targetState) {
-                                            val biometricManager = BiometricManager.from(context)
-                                            val canAuthenticate = biometricManager.canAuthenticate(BIOMETRIC_STRONG)
-                                            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
-                                                viewModel.setBiometricEnabled(true)
-                                            } else if (canAuthenticate == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
-                                                val msg = if (isBangla) "অনুগ্রহ করে আপনার ডিভাইসের সেটিংসে ফিঙ্গারপ্রিন্ট সেটআপ করুন।" else "Please set up fingerprint/biometrics in your device settings."
-                                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-                                            } else {
-                                                val msg = if (isBangla) "এই ডিভাইসে বায়োমেট্রিক অথেন্টিকেশন সমর্থিত বা উপলব্ধ নয়।" else "Biometric authentication is not supported or available on this device."
-                                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-                                            }
-                                        } else {
-                                            viewModel.setBiometricEnabled(false)
-                                        }
+                                        onBiometricToggle(!uiState.biometricEnabled)
                                     }
                                     .padding(vertical = 8.dp, horizontal = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -587,24 +603,7 @@ fun SettingsScreen(
                                 }
                                 Switch(
                                     checked = uiState.biometricEnabled,
-                                    onCheckedChange = { checked ->
-                                        HapticHelper.vibrate(context)
-                                        if (checked) {
-                                            val biometricManager = BiometricManager.from(context)
-                                            val canAuthenticate = biometricManager.canAuthenticate(BIOMETRIC_STRONG)
-                                            if (canAuthenticate == BiometricManager.BIOMETRIC_SUCCESS) {
-                                                viewModel.setBiometricEnabled(true)
-                                            } else if (canAuthenticate == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
-                                                val msg = if (isBangla) "অনুগ্রহ করে আপনার ডিভাইসের সেটিংসে ফিঙ্গারপ্রিন্ট সেটআপ করুন।" else "Please set up fingerprint/biometrics in your device settings."
-                                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-                                            } else {
-                                                val msg = if (isBangla) "এই ডিভাইসে বায়োমেট্রিক অথেন্টিকেশন সমর্থিত বা উপলব্ধ নয়।" else "Biometric authentication is not supported or available on this device."
-                                                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-                                            }
-                                        } else {
-                                            viewModel.setBiometricEnabled(false)
-                                        }
-                                    }
+                                    onCheckedChange = onBiometricToggle
                                 )
                             }
 
@@ -956,4 +955,28 @@ fun SettingsScreen(
             }
         )
     }
+}
+
+private fun authenticateWithFingerprint(
+    context: Context,
+    isBangla: Boolean,
+    onSuccess: () -> Unit
+) {
+    val activity = context as? FragmentActivity ?: return
+    val executor = ContextCompat.getMainExecutor(activity)
+    val biometricPrompt = BiometricPrompt(activity, executor,
+        object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                super.onAuthenticationSucceeded(result)
+                onSuccess()
+            }
+        })
+
+    val promptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle(if (isBangla) "ক্যাশ ফিগার অ্যাপ আনলক করুন" else "Unlock Cash Figure App")
+        .setSubtitle(if (isBangla) "আপনার ফিঙ্গারপ্রিন্ট স্ক্যান করুন" else "Scan your fingerprint")
+        .setNegativeButtonText(if (isBangla) "বাতিল" else "Cancel")
+        .build()
+
+    biometricPrompt.authenticate(promptInfo)
 }
