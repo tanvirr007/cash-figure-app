@@ -91,59 +91,81 @@ object PdfReportGenerator {
         y += 25f
 
         // Breakdown Table Header
-        paint.textSize = 14f
-        paint.isFakeBoldText = true
-        canvas.drawText(if (isBangla) "নোটের মান" else "Denomination", margin, y, paint)
-        canvas.drawText(if (isBangla) "সংখ্যা" else "Quantity", 260f, y, paint)
-        paint.textAlign = Paint.Align.RIGHT
-        canvas.drawText(if (isBangla) "সাবটোটাল" else "Subtotal", rightMargin, y, paint)
-        paint.textAlign = Paint.Align.LEFT
-
-        y += 10f
-        canvas.drawLine(margin, y, rightMargin, y, paint)
-        y += 20f
-
-        // Breakdown Items (exclude 0 quantity)
+        val tableTop = y - 16f
         paint.textSize = 12f
+        paint.isFakeBoldText = true
+        
+        // Draw top horizontal line
+        canvas.drawLine(margin, tableTop, rightMargin, tableTop, paint)
+        
+        // Draw header text
+        canvas.drawText(if (isBangla) "নোটের মান" else "Denomination", margin + 8f, y, paint)
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText(if (isBangla) "সংখ্যা" else "Quantity", 300f, y, paint)
+        paint.textAlign = Paint.Align.RIGHT
+        canvas.drawText(if (isBangla) "সাবটোটাল" else "Subtotal", rightMargin - 8f, y, paint)
+        paint.textAlign = Paint.Align.LEFT
         paint.isFakeBoldText = false
+
+        y += 8f
+        canvas.drawLine(margin, y, rightMargin, y, paint)
 
         val activeRows = sheet.rows.filter { it.quantity > 0 }
         if (activeRows.isEmpty()) {
-            canvas.drawText(if (isBangla) "কোনো হিসাব নেই।" else "No cash counted.", margin, y, paint)
-            y += 15f
+            y += 18f
+            canvas.drawText(if (isBangla) "কোনো হিসাব নেই।" else "No cash counted.", margin + 8f, y, paint)
+            y += 8f
             canvas.drawLine(margin, y, rightMargin, y, paint)
-            y += 20f
+            
+            val tableBottom = y
+            y += 24f
+            
+            // Draw vertical lines
+            canvas.drawLine(margin, tableTop, margin, tableBottom, paint)
+            canvas.drawLine(240f, tableTop, 240f, tableBottom, paint)
+            canvas.drawLine(360f, tableTop, 360f, tableBottom, paint)
+            canvas.drawLine(rightMargin, tableTop, rightMargin, tableBottom, paint)
         } else {
+            y += 18f
             activeRows.forEach { row ->
                 val denomLabel = if (isBangla) row.denomination.labelBn else row.denomination.label
                 val subtotalFormatted = CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)
                 val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
 
-                canvas.drawText(denomLabel, margin, y, paint)
-                canvas.drawText(qtyStr, 260f, y, paint)
+                canvas.drawText(denomLabel, margin + 8f, y, paint)
+                paint.textAlign = Paint.Align.CENTER
+                canvas.drawText(qtyStr, 300f, y, paint)
                 paint.textAlign = Paint.Align.RIGHT
-                canvas.drawText(subtotalFormatted, rightMargin, y, paint)
+                canvas.drawText(subtotalFormatted, rightMargin - 8f, y, paint)
                 paint.textAlign = Paint.Align.LEFT
-                y += 22f
+                
+                y += 8f
+                canvas.drawLine(margin, y, rightMargin, y, paint)
+                y += 18f
             }
             
-            y -= 4f
-            canvas.drawLine(margin, y, rightMargin, y, paint)
-            y += 18f
-            
+            // Grand Total Row
             paint.isFakeBoldText = true
             val totalLabel = if (isBangla) "সর্বমোট" else "Grand Total"
-            canvas.drawText(totalLabel, margin, y, paint)
+            canvas.drawText(totalLabel, margin + 8f, y, paint)
             
             val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
             paint.textAlign = Paint.Align.RIGHT
-            canvas.drawText(totalFormatted, rightMargin, y, paint)
+            canvas.drawText(totalFormatted, rightMargin - 8f, y, paint)
             paint.textAlign = Paint.Align.LEFT
             paint.isFakeBoldText = false
             
-            y += 14f
+            y += 8f
             canvas.drawLine(margin, y, rightMargin, y, paint)
-            y += 20f
+            
+            val tableBottom = y
+            y += 24f
+            
+            // Draw vertical lines
+            canvas.drawLine(margin, tableTop, margin, tableBottom, paint)
+            canvas.drawLine(240f, tableTop, 240f, tableBottom, paint)
+            canvas.drawLine(360f, tableTop, 360f, tableBottom, paint)
+            canvas.drawLine(rightMargin, tableTop, rightMargin, tableBottom, paint)
         }
 
         // Notes section

@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
@@ -70,7 +74,27 @@ fun CalculatorScreen(
     val isBangla = uiState.currentLanguage == AppLanguage.BANGLA
     val isIdle = uiState.quantities.values.all { it.isEmpty() }
     var showClearAllConfirmation by remember { mutableStateOf(false) }
+    var showBreakdownDialog by remember { mutableStateOf(false) }
     var showAddNotesDialog by remember { mutableStateOf(false) }
+    var notesInputText by remember { mutableStateOf("") }
+    var placeholderText by remember { mutableStateOf("") }
+    val fullPlaceholder = "BRAC BANK PLC"
+
+    androidx.compose.runtime.LaunchedEffect(showAddNotesDialog) {
+        if (showAddNotesDialog) {
+            notesInputText = ""
+            while (true) {
+                for (i in 1..fullPlaceholder.length) {
+                    placeholderText = fullPlaceholder.substring(0, i)
+                    kotlinx.coroutines.delay(150L)
+                }
+                kotlinx.coroutines.delay(2000L)
+                placeholderText = ""
+                kotlinx.coroutines.delay(500L)
+            }
+        }
+    }
+
     // Denomination value pending single-row clear confirmation (null = no dialog)
     var pendingClearDenomination by remember { mutableStateOf<Int?>(null) }
 
@@ -215,7 +239,7 @@ fun CalculatorScreen(
                                 activeToast?.cancel()
                                 activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                             } else {
-                                showAddNotesDialog = true
+                                showBreakdownDialog = true
                             }
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -317,13 +341,13 @@ fun CalculatorScreen(
         )
     }
 
-    // Add Notes Dialog on Save
-    if (showAddNotesDialog) {
+    // Cash Breakdown Dialog on Save Click
+    if (showBreakdownDialog) {
         val activeRows = uiState.rows.filter { it.quantity > 0 }
         AlertDialog(
             onDismissRequest = {
                 HapticHelper.vibrate(context)
-                showAddNotesDialog = false
+                showBreakdownDialog = false
             },
             title = {
                 Text(
@@ -339,46 +363,129 @@ fun CalculatorScreen(
                         .padding(vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-                        )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(
+                                width = 1.dp,
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                                shape = RoundedCornerShape(12.dp)
+                            )
                     ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        // Header row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            activeRows.forEach { row ->
-                                val denomLabel = if (isBangla) row.denomination.labelBn else row.denomination.label
-                                val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
-                                val rowTotalFormatted = app.cash.tanvir.info.util.CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text("$denomLabel × $qtyStr", style = MaterialTheme.typography.bodyMedium)
-                                    Text(rowTotalFormatted, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold)
-                                }
-                            }
-                            androidx.compose.material3.HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                            Text(
+                                text = if (isBangla) "নোটের বিবরণ" else "Denomination Detail",
+                                modifier = Modifier
+                                    .weight(1.3f)
+                                    .padding(12.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            // Vertical divider
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(40.dp)
+                                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                            )
+                            Text(
+                                text = if (isBangla) "সাবটোটাল" else "Subtotal",
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(12.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.End
+                            )
+                        }
+                        
+                        // Horizontal divider below header
+                        androidx.compose.material3.HorizontalDivider(
+                            thickness = 1.dp,
+                            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                        )
+
+                        // Item rows
+                        activeRows.forEachIndexed { index, row ->
+                            val denomLabel = if (isBangla) row.denomination.labelBn else row.denomination.label
+                            val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
+                            val rowTotalFormatted = app.cash.tanvir.info.util.CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)
+
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = if (isBangla) "সর্বমোট" else "Grand Total",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold
+                                    text = "$denomLabel × $qtyStr",
+                                    modifier = Modifier
+                                        .weight(1.3f)
+                                        .padding(12.dp),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                // Vertical divider
+                                Box(
+                                    modifier = Modifier
+                                        .width(1.dp)
+                                        .height(40.dp)
+                                        .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
                                 )
                                 Text(
-                                    text = uiState.grandTotalFormatted,
+                                    text = rowTotalFormatted,
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(12.dp),
                                     style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
+                                    fontWeight = FontWeight.SemiBold,
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.End
                                 )
                             }
+
+                            // Horizontal divider between rows
+                            androidx.compose.material3.HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                            )
+                        }
+
+                        // Grand Total row
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                                    shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)
+                                ),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (isBangla) "সর্বমোট" else "Grand Total",
+                                modifier = Modifier
+                                    .weight(1.3f)
+                                    .padding(12.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            // Vertical divider
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(44.dp)
+                                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+                            )
+                            Text(
+                                text = uiState.grandTotalFormatted,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .padding(12.dp),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.End
+                            )
                         }
                     }
                 }
@@ -387,28 +494,128 @@ fun CalculatorScreen(
                 OutlinedButton(
                     onClick = {
                         HapticHelper.vibrate(context)
-                        showAddNotesDialog = false
-                    }
+                        showBreakdownDialog = false
+                    },
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text(
-                        text = if (isBangla) "বাতিল" else "Cancel"
-                    )
+                    Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             },
             confirmButton = {
                 Button(
                     onClick = {
                         HapticHelper.vibrate(context)
-                        viewModel.saveToHistory(remark = "") { savedId, savedAmount ->
+                        showBreakdownDialog = false
+                        showAddNotesDialog = true
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(if (isBangla) "পরবর্তী" else "Next", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
+    }
+
+    // Add Notes Dialog on Save
+    if (showAddNotesDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                showAddNotesDialog = false
+            },
+            title = {
+                Text(
+                    text = if (isBangla) "নোট যোগ করুন" else "Add Notes",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = if (isBangla) 
+                            "রিপোর্ট তৈরি করতে অনুগ্রহ করে একটি নোট যোগ করুন (যেমন ব্যাংকের নাম বা উদ্দেশ্য):" 
+                            else "Please add a note to generate the report (e.g. bank name or purpose):",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    val isLimitReached = notesInputText.length == 30
+                    OutlinedTextField(
+                        value = notesInputText,
+                        onValueChange = { input ->
+                            val sanitized = input.replace("\n", " ").replace("\r", " ")
+                            if (sanitized.length <= 30) {
+                                notesInputText = sanitized
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text(if (isBangla) "নোট" else "Notes") },
+                        placeholder = { Text(placeholderText) },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        supportingText = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                val remaining = 30 - notesInputText.length
+                                val counterText = if (isBangla) {
+                                    "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(remaining)} অবশিষ্ট"
+                                } else {
+                                    "$remaining remaining"
+                                }
+                                Text(
+                                    text = counterText,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (isLimitReached) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    )
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        showAddNotesDialog = false
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        viewModel.saveToHistory(remark = notesInputText.trim()) { savedId, savedAmount ->
                             val msg = if (isBangla) "লেনদেন সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
                             activeToast?.cancel()
                             activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
-                            onNavigateToReport(savedId, true)
+                            onNavigateToReport(savedId, false)
                         }
                         showAddNotesDialog = false
-                    }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
-                    Text(if (isBangla) "সেভ করুন" else "Save")
+                    Text(if (isBangla) "সেভ করুন" else "Save", fontWeight = FontWeight.Bold)
                 }
             }
         )
