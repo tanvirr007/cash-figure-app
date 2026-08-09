@@ -31,9 +31,15 @@ object PdfReportGenerator {
 
         context?.let { ctx ->
             try {
-                val banglaTypeface = Typeface.createFromAsset(ctx.assets, "fonts/tiro_bangla.ttf")
+                val banglaTypeface = androidx.core.content.res.ResourcesCompat.getFont(ctx, app.cash.tanvir.info.R.font.tiro_bangla)
+                    ?: Typeface.createFromAsset(ctx.assets, "fonts/tiro_bangla.ttf")
                 paint.typeface = banglaTypeface
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+                try {
+                    val banglaTypeface = Typeface.createFromAsset(ctx.assets, "fonts/tiro_bangla.ttf")
+                    paint.typeface = banglaTypeface
+                } catch (_: Exception) {}
+            }
         }
 
         var y = 50f
