@@ -59,6 +59,8 @@ fun CalculatorScreen(
     val context = LocalContext.current
     val isBangla = uiState.currentLanguage == AppLanguage.BANGLA
     var showClearAllConfirmation by remember { mutableStateOf(false) }
+    // Denomination value pending single-row clear confirmation (null = no dialog)
+    var pendingClearDenomination by remember { mutableStateOf<Int?>(null) }
 
     // Single toast reference — cancel the previous before showing a new one to avoid stacking
     var activeToast by remember { mutableStateOf<Toast?>(null) }
@@ -151,7 +153,7 @@ fun CalculatorScreen(
                     rowTotal = row.total,
                     isLastRow = index == uiState.rows.lastIndex,
                     onQuantityChange = { viewModel.updateQuantity(row.denomination.value, it) },
-                    onClear = { viewModel.clearRow(row.denomination.value) }
+                    onClear = { pendingClearDenomination = row.denomination.value }
                 )
             }
 
@@ -218,6 +220,49 @@ fun CalculatorScreen(
             },
             dismissButton = {
                 TextButton(onClick = { showClearAllConfirmation = false }) {
+                    Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            }
+        )
+    }
+
+    // Confirmation dialog for individual row clear (✕ button)
+    pendingClearDenomination?.let { denomValue ->
+        val row = uiState.rows.find { it.denomination.value == denomValue }
+        val denomLabel = if (row != null) {
+            if (isBangla) row.denomination.labelBn else row.denomination.label
+        } else {
+            denomValue.toString()
+        }
+        AlertDialog(
+            onDismissRequest = { pendingClearDenomination = null },
+            title = {
+                Text(
+                    if (isBangla) "$denomLabel মুছে ফেলবেন?"
+                    else "Clear $denomLabel?"
+                )
+            },
+            text = {
+                Text(
+                    if (isBangla) "আপনি কি $denomLabel এর সংখ্যা মুছে ফেলতে চান?"
+                    else "Are you sure you want to clear the quantity for $denomLabel?"
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clearRow(denomValue)
+                        pendingClearDenomination = null
+                    }
+                ) {
+                    Text(
+                        if (isBangla) "মুছে ফেলুন" else "Clear",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { pendingClearDenomination = null }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
