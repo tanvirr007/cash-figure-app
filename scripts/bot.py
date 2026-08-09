@@ -577,7 +577,7 @@ def release():
 
 def ota():
     run_number_str = os.environ.get("RUN_NUMBER", "1")
-    version_name = os.environ.get("VERSION_NAME", "0.1.0")
+    version_name = os.environ.get("VERSION_NAME", "1.0.0")
     repo = os.environ.get("REPOSITORY", "tanvirr007/cash-figure-app")
     changelog = os.environ.get("CHANGELOG", "No changelog provided.")
 

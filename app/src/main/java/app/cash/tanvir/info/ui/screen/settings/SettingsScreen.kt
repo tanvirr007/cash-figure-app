@@ -103,7 +103,7 @@ fun SettingsScreen(
                 @Suppress("DEPRECATION")
                 context.packageManager.getPackageInfo(context.packageName, 0)
             }
-            val vName = packageInfo.versionName ?: "0.1.0"
+            val vName = packageInfo.versionName ?: "1.0.0"
             val vCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode
             } else {
@@ -112,7 +112,7 @@ fun SettingsScreen(
             }
             Pair(vName, vCode)
         } catch (e: Exception) {
-            Pair("0.1.0", 1L)
+            Pair("1.0.0", 1L)
         }
     }
 

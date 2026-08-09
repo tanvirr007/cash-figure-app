@@ -1,6 +1,6 @@
 {
-  "versionCode": 5,
-  "versionName": "v0.1.0.5",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v0.1.0.5/CashFigure.apk",
+  "versionCode": 6,
+  "versionName": "v1.0.0.6",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v1.0.0.6/CashFigure.apk",
   "changelog": "* **feat: add homepage notes settings** (38b70a8)\n  - Added settings options to toggle visibility of 1, 2, 5, 10, 20, 50 Tk notes.\n  - Persisted disabled note denominations in DataStore preferences.\n  - Filtered homepage calculator rows based on enabled note denominations.\n\n* **fix: reset calculator on save** (06e6f20)\n  - Reset calculator inputs and grand total after saving sheet to history.\n\n* **fix: sync system bars with app theme** (b4d1964)\n  - Update edge-to-edge system bars in MainActivity to react dynamically to theme changes.\n  - Set light status and navigation bar icon appearance in CashFigureTheme based on dark theme state.\n"
 }
