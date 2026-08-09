@@ -148,19 +148,27 @@ object PdfReportGenerator {
 
         // Notes section
         paint.textSize = 12f
-        paint.isFakeBoldText = true
         paint.color = Color.BLACK
-        canvas.drawText(if (isBangla) "নোট:" else "Notes:", margin, y, paint)
-        y += 18f
+        val label = if (isBangla) "নোট: " else "Notes: "
+        paint.isFakeBoldText = true
+        canvas.drawText(label, margin, y, paint)
+        val labelWidth = paint.measureText(label)
+        
         paint.isFakeBoldText = false
         val notesText = if (sheet.remark.isNotBlank()) {
             sheet.remark.replace("\n", " ").replace("\r", " ")
         } else {
             "N/A"
         }
-        val notesTextLines = wrapText(notesText, paint, rightMargin - margin)
-        notesTextLines.forEach { line ->
-            canvas.drawText(line, margin, y, paint)
+        val notesTextLines = wrapText(notesText, paint, rightMargin - margin - labelWidth)
+        if (notesTextLines.isNotEmpty()) {
+            canvas.drawText(notesTextLines[0], margin + labelWidth, y, paint)
+            y += 16f
+            for (i in 1 until notesTextLines.size) {
+                canvas.drawText(notesTextLines[i], margin, y, paint)
+                y += 16f
+            }
+        } else {
             y += 16f
         }
         y += 10f
