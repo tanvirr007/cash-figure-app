@@ -161,24 +161,27 @@ class MainActivity : FragmentActivity() {
                             onDismissRequest = { isUpdateAvailable = null },
                             title = {
                                 Text(
-                                    if (isBangla) "নতুন ভার্সন পাওয়া গেছে" else "New version available",
+                                    if (isBangla) "ওটিএ" else "OTA",
                                     fontWeight = FontWeight.Bold
                                 )
                             },
                             text = {
                                 Text(
                                     if (isBangla) {
-                                        "নতুন ভার্সন ${BanglaDigitConverter.toBangla(availableManifest.versionName)} পাওয়া গেছে। আপডেট করতে সেটিংসে যান।"
+                                        "নতুন ভার্সন ${BanglaDigitConverter.toBangla(availableManifest.versionName)} পাওয়া গেছে"
                                     } else {
-                                        "New version ${availableManifest.versionName} is available. Go to Settings to update."
+                                        "New version ${availableManifest.versionName} is available"
                                     }
                                 )
                             },
                             confirmButton = {
-                                TextButton(onClick = {
-                                    isUpdateAvailable = null
-                                    navController.navigate(Screen.Settings.route)
-                                }) {
+                                Button(
+                                    onClick = {
+                                        isUpdateAvailable = null
+                                        navController.navigate(Screen.Settings.createRoute(autoCheck = true))
+                                    },
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
                                     Text(
                                         if (isBangla) "আপডেট করুন" else "Update",
                                         fontWeight = FontWeight.Bold
@@ -186,7 +189,10 @@ class MainActivity : FragmentActivity() {
                                 }
                             },
                             dismissButton = {
-                                TextButton(onClick = { isUpdateAvailable = null }) {
+                                OutlinedButton(
+                                    onClick = { isUpdateAvailable = null },
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
                                     Text(if (isBangla) "পরে" else "Later")
                                 }
                             }

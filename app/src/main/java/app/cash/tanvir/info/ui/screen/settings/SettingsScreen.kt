@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -65,7 +66,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -95,13 +96,13 @@ import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
-import app.cash.tanvir.info.util.SizeFormatter
 import app.cash.tanvir.info.util.getInstalledVersion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
+    autoCheck: Boolean = false,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -173,7 +174,7 @@ fun SettingsScreen(
     var isLanguageExpanded by remember { mutableStateOf(false) }
     var isHomepageNotesExpanded by remember { mutableStateOf(false) }
     var isMiscExpanded by remember { mutableStateOf(false) }
-    var isUpdatesExpanded by remember { mutableStateOf(false) }
+    var isUpdatesExpanded by remember { mutableStateOf(autoCheck) }
 
     val onBiometricToggle: (Boolean) -> Unit = { checked ->
         HapticHelper.vibrate(context)
@@ -204,6 +205,13 @@ fun SettingsScreen(
     }
 
     val (versionName, versionCode) = remember(context) { getInstalledVersion(context) }
+
+    // Auto-triggered check when arriving from the launch OTA dialog
+    LaunchedEffect(Unit) {
+        if (autoCheck) {
+            viewModel.checkForUpdate(installedCode = versionCode, fromManualCheck = true)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -1183,7 +1191,7 @@ fun SettingsScreen(
             },
             title = {
                 Text(
-                    if (isBangla) "নতুন ভার্সন পাওয়া গেছে" else "New version available",
+                    if (isBangla) "আপডেট উপলব্ধ" else "Update available",
                     fontWeight = FontWeight.Bold
                 )
             },
@@ -1209,61 +1217,56 @@ fun SettingsScreen(
                             style = MaterialTheme.typography.titleSmall,
                             fontWeight = FontWeight.SemiBold
                         )
-                        Spacer(modifier = Modifier.height(4.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        var isFirstBullet = true
                         manifest.changelog.split("\n").forEach { rawLine ->
-                            val clean = rawLine.trim()
-                                .removePrefix("*")
-                                .removePrefix("-")
-                                .trim()
-                            if (clean.isNotEmpty()) {
-                                Text(
-                                    text = "• $clean",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                Spacer(modifier = Modifier.height(2.dp))
+                            val isIndented = rawLine.startsWith(" ") || rawLine.startsWith("\t")
+                            val trimmed = rawLine.trim()
+                            when {
+                                trimmed.startsWith("*") -> {
+                                    val clean = trimmed.removePrefix("*")
+                                        .trim()
+                                        .removePrefix("**")
+                                        .removeSuffix("**")
+                                        .trim()
+                                    if (clean.isNotEmpty()) {
+                                        if (!isFirstBullet) {
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                        }
+                                        isFirstBullet = false
+                                        Text(
+                                            text = "• $clean",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
+                                    }
+                                }
+                                isIndented && trimmed.startsWith("-") -> {
+                                    val clean = trimmed.removePrefix("-").trim()
+                                    if (clean.isNotEmpty()) {
+                                        Spacer(modifier = Modifier.height(2.dp))
+                                        Text(
+                                            text = "◦ $clean",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            modifier = Modifier.padding(start = 16.dp)
+                                        )
+                                    }
+                                }
+                                trimmed.isNotEmpty() -> {
+                                    if (!isFirstBullet) {
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                    }
+                                    isFirstBullet = false
+                                    Text(
+                                        text = "• $trimmed",
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             }
                         }
                     }
                     when (uiState.updateStatus) {
-                        UpdateStatus.DOWNLOADING -> {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            if (uiState.downloadProgress >= 0f) {
-                                LinearProgressIndicator(
-                                    progress = { uiState.downloadProgress },
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                val pct = (uiState.downloadProgress * 100).toInt()
-                                val progressText = if (isBangla) {
-                                    "ডাউনলোড হচ্ছে… ${BanglaDigitConverter.toBangla(pct)}%"
-                                } else {
-                                    "Downloading… $pct%"
-                                }
-                                Text(
-                                    text = progressText,
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                                if (uiState.totalBytes > 0) {
-                                    val sizeText = if (isBangla) {
-                                        "${BanglaDigitConverter.toBangla(SizeFormatter.format(uiState.downloadedBytes))} / ${BanglaDigitConverter.toBangla(SizeFormatter.format(uiState.totalBytes))}"
-                                    } else {
-                                        "${SizeFormatter.format(uiState.downloadedBytes)} / ${SizeFormatter.format(uiState.totalBytes)}"
-                                    }
-                                    Text(
-                                        text = sizeText,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            } else {
-                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    if (isBangla) "ডাউনলোড হচ্ছে…" else "Downloading…",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                        }
                         UpdateStatus.DOWNLOAD_READY -> {
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
@@ -1302,7 +1305,8 @@ fun SettingsScreen(
                         onClick = {
                             HapticHelper.vibrate(context)
                             viewModel.downloadUpdate()
-                        }
+                        },
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
                             if (isBangla) "আপডেট ও ইনস্টল" else "Update & Install",
@@ -1311,15 +1315,33 @@ fun SettingsScreen(
                     }
                     UpdateStatus.DOWNLOADING -> Button(
                         onClick = {},
-                        enabled = false
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.widthIn(min = 180.dp)
                     ) {
-                        Text(if (isBangla) "ডাউনলোড হচ্ছে…" else "Downloading…")
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = LocalContentColor.current
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        val pct = (uiState.downloadProgress * 100).toInt().coerceIn(0, 100)
+                        val progressText = if (uiState.downloadProgress >= 0f) {
+                            if (isBangla) {
+                                "ডাউনলোড হচ্ছে… ${BanglaDigitConverter.toBangla(pct)}%"
+                            } else {
+                                "Downloading… $pct%"
+                            }
+                        } else {
+                            if (isBangla) "ডাউনলোড হচ্ছে…" else "Downloading…"
+                        }
+                        Text(progressText)
                     }
                     UpdateStatus.DOWNLOAD_READY -> Button(
                         onClick = {
                             HapticHelper.vibrate(context)
                             uiState.downloadedUpdate?.let { requestInstall(it) }
-                        }
+                        },
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
                             if (isBangla) "ইনস্টল করুন" else "Install",
@@ -1330,7 +1352,8 @@ fun SettingsScreen(
                         onClick = {
                             HapticHelper.vibrate(context)
                             viewModel.checkForUpdate(installedCode = versionCode, fromManualCheck = true)
-                        }
+                        },
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
                             if (isBangla) "আবার চেষ্টা করুন" else "Retry",
@@ -1342,19 +1365,21 @@ fun SettingsScreen(
             },
             dismissButton = {
                 when (uiState.updateStatus) {
-                    UpdateStatus.UPDATE_AVAILABLE, UpdateStatus.DOWNLOAD_READY -> TextButton(
+                    UpdateStatus.UPDATE_AVAILABLE, UpdateStatus.DOWNLOAD_READY -> OutlinedButton(
                         onClick = {
                             HapticHelper.vibrate(context)
                             viewModel.dismissUpdateDialog()
-                        }
+                        },
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(if (isBangla) "পরে" else "Later")
                     }
-                    UpdateStatus.DOWNLOADING, UpdateStatus.ERROR -> TextButton(
+                    UpdateStatus.DOWNLOADING, UpdateStatus.ERROR -> OutlinedButton(
                         onClick = {
                             HapticHelper.vibrate(context)
                             viewModel.dismissUpdateDialog()
-                        }
+                        },
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(if (isBangla) "বাতিল" else "Cancel")
                     }
@@ -1449,11 +1474,12 @@ private fun UpdateStatusLine(
                         .weight(1f)
                         .padding(end = 8.dp)
                 )
-                TextButton(
+                Button(
                     onClick = {
                         HapticHelper.vibrate(context)
                         onShowUpdateDialog()
-                    }
+                    },
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Text(if (isBangla) "এখনই আপডেট করুন" else "Update now")
                 }

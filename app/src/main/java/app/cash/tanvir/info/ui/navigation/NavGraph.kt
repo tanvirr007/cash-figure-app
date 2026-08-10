@@ -23,7 +23,9 @@ sealed class Screen(val route: String) {
     object Report : Screen("report/{sheetId}?fromSave={fromSave}") {
         fun createRoute(sheetId: Long, fromSave: Boolean = false) = "report/$sheetId?fromSave=$fromSave"
     }
-    object Settings : Screen("settings")
+    object Settings : Screen("settings?autoCheck={autoCheck}") {
+        fun createRoute(autoCheck: Boolean = false) = "settings?autoCheck=$autoCheck"
+    }
 }
 
 @Composable
@@ -50,7 +52,7 @@ fun NavGraph(
             CalculatorScreen(
                 onNavigateToHistory = { navController.navigate(Screen.History.route) },
                 onNavigateToReport = { sheetId, fromSave -> navController.navigate(Screen.Report.createRoute(sheetId, fromSave)) },
-                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
+                onNavigateToSettings = { navController.navigate(Screen.Settings.createRoute()) }
             )
         }
 
@@ -78,9 +80,18 @@ fun NavGraph(
             )
         }
 
-        composable(Screen.Settings.route) {
+        composable(
+            route = Screen.Settings.route,
+            arguments = listOf(
+                navArgument("autoCheck") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                }
+            )
+        ) {
             SettingsScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                autoCheck = it.arguments?.getBoolean("autoCheck") ?: false
             )
         }
     }

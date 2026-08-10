@@ -18,6 +18,7 @@ import app.cash.tanvir.info.util.report.StorageUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -346,6 +347,7 @@ class SettingsViewModel @Inject constructor(
      * @param fromManualCheck false for the launch auto-check (silent failure/up-to-date)
      */
     fun checkForUpdate(installedCode: Long, fromManualCheck: Boolean = true) {
+        if (_uiState.value.updateStatus == UpdateStatus.CHECKING) return
         viewModelScope.launch {
             _uiState.update {
                 it.copy(
@@ -355,6 +357,8 @@ class SettingsViewModel @Inject constructor(
                     updateManifest = null
                 )
             }
+            // Small artificial delay so the CHECKING state is perceptible (modern feel)
+            delay(2000)
             val manifest = updateRepository.fetchManifest()
             _uiState.update { state ->
                 when {
