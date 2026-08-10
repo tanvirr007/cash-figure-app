@@ -1,6 +1,6 @@
 {
-  "versionCode": 23,
-  "versionName": "v2.3.5",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.5/CashFigure.apk",
-  "changelog": "* **style: left-align in-words in report preview** (3dd8285)\n  - Remove centered alignment so the amount in words sits left-aligned just below the grand total.\n"
+  "versionCode": 24,
+  "versionName": "v2.3.6",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.6/CashFigure.apk",
+  "changelog": "* **feat: add agent skills and skill docs** (faa4d87)\n  - Add humanize, handoff, compact-markdown skills to .opencode/skills/.\n  - Create docs/SKILLS.md documenting all skills and their triggers.\n  - Link docs/SKILLS.md from AGENTS.md and docs/FILES.md.\n  - Remove sample/ folder since skills are now installed.\n* **fix: lock app to portrait orientation** (eb98450)\n  - Add android:screenOrientation=portrait to MainActivity.\n  - App stays in portrait on devices with auto-rotate enabled.\n"
 }
