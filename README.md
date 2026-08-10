@@ -13,7 +13,8 @@ Cash Figure is a production-quality commercial Android application built specifi
 - History and Auto-Save: Automatically persists calculations to Room DB. Supports searching, renaming, duplicating, pinning, favoriting, and restoring deleted calculations.
 - Reports and Printing: Export reports in PDF, CSV, and TXT formats directly to the device storage. Includes native Android PrintManager printing support and one-tap sharing via FileProvider.
 - JSON Backup and Restore: Backup all app data to JSON and restore seamlessly with schema version safety.
-- Privacy First: 100% offline with zero network permissions, zero tracking, zero ads, and zero account requirements.
+- In-App OTA Updates: Checks for new versions silently on launch and manually from Settings, downloads the APK in-app with live progress and changelog, and launches the system installer — bilingual (EN/BN).
+- Privacy First: 100% offline with zero analytics, zero tracking, zero ads, and zero account requirements. The only network calls are the two OTA endpoints (update manifest + release APK download).
 - Screen On Mode: Automatically keeps the screen awake during active cash counting sessions.
 
 ---

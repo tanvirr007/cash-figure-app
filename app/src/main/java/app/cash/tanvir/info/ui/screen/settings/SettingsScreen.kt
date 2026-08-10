@@ -5,9 +5,12 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import android.content.ActivityNotFoundException
 import android.content.Context
-import android.content.pm.PackageManager
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +18,7 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.fragment.app.FragmentActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.toggleable
@@ -27,6 +31,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -41,7 +47,9 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Payments
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Restore
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Security
@@ -52,10 +60,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -82,8 +92,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
+import app.cash.tanvir.info.domain.model.DownloadedUpdate
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
+import app.cash.tanvir.info.util.SizeFormatter
+import app.cash.tanvir.info.util.getInstalledVersion
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,6 +115,51 @@ fun SettingsScreen(
         }
     }
 
+    // OTA install: opens "allow from this source" settings on API 26+ when blocked.
+    val installSettingsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) {
+        val canInstall = Build.VERSION.SDK_INT < Build.VERSION_CODES.O ||
+            context.packageManager.canRequestPackageInstalls()
+        if (canInstall) {
+            uiState.downloadedUpdate?.let { update ->
+                viewModel.onInstallLaunched()
+                launchInstaller(context, update) {
+                    uiState.updateManifest?.downloadUrl?.let { url ->
+                        openInBrowserFallback(context, url, isBangla)
+                    }
+                }
+                viewModel.dismissUpdateDialog()
+            }
+        } else {
+            // Still blocked after the settings round-trip → browser fallback
+            uiState.updateManifest?.downloadUrl?.let { url ->
+                openInBrowserFallback(context, url, isBangla)
+            }
+        }
+    }
+
+    val requestInstall: (DownloadedUpdate) -> Unit = { update ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            !context.packageManager.canRequestPackageInstalls()
+        ) {
+            val msg = if (isBangla) "আপডেটের জন্য সেটিংসে এই অ্যাপ থেকে ইনস্টল অনুমতি দিন"
+            else "Allow installs from this app in Settings to update Cash Figure"
+            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+            installSettingsLauncher.launch(
+                Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${context.packageName}"))
+            )
+        } else {
+            viewModel.onInstallLaunched()
+            launchInstaller(context, update) {
+                uiState.updateManifest?.downloadUrl?.let { url ->
+                    openInBrowserFallback(context, url, isBangla)
+                }
+            }
+            viewModel.dismissUpdateDialog()
+        }
+    }
+
     LaunchedEffect(uiState.statusMessage) {
         uiState.statusMessage?.let { msg ->
             Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
@@ -113,6 +171,7 @@ fun SettingsScreen(
     var isLanguageExpanded by remember { mutableStateOf(false) }
     var isHomepageNotesExpanded by remember { mutableStateOf(false) }
     var isMiscExpanded by remember { mutableStateOf(false) }
+    var isUpdatesExpanded by remember { mutableStateOf(false) }
 
     val isBangla = uiState.language == AppLanguage.BANGLA
 
@@ -144,26 +203,7 @@ fun SettingsScreen(
         }
     }
 
-    val (versionName, versionCode) = remember(context) {
-        try {
-            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.packageManager.getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
-            } else {
-                @Suppress("DEPRECATION")
-                context.packageManager.getPackageInfo(context.packageName, 0)
-            }
-            val vName = packageInfo.versionName ?: "1.0.0"
-            val vCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                packageInfo.longVersionCode
-            } else {
-                @Suppress("DEPRECATION")
-                packageInfo.versionCode.toLong()
-            }
-            Pair(vName, vCode)
-        } catch (e: Exception) {
-            Pair("1.0.0", 1L)
-        }
-    }
+    val (versionName, versionCode) = remember(context) { getInstalledVersion(context) }
 
     Scaffold(
         topBar = {
@@ -860,6 +900,133 @@ fun SettingsScreen(
                 }
             }
 
+            // Updates Card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Column {
+                    val headerShape = RoundedCornerShape(
+                        topStart = 16.dp,
+                        topEnd = 16.dp,
+                        bottomStart = if (isUpdatesExpanded) 0.dp else 16.dp,
+                        bottomEnd = if (isUpdatesExpanded) 0.dp else 16.dp
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(headerShape)
+                            .clickable {
+                                HapticHelper.vibrate(context)
+                                isUpdatesExpanded = !isUpdatesExpanded
+                            }
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(Icons.Default.SystemUpdate, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    if (isBangla) "আপডেটসমূহ" else "Updates",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                if (!isUpdatesExpanded) {
+                                    Text(
+                                        if (isBangla) "নতুন ভার্সন চেক করুন" else "Check for new versions",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
+                        }
+                        Icon(
+                            imageVector = if (isUpdatesExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (isBangla) {
+                                if (isUpdatesExpanded) "ভাঁজ করুন" else "প্রসারিত করুন"
+                            } else {
+                                if (isUpdatesExpanded) "Collapse" else "Expand"
+                            },
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = isUpdatesExpanded,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                        ) {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            val versionLine = if (isBangla) {
+                                "বর্তমান ভার্সন: ${BanglaDigitConverter.toBangla(versionName.removePrefix("v"))} (বিল্ড ${BanglaDigitConverter.toBangla(versionCode)})"
+                            } else {
+                                "Current version: ${versionName.removePrefix("v")} (Build $versionCode)"
+                            }
+                            Text(
+                                text = versionLine,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+
+                            // Check for updates row
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        HapticHelper.vibrate(context)
+                                        viewModel.checkForUpdate(installedCode = versionCode, fromManualCheck = true)
+                                    }
+                                    .padding(vertical = 8.dp, horizontal = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Refresh, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        if (isBangla) "আপডেট চেক করুন" else "Check for updates",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Text(
+                                        if (isBangla) "সর্বশেষ ভার্সন পরীক্ষা করুন" else "Check for the latest version",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                    )
+                                }
+                            }
+
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+
+                            UpdateStatusLine(
+                                isBangla = isBangla,
+                                updateStatus = uiState.updateStatus,
+                                manifest = uiState.updateManifest,
+                                downloadedUpdate = uiState.downloadedUpdate,
+                                downloadProgress = uiState.downloadProgress,
+                                errorType = uiState.updateErrorType,
+                                errorReason = uiState.updateErrorReason,
+                                onCheckForUpdate = {
+                                    viewModel.checkForUpdate(installedCode = versionCode, fromManualCheck = true)
+                                },
+                                onShowUpdateDialog = { viewModel.showUpdateDialog() },
+                                onInstall = { update -> requestInstall(update) }
+                            )
+                        }
+                    }
+                }
+            }
+
             // Destructive Actions Card
             Card(
                 onClick = {
@@ -1005,6 +1172,197 @@ fun SettingsScreen(
             }
         )
     }
+
+    // Update Dialog
+    if (uiState.isUpdateDialogVisible && uiState.updateManifest != null) {
+        val manifest = uiState.updateManifest!!
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                viewModel.dismissUpdateDialog()
+            },
+            title = {
+                Text(
+                    if (isBangla) "নতুন ভার্সন পাওয়া গেছে" else "New version available",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(rememberScrollState())
+                        .heightIn(max = 320.dp)
+                ) {
+                    Text(
+                        text = if (isBangla) {
+                            "ভার্সন ${BanglaDigitConverter.toBangla(manifest.versionName)} · বিল্ড ${BanglaDigitConverter.toBangla(manifest.versionCode)}"
+                        } else {
+                            "Version ${manifest.versionName} · Build ${manifest.versionCode}"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    if (manifest.changelog.isNotBlank()) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            if (isBangla) "নতুন কী আছে" else "What's new",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        manifest.changelog.split("\n").forEach { rawLine ->
+                            val clean = rawLine.trim()
+                                .removePrefix("*")
+                                .removePrefix("-")
+                                .trim()
+                            if (clean.isNotEmpty()) {
+                                Text(
+                                    text = "• $clean",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                            }
+                        }
+                    }
+                    when (uiState.updateStatus) {
+                        UpdateStatus.DOWNLOADING -> {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            if (uiState.downloadProgress >= 0f) {
+                                LinearProgressIndicator(
+                                    progress = { uiState.downloadProgress },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                val pct = (uiState.downloadProgress * 100).toInt()
+                                val progressText = if (isBangla) {
+                                    "ডাউনলোড হচ্ছে… ${BanglaDigitConverter.toBangla(pct)}%"
+                                } else {
+                                    "Downloading… $pct%"
+                                }
+                                Text(
+                                    text = progressText,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                                if (uiState.totalBytes > 0) {
+                                    val sizeText = if (isBangla) {
+                                        "${BanglaDigitConverter.toBangla(SizeFormatter.format(uiState.downloadedBytes))} / ${BanglaDigitConverter.toBangla(SizeFormatter.format(uiState.totalBytes))}"
+                                    } else {
+                                        "${SizeFormatter.format(uiState.downloadedBytes)} / ${SizeFormatter.format(uiState.totalBytes)}"
+                                    }
+                                    Text(
+                                        text = sizeText,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            } else {
+                                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    if (isBangla) "ডাউনলোড হচ্ছে…" else "Downloading…",
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
+                        }
+                        UpdateStatus.DOWNLOAD_READY -> {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                if (isBangla) "ডাউনলোড সম্পন্ন।" else "Download complete.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        UpdateStatus.ERROR -> {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            val errorText = when (uiState.updateErrorType) {
+                                UpdateErrorType.DOWNLOAD_FAILED -> if (isBangla) {
+                                    "ডাউনলোড ব্যর্থ হয়েছে: ${uiState.updateErrorReason ?: ""}"
+                                } else {
+                                    "Download failed: ${uiState.updateErrorReason ?: ""}"
+                                }
+                                else -> if (isBangla) {
+                                    "আপডেট চেক করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।"
+                                } else {
+                                    "Couldn't check for updates. Check your connection and try again."
+                                }
+                            }
+                            Text(
+                                text = errorText,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                        else -> {}
+                    }
+                }
+            },
+            confirmButton = {
+                when (uiState.updateStatus) {
+                    UpdateStatus.UPDATE_AVAILABLE -> Button(
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            viewModel.downloadUpdate()
+                        }
+                    ) {
+                        Text(
+                            if (isBangla) "আপডেট ও ইনস্টল" else "Update & Install",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    UpdateStatus.DOWNLOADING -> Button(
+                        onClick = {},
+                        enabled = false
+                    ) {
+                        Text(if (isBangla) "ডাউনলোড হচ্ছে…" else "Downloading…")
+                    }
+                    UpdateStatus.DOWNLOAD_READY -> Button(
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            uiState.downloadedUpdate?.let { requestInstall(it) }
+                        }
+                    ) {
+                        Text(
+                            if (isBangla) "ইনস্টল করুন" else "Install",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    UpdateStatus.ERROR -> Button(
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            viewModel.checkForUpdate(installedCode = versionCode, fromManualCheck = true)
+                        }
+                    ) {
+                        Text(
+                            if (isBangla) "আবার চেষ্টা করুন" else "Retry",
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    else -> {}
+                }
+            },
+            dismissButton = {
+                when (uiState.updateStatus) {
+                    UpdateStatus.UPDATE_AVAILABLE, UpdateStatus.DOWNLOAD_READY -> TextButton(
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            viewModel.dismissUpdateDialog()
+                        }
+                    ) {
+                        Text(if (isBangla) "পরে" else "Later")
+                    }
+                    UpdateStatus.DOWNLOADING, UpdateStatus.ERROR -> TextButton(
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            viewModel.dismissUpdateDialog()
+                        }
+                    ) {
+                        Text(if (isBangla) "বাতিল" else "Cancel")
+                    }
+                    else -> {}
+                }
+            }
+        )
+    }
 }
 
 private fun authenticateWithFingerprint(
@@ -1029,4 +1387,186 @@ private fun authenticateWithFingerprint(
         .build()
 
     biometricPrompt.authenticate(promptInfo)
+}
+
+@Composable
+private fun UpdateStatusLine(
+    isBangla: Boolean,
+    updateStatus: UpdateStatus,
+    manifest: app.cash.tanvir.info.domain.model.UpdateManifest?,
+    downloadedUpdate: DownloadedUpdate?,
+    downloadProgress: Float,
+    errorType: UpdateErrorType?,
+    errorReason: String?,
+    onCheckForUpdate: () -> Unit,
+    onShowUpdateDialog: () -> Unit,
+    onInstall: (DownloadedUpdate) -> Unit
+) {
+    val context = LocalContext.current
+    when (updateStatus) {
+        UpdateStatus.IDLE -> {}
+        UpdateStatus.CHECKING -> {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    if (isBangla) "আপডেট চেক হচ্ছে…" else "Checking for updates…",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        UpdateStatus.UP_TO_DATE -> {
+            Text(
+                if (isBangla) "আপনি সর্বশেষ ভার্সনে আছেন" else "You're on the latest version",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)
+            )
+        }
+        UpdateStatus.UPDATE_AVAILABLE -> {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                Text(
+                    text = if (isBangla) {
+                        "নতুন ভার্সন ${BanglaDigitConverter.toBangla(manifest?.versionName ?: "")} পাওয়া গেছে"
+                    } else {
+                        "New version ${manifest?.versionName ?: ""} is available"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)
+                )
+                TextButton(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        onShowUpdateDialog()
+                    }
+                ) {
+                    Text(if (isBangla) "এখনই আপডেট করুন" else "Update now")
+                }
+            }
+        }
+        UpdateStatus.DOWNLOADING -> {
+            Text(
+                text = if (downloadProgress >= 0f) {
+                    val pct = (downloadProgress * 100).toInt()
+                    if (isBangla) "ডাউনলোড হচ্ছে… ${BanglaDigitConverter.toBangla(pct)}%" else "Downloading… $pct%"
+                } else {
+                    if (isBangla) "ডাউনলোড হচ্ছে…" else "Downloading…"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)
+            )
+        }
+        UpdateStatus.DOWNLOAD_READY -> {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                Text(
+                    if (isBangla) "ডাউনলোড সম্পন্ন — ইনস্টল করুন" else "Download complete — install to update",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)
+                )
+                TextButton(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        downloadedUpdate?.let { onInstall(it) }
+                    }
+                ) {
+                    Text(if (isBangla) "ইনস্টল করুন" else "Install")
+                }
+            }
+        }
+        UpdateStatus.ERROR -> {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+            ) {
+                Text(
+                    text = if (errorType == UpdateErrorType.DOWNLOAD_FAILED) {
+                        if (isBangla) "ডাউনলোড ব্যর্থ হয়েছে${errorReason?.let { ": $it" } ?: ""}" else "Download failed${errorReason?.let { ": $it" } ?: ""}"
+                    } else {
+                        if (isBangla) "আপডেট চেক করা যায়নি" else "Couldn't check for updates"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp)
+                )
+                TextButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    onCheckForUpdate()
+                }) {
+                    Text(if (isBangla) "আবার চেষ্টা করুন" else "Retry")
+                }
+            }
+        }
+        UpdateStatus.INSTALLING -> {}
+    }
+}
+
+/**
+ * Launches the system package installer for a downloaded APK.
+ * URI selection per API level: MediaStore content URI on 29+, FileProvider on ≤ 28.
+ * [onUnresolved] fires when no activity can handle the install intent (browser fallback).
+ */
+private fun launchInstaller(
+    context: Context,
+    update: DownloadedUpdate,
+    onUnresolved: () -> Unit
+) {
+    val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        Uri.parse(update.uri.toString())
+    } else {
+        FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", update.file!!)
+    }
+    val intent = Intent(Intent.ACTION_VIEW).apply {
+        setDataAndType(uri, "application/vnd.android.package-archive")
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    try {
+        context.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
+        onUnresolved()
+    }
+}
+
+private fun openInBrowserFallback(context: Context, url: String, isBangla: Boolean) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    } catch (_: Exception) {
+        Toast.makeText(
+            context,
+            if (isBangla) "ডাউনলোড লিংক খোলা যায়নি" else "Couldn't open the download link",
+            Toast.LENGTH_LONG
+        ).show()
+    }
 }

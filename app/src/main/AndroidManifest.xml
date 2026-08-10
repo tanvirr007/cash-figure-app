@@ -11,6 +11,13 @@
     <!-- Haptic feedback for button/toggle vibrations -->
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- In-app OTA: manifest check + APK download (update-only, no tracking).
+         Documented exception to the offline-only rule (see AGENTS.md / ota.md). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Direct APK install on Android 8+; app prompts via ACTION_MANAGE_UNKNOWN_APP_SOURCES -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+
     <application
         android:name=".CashFigureApp"
         android:allowBackup="true"

@@ -8,11 +8,16 @@ import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.domain.model.Denomination
 import app.cash.tanvir.info.domain.model.DenominationRow
+import app.cash.tanvir.info.domain.model.DownloadedUpdate
 import app.cash.tanvir.info.domain.model.Sheet
+import app.cash.tanvir.info.domain.model.UpdateManifest
 import app.cash.tanvir.info.domain.repository.SettingsRepository
 import app.cash.tanvir.info.domain.repository.SheetRepository
+import app.cash.tanvir.info.domain.repository.UpdateRepository
 import app.cash.tanvir.info.util.report.StorageUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +27,25 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import javax.inject.Inject
+
+/**
+ * OTA update state machine (see ota.md §11).
+ */
+enum class UpdateStatus {
+    IDLE,             // nothing happened yet
+    CHECKING,         // manifest fetch in flight
+    UP_TO_DATE,       // manifest fetched, installed is newest
+    UPDATE_AVAILABLE, // manifest fetched, newer version exists (dialog ready)
+    DOWNLOADING,      // APK streaming; downloadProgress in 0f..1f
+    DOWNLOAD_READY,   // APK fully downloaded; ready to install
+    INSTALLING,       // install intent launched (transient)
+    ERROR             // check or download failed; updateErrorType populated
+}
+
+enum class UpdateErrorType {
+    CHECK_FAILED,
+    DOWNLOAD_FAILED
+}
 
 data class SettingsUiState(
     val theme: AppTheme = AppTheme.SYSTEM,
@@ -34,17 +58,29 @@ data class SettingsUiState(
     val biometricEnabled: Boolean = false,
     val screenshotBlockEnabled: Boolean = false,
     val hapticFeedbackEnabled: Boolean = false,
-    val hapticFeedbackIntensity: Float = 0.5f
+    val hapticFeedbackIntensity: Float = 0.5f,
+    val updateStatus: UpdateStatus = UpdateStatus.IDLE,
+    val updateManifest: UpdateManifest? = null,
+    val downloadedUpdate: DownloadedUpdate? = null,  // set on DOWNLOAD_READY
+    val downloadProgress: Float = 0f,        // 0f..1f; -1f sentinel for indeterminate
+    val downloadedBytes: Long = 0L,
+    val totalBytes: Long = 0L,              // -1 when the server omits Content-Length
+    val updateErrorType: UpdateErrorType? = null,
+    val updateErrorReason: String? = null,   // raw exception message (download failures)
+    val isUpdateDialogVisible: Boolean = false
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
-    private val sheetRepository: SheetRepository
+    private val sheetRepository: SheetRepository,
+    private val updateRepository: UpdateRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
+
+    private var downloadJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -301,5 +337,139 @@ class SettingsViewModel @Inject constructor(
 
     fun clearStatusMessage() {
         _uiState.update { it.copy(statusMessage = null) }
+    }
+
+    /**
+     * Fetches the remote manifest and compares against the installed version code.
+     * @param installedCode the installed versionCode (computed in the screen, which
+     *                      already owns the version pair)
+     * @param fromManualCheck false for the launch auto-check (silent failure/up-to-date)
+     */
+    fun checkForUpdate(installedCode: Long, fromManualCheck: Boolean = true) {
+        viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    updateStatus = UpdateStatus.CHECKING,
+                    updateErrorType = null,
+                    updateErrorReason = null,
+                    updateManifest = null
+                )
+            }
+            val manifest = updateRepository.fetchManifest()
+            _uiState.update { state ->
+                when {
+                    manifest == null -> state.copy(
+                        updateStatus = UpdateStatus.ERROR,
+                        updateErrorType = UpdateErrorType.CHECK_FAILED,
+                        isUpdateDialogVisible = fromManualCheck
+                    )
+                    manifest.versionCode <= installedCode -> state.copy(
+                        updateStatus = UpdateStatus.UP_TO_DATE,
+                        isUpdateDialogVisible = false
+                    )
+                    else -> state.copy(
+                        updateStatus = UpdateStatus.UPDATE_AVAILABLE,
+                        updateManifest = manifest,
+                        isUpdateDialogVisible = true
+                    )
+                }
+            }
+        }
+    }
+
+    /** Re-opens the update dialog when an update is already known (inline "Update now"). */
+    fun showUpdateDialog() {
+        _uiState.update {
+            if (it.updateManifest != null) it.copy(isUpdateDialogVisible = true) else it
+        }
+    }
+
+    fun downloadUpdate() {
+        if (_uiState.value.updateStatus != UpdateStatus.UPDATE_AVAILABLE) return
+        val manifest = _uiState.value.updateManifest ?: return
+        downloadJob?.cancel()
+        downloadJob = viewModelScope.launch {
+            _uiState.update {
+                it.copy(
+                    updateStatus = UpdateStatus.DOWNLOADING,
+                    downloadProgress = 0f,
+                    updateErrorType = null,
+                    updateErrorReason = null
+                )
+            }
+            try {
+                val update = updateRepository.downloadApk(manifest) { downloaded, total ->
+                    val progress = if (total > 0) downloaded.toFloat() / total.toFloat() else -1f
+                    _uiState.update { s ->
+                        if (s.updateStatus == UpdateStatus.DOWNLOADING) {
+                            s.copy(
+                                downloadProgress = progress,
+                                downloadedBytes = downloaded,
+                                totalBytes = total
+                            )
+                        } else {
+                            s
+                        }
+                    }
+                }
+                _uiState.update {
+                    it.copy(
+                        updateStatus = UpdateStatus.DOWNLOAD_READY,
+                        downloadProgress = 1f,
+                        downloadedUpdate = update
+                    )
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        updateStatus = UpdateStatus.ERROR,
+                        updateErrorType = UpdateErrorType.DOWNLOAD_FAILED,
+                        updateErrorReason = e.message,
+                        downloadProgress = 0f,
+                        downloadedBytes = 0L,
+                        totalBytes = 0L
+                    )
+                }
+            }
+        }
+    }
+
+    /** Cancels an in-flight download and clears the dialog (rollback handled in the repo). */
+    fun cancelDownload() {
+        downloadJob?.cancel()
+        downloadJob = null
+        _uiState.update {
+            it.copy(
+                updateStatus = UpdateStatus.IDLE,
+                isUpdateDialogVisible = false,
+                downloadProgress = 0f,
+                downloadedBytes = 0L,
+                totalBytes = 0L,
+                downloadedUpdate = null
+            )
+        }
+    }
+
+    /**
+     * "Later"/back/tap-outside for the update dialog. A running download is cancelled.
+     */
+    fun dismissUpdateDialog() {
+        if (_uiState.value.updateStatus == UpdateStatus.DOWNLOADING) {
+            cancelDownload()
+            return
+        }
+        _uiState.update {
+            it.copy(
+                isUpdateDialogVisible = false,
+                updateStatus = if (it.updateStatus == UpdateStatus.DOWNLOADING) it.updateStatus else UpdateStatus.IDLE
+            )
+        }
+    }
+
+    /** Called by the screen right before the system installer intent fires. */
+    fun onInstallLaunched() {
+        _uiState.update { it.copy(updateStatus = UpdateStatus.INSTALLING) }
     }
 }

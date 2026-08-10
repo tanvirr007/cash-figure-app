@@ -21,12 +21,18 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.data.local.preferences.PreferencesManager
+import app.cash.tanvir.info.domain.model.UpdateManifest
+import app.cash.tanvir.info.domain.repository.UpdateRepository
 import app.cash.tanvir.info.ui.navigation.NavGraph
+import app.cash.tanvir.info.ui.navigation.Screen
 import app.cash.tanvir.info.ui.theme.CashFigureTheme
+import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
+import app.cash.tanvir.info.util.getInstalledVersion
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -42,10 +48,15 @@ class MainActivity : FragmentActivity() {
     @Inject
     lateinit var preferencesManager: PreferencesManager
 
+    @Inject
+    lateinit var updateRepository: UpdateRepository
+
     private var isAppLocked by mutableStateOf(false)
     private var backgroundTimestamp: Long = 0L
     private var isFirstLaunch = true
     private var promptInProgress = false
+    private var updateCheckDone = false
+    private var isUpdateAvailable by mutableStateOf<UpdateManifest?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -97,6 +108,19 @@ class MainActivity : FragmentActivity() {
                 }
             }
 
+            // One-shot silent OTA check (runs once per process, never while locked)
+            val navController = rememberNavController()
+            LaunchedEffect(isAppLocked) {
+                if (!isAppLocked && !updateCheckDone) {
+                    updateCheckDone = true
+                    val installedCode = getInstalledVersion(this@MainActivity).second
+                    val manifest = updateRepository.fetchManifest()
+                    if (manifest != null && manifest.versionCode > installedCode) {
+                        isUpdateAvailable = manifest
+                    }
+                }
+            }
+
             DisposableEffect(isDark) {
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.auto(
@@ -127,7 +151,46 @@ class MainActivity : FragmentActivity() {
                             onUnlockClick = { showBiometricPrompt(isBangla) }
                         )
                     } else {
-                        NavGraph()
+                        NavGraph(navController = navController)
+                    }
+
+                    // Lightweight launch update dialog — hands off to Settings for the full flow
+                    if (!isAppLocked && isUpdateAvailable != null) {
+                        val availableManifest = isUpdateAvailable!!
+                        AlertDialog(
+                            onDismissRequest = { isUpdateAvailable = null },
+                            title = {
+                                Text(
+                                    if (isBangla) "নতুন ভার্সন পাওয়া গেছে" else "New version available",
+                                    fontWeight = FontWeight.Bold
+                                )
+                            },
+                            text = {
+                                Text(
+                                    if (isBangla) {
+                                        "নতুন ভার্সন ${BanglaDigitConverter.toBangla(availableManifest.versionName)} পাওয়া গেছে। আপডেট করতে সেটিংসে যান।"
+                                    } else {
+                                        "New version ${availableManifest.versionName} is available. Go to Settings to update."
+                                    }
+                                )
+                            },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    isUpdateAvailable = null
+                                    navController.navigate(Screen.Settings.route)
+                                }) {
+                                    Text(
+                                        if (isBangla) "আপডেট করুন" else "Update",
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { isUpdateAvailable = null }) {
+                                    Text(if (isBangla) "পরে" else "Later")
+                                }
+                            }
+                        )
                     }
                 }
             }

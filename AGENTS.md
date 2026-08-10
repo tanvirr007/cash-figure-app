@@ -1,0 +1,57 @@
+# AGENTS.md
+
+Guidance for AI agents working in the Cash Figure codebase.
+
+## Project Overview
+
+Cash Figure is a production-quality, 100% offline Android app for counting Bangladeshi cash (Taka). Built with Kotlin + Jetpack Compose (Material 3, Teal/Amber), MVVM + Clean Architecture, Room, DataStore, Hilt, and Coroutines/Flow. Bilingual UI (English + Bangla), including Bangla digits and the Lakh/Crore numbering system. In-app OTA updates (manifest check + APK download/install via GitHub Releases) are the single documented exception to the offline rule — see `ota.md`.
+
+## Commands (Windows)
+
+- Build debug APK: `gradlew.bat assembleDebug`
+- Run unit tests: `gradlew.bat test`
+- Get version name: `gradlew.bat printVersionName`
+- JDK 17+, Android Studio Ladybug+ recommended.
+
+## Architecture
+
+Package root: `app/src/main/java/app/cash/tanvir/info/` with strict layers:
+
+- `domain/` — pure Kotlin models (`Sheet`, `Denomination`, `DenominationRow`, `BackupData`, `UpdateManifest`, `DownloadedUpdate`) and repository interfaces (`SheetRepository`, `SettingsRepository`, `UpdateRepository`). No Android dependencies.
+- `data/` — Room DB (`CashFigureDatabase`, `SheetDao`, `SheetEntity`), DataStore (`PreferencesManager`), repository implementations (incl. `UpdateRepositoryImpl` — `HttpURLConnection` manifest fetch + streamed APK download).
+- `ui/` — single-activity Compose app; `navigation/NavGraph.kt` has 4 routes (Calculator start / History / Report / Settings), each screen = `XxxScreen` + `XxxViewModel`. `MainActivity` hosts the one-shot launch OTA check + lightweight update dialog; the full download/install UI lives in the Settings screen.
+- `util/` — pure helpers: `CurrencyFormatter`, `NumberToWordsConverter` (EN/BN, Lakh/Crore), `BanglaDigitConverter`, `DateTimeFormatter`, `HapticHelper`, `PackageVersion`, `SizeFormatter`, `UpdateManifestParser`, and `util/report/` generators (PDF/CSV/TXT + PrintHelper, StorageUtil).
+
+Rules: data flows one way (Screen → ViewModel → Repository → DB/DataStore). ViewModels expose StateFlow; screens collect state.
+
+## Conventions
+
+- Dependency injection via Hilt (`@HiltViewModel`, `@AndroidEntryPoint`); modules in `di/` (Room `@Database` in `DatabaseModule`, repository bindings in `RepositoryModule`).
+- Compose Material 3, dark/light/dynamic theme via `ui/theme/`, custom Tiro Bangla font for Bangla text.
+- UI strings are inline with `if (isBangla) "..." else "..."` pattern — no string resources for the main UI.
+- Report exports use the generators in `util/report/` — keep them side-effect free and pure (unit-tested).
+- Room schema changes require a database version bump in `CashFigureDatabase.kt` (backup/restore is version-safe).
+- App is offline-only **except** the OTA updater (documented in `ota.md` §21): `INTERNET` + `REQUEST_INSTALL_PACKAGES` serve only the raw-CDN `version.json` fetch and the release APK download. Never add analytics, tracking, or any other network usage. OTA state machine lives in `SettingsViewModel` (`UpdateStatus`); installs use the MediaStore URI (29+) or FileProvider (≤ 28); partial downloads are rolled back.
+
+## Large Files — Edit With Care
+
+- `ui/screen/settings/SettingsScreen.kt` (~1533 lines) and `SettingsViewModel.kt` (~431)
+- `ui/screen/calculator/CalculatorScreen.kt` (~623 lines)
+- `util/report/PdfReportGenerator.kt` (~320 lines)
+- `ui/MainActivity.kt` — biometric lock, FLAG_SECURE, edge-to-edge, screen-on logic, launch OTA check
+
+## Testing
+
+- Unit tests in `app/src/test/java/app/cash/tanvir/info/util/` cover `CsvReportGenerator`, `NumberToWordsConverter`, `DateTimeFormatter`, `CurrencyFormatter`, `UpdateManifestParser`, `SizeFormatter`.
+- `org.json:json` is a `testImplementation` dependency so parser tests run on the JVM.
+- Run `gradlew.bat test` after touching any `util/` code.
+
+## Git
+
+Follow the `git` skill (`.opencode/skills/git/SKILL.md`): commit message pattern with Change-Id footer, `-s` signoff, clean staging, never force push, always ask before committing or pushing.
+
+## References
+
+- `docs/FILES.md` — complete per-file reference table and data-flow map.
+- `README.md` — feature overview and build instructions.
+- `ota.md` — OTA updater design doc (contracts, state machine, install matrix, error handling).

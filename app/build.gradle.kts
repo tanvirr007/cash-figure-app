@@ -111,6 +111,8 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
+    // Real org.json for local JVM unit tests (Android provides it on device)
+    testImplementation("org.json:json:20240303")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
