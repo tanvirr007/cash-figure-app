@@ -94,30 +94,54 @@ jobs:
           cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/CashFigure.apk
 
       - name: Get build metadata
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           COMMIT_HASH=$(git rev-parse --short HEAD)
           BUILD_TIME=$(date -u +'%Y-%m-%d %H:%M:%S UTC')
           APK_SHA=$(sha256sum app/build/outputs/apk/release/CashFigure.apk | awk '{print $1}')
           echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
           echo "BUILD_TIME=$BUILD_TIME" >> $GITHUB_ENV
-          
-          # Fetch previous tag
-          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
-          
+
+          # Resolve the previous published release via the GitHub API. Git tags
+          # can point at stale commits (edited/re-run releases), so the commit
+          # listed in the previous release body is the range base of truth.
+          PREV_RELEASE=""
+          PREV_COMMIT=""
+          for attempt in 1 2 3; do
+            PREV_RELEASE=$(gh release list --exclude-drafts --exclude-pre-releases --limit 30 --json tagName --jq '.[].tagName' | grep -v "^v${{ env.VERSION_NAME }}$" | head -n 1)
+            if [ -n "$PREV_RELEASE" ]; then
+              PREV_COMMIT=$(gh release view "$PREV_RELEASE" --json body --jq '.body' | awk -F'[`]' '/\* \*\*Commit:\*\*/{print $2; exit}')
+            fi
+            if [ -n "$PREV_COMMIT" ]; then
+              break
+            fi
+            echo "Warning: previous release commit not resolved yet (attempt $attempt/3), retrying..."
+            sleep 2
+          done
+
+          # Fall back to the root commit when there is no previous release
+          if [ -z "$PREV_COMMIT" ]; then
+            PREV_COMMIT=$(git rev-list --max-parents=0 HEAD)
+          fi
+          echo "Previous release: $PREV_RELEASE (commit $PREV_COMMIT)"
+
+          # Previous release body, used to skip commits already shipped
+          PREV_BODY=$(gh release view "$PREV_RELEASE" --json body --jq '.body' 2>/dev/null || echo "")
+
           # Build changelog
           CHANGELOG=""
-          if [ -z "$PREV_TAG" ]; then
-            commits=$(git log --pretty=format:"%H %s")
-          else
-            commits=$(git log --pretty=format:"%H %s" $PREV_TAG..HEAD)
-          fi
-          
+          commits=$(git log --pretty=format:"%H %s" $PREV_COMMIT..HEAD)
+
           if [ -z "$commits" ]; then
             CHANGELOG="* No changes."
           else
             while read -r hash title || [ -n "$hash" ]; do
               if [ ! -z "$hash" ]; then
                 if [[ "$title" =~ ^release:\ OTA\ manifest ]] || [[ "$title" =~ ^update:\ raw\ CDN ]] || [[ "$title" =~ ^Update\ version\.json ]]; then
+                  continue
+                fi
+                if [ -n "$PREV_BODY" ] && grep -qF "(${hash:0:7})" <<< "$PREV_BODY"; then
                   continue
                 fi
                 CHANGELOG="${CHANGELOG}* **$title** (${hash:0:7})"$'\n'
