@@ -24,7 +24,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.HistoryToggleOff
-import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.SettingsSuggest
 import androidx.compose.material.icons.rounded.SystemUpdateAlt
 import androidx.compose.material.icons.rounded.Translate
@@ -180,7 +180,7 @@ fun SettingsScreen(
             )
 
             SettingsLinkCard(
-                icon = { SettingsIconBadge(Icons.Rounded.Info) },
+                icon = { SettingsIconBadge(Icons.Rounded.Person) },
                 title = if (isBangla) "লেখক" else "Author",
                 subtitle = if (isBangla) "অ্যাপ সম্পর্কে জানুন" else "Learn about the app",
                 onClick = {
