@@ -1,6 +1,48 @@
 {
   "releases": [
     {
+      "tagName": "v2.3.2",
+      "publishedAt": "2026-08-10T15:44:45Z",
+      "items": [
+        {
+          "title": "feat: open changelog in a full-screen view",
+          "subItems": [
+            "Add ChangelogScreen with TopAppBar, back arrow, and EN/BN title.",
+            "Render each release as a card with version, date, and Latest badge.",
+            "Move ChangelogStatus and changelog fetch into a dedicated ChangelogViewModel.",
+            "Add changelog route to NavGraph and wire it from Settings.",
+            "Replace the inline expandable changelog card with a compact row.",
+            "Strip changelog state from SettingsViewModel and SettingsUiState.",
+            "Update docs/FILES.md for the new screen and navigation map."
+          ]
+        },
+        {
+          "title": "fix: stop duplicate changelogs across releases",
+          "subItems": [
+            "Resolve previous release commit from GitHub API instead of git describe.",
+            "Parse the Commit field from the previous release body as the range base.",
+            "Skip commits already shipped in the previous release body (dedup).",
+            "Fall back to the root commit when no previous release exists.",
+            "Add GH_TOKEN to the Get build metadata step.",
+            "Prune changelog.json entries: v2.3.1 (3), v2.3.0 (9), v2.0.4 (13), v0.1.0.4 (1).",
+            "Prune version.json changelog to the 3 v2.3.1 commits.",
+            "Fix polluted GitHub release bodies for v2.3.1, v2.3.0, v2.0.4, v0.1.0.4."
+          ]
+        },
+        {
+          "title": "docs: rewrite README and add MIT license",
+          "subItems": [
+            "Rebuild README with famous-repo style: banner, tagline, and badge row.",
+            "Add visitor counter, release, build status, platform, Kotlin, and UI badges.",
+            "Highlight no ads, open source (MIT), and 100% offline as core features.",
+            "Add tech stack table, project structure, and getting started sections.",
+            "Add MIT LICENSE file (Copyright 2026 Tanvir Hasan).",
+            "Keep all existing feature and architecture claims accurate."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v2.3.1",
       "publishedAt": "2026-08-10T14:30:44Z",
       "items": [
