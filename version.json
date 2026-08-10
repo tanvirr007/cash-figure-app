@@ -1,6 +1,6 @@
 {
-  "versionCode": 17,
-  "versionName": "v2.3.1",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.1/CashFigure.apk",
-  "changelog": "* **style: right-align PDF subtotals and un-bold grand total** (2edbd2e)\n  - Subtotal values now align right inside their column instead of left.\n  - Grand total row is no longer bold; label stays left aligned.\n"
+  "versionCode": 20,
+  "versionName": "v2.3.2",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.2/CashFigure.apk",
+  "changelog": "* **fix: resolve build errors and center-align PDF table values** (7da77c3)\n  - Replace android Uri toURI with java URI create in OTA download.\n  - Move isBangla declaration above OTA install launchers in settings.\n  - Center-align denomination and subtotal columns in PDF table.\n  - Center the combined grand total text within its row.\n* **feat: add in-app OTA updater with manifest check and APK install** (e9c6ec1)\n  - Add UpdateManifest model and UpdateRepository contract in domain.\n  - Fetch version.json and stream APK downloads via HttpURLConnection.\n  - Add streaming openReportFile handle to StorageUtil with rollback.\n  - Wire UpdateRepository through Hilt in RepositoryModule.\n  - Add package version, size formatter and manifest parser utilities.\n  - Extend SettingsViewModel with the OTA state machine and actions.\n  - Add Updates card, status line, download dialog and install flow.\n  - Add silent launch auto-check and update dialog in MainActivity.\n  - Add INTERNET and REQUEST_INSTALL_PACKAGES manifest permissions.\n  - Add parser and size formatter unit tests with org.json test dep.\n  - Document the OTA feature and network exception in the docs.\n"
 }
