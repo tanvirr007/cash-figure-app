@@ -60,6 +60,7 @@ data class SettingsUiState(
     val screenshotBlockEnabled: Boolean = false,
     val hapticFeedbackEnabled: Boolean = false,
     val hapticFeedbackIntensity: Float = 0.5f,
+    val lastSuccessfulCheck: Long? = null,
     val updateStatus: UpdateStatus = UpdateStatus.IDLE,
     val updateManifest: UpdateManifest? = null,
     val downloadedUpdate: DownloadedUpdate? = null,  // set on DOWNLOAD_READY
@@ -119,6 +120,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsRepository.getHapticFeedbackIntensity().collect { intensity ->
                 _uiState.update { it.copy(hapticFeedbackIntensity = intensity) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.getLastSuccessfulCheck().collect { timestamp ->
+                _uiState.update { it.copy(lastSuccessfulCheck = timestamp) }
             }
         }
     }
@@ -374,6 +380,7 @@ class SettingsViewModel @Inject constructor(
             // Small artificial delay so the CHECKING state is perceptible (modern feel)
             delay(2000)
             val manifest = updateRepository.fetchManifest()
+            val now = System.currentTimeMillis()
             _uiState.update { state ->
                 when {
                     manifest == null -> state.copy(
@@ -383,14 +390,19 @@ class SettingsViewModel @Inject constructor(
                     )
                     manifest.versionCode <= installedCode -> state.copy(
                         updateStatus = UpdateStatus.UP_TO_DATE,
-                        isUpdateDialogVisible = false
+                        isUpdateDialogVisible = false,
+                        lastSuccessfulCheck = if (fromManualCheck) now else state.lastSuccessfulCheck
                     )
                     else -> state.copy(
                         updateStatus = UpdateStatus.UPDATE_AVAILABLE,
                         updateManifest = manifest,
-                        isUpdateDialogVisible = true
+                        isUpdateDialogVisible = true,
+                        lastSuccessfulCheck = if (fromManualCheck) now else state.lastSuccessfulCheck
                     )
                 }
+            }
+            if (manifest != null && fromManualCheck) {
+                settingsRepository.setLastSuccessfulCheck(now)
             }
         }
     }

@@ -29,3 +29,21 @@ fun getInstalledVersion(context: Context): Pair<String, Long> {
         Pair("1.0.0", 1L)
     }
 }
+
+/**
+ * Returns the timestamp (epoch millis) of the last app update/install
+ * ([android.content.pm.PackageInfo.lastUpdateTime]), or 0L on failure.
+ */
+fun getInstalledUpdatedAt(context: Context): Long {
+    return try {
+        val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            context.packageManager.getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
+        } else {
+            @Suppress("DEPRECATION")
+            context.packageManager.getPackageInfo(context.packageName, 0)
+        }
+        packageInfo.lastUpdateTime
+    } catch (e: Exception) {
+        0L
+    }
+}

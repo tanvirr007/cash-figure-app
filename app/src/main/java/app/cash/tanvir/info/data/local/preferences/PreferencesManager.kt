@@ -37,6 +37,7 @@ class PreferencesManager @Inject constructor(
         val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
         val HAPTIC_FEEDBACK_INTENSITY = floatPreferencesKey("haptic_feedback_intensity")
         val LAST_KNOWN_VERSION = longPreferencesKey("last_known_version")
+        val LAST_SUCCESSFUL_CHECK = longPreferencesKey("last_successful_check")
     }
 
     val themeFlow: Flow<AppTheme> = context.dataStore.data.map { prefs ->
@@ -76,6 +77,10 @@ class PreferencesManager @Inject constructor(
 
     val lastKnownVersionFlow: Flow<Long?> = context.dataStore.data.map { prefs ->
         prefs[Keys.LAST_KNOWN_VERSION]
+    }
+
+    val lastSuccessfulCheckFlow: Flow<Long?> = context.dataStore.data.map { prefs ->
+        prefs[Keys.LAST_SUCCESSFUL_CHECK]
     }
 
     suspend fun setTheme(theme: AppTheme) {
@@ -135,6 +140,12 @@ class PreferencesManager @Inject constructor(
     suspend fun setLastKnownVersion(versionCode: Long) {
         context.dataStore.edit { prefs ->
             prefs[Keys.LAST_KNOWN_VERSION] = versionCode
+        }
+    }
+
+    suspend fun setLastSuccessfulCheck(timestamp: Long) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.LAST_SUCCESSFUL_CHECK] = timestamp
         }
     }
 

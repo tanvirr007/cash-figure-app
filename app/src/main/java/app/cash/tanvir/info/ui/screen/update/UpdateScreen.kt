@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -60,8 +61,10 @@ import app.cash.tanvir.info.ui.screen.settings.UpdateErrorType
 import app.cash.tanvir.info.ui.screen.settings.UpdateStatus
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.ChangelogParser
+import app.cash.tanvir.info.util.DateTimeFormatter
 import app.cash.tanvir.info.util.HapticHelper
 import app.cash.tanvir.info.util.SizeFormatter
+import app.cash.tanvir.info.util.getInstalledUpdatedAt
 import app.cash.tanvir.info.util.getInstalledVersion
 
 /**
@@ -80,6 +83,7 @@ fun UpdateScreen(
     val context = LocalContext.current
     val isBangla = uiState.language == AppLanguage.BANGLA
     val (installedName, installedCode) = remember(context) { getInstalledVersion(context) }
+    val installedUpdatedAt = remember(context) { getInstalledUpdatedAt(context) }
 
     val installSettingsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -156,29 +160,28 @@ fun UpdateScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .verticalScroll(rememberScrollState())
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .fillMaxHeight()
                     .padding(horizontal = 24.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .fillMaxHeight()
                         .widthIn(max = 600.dp)
                 ) {
                     when (uiState.updateStatus) {
-                        UpdateStatus.IDLE, UpdateStatus.CHECKING -> {
-                            CheckingContent(isBangla = isBangla)
-                        }
-
                         UpdateStatus.UP_TO_DATE -> {
                             UpToDateContent(
                                 isBangla = isBangla,
                                 installedName = installedName,
                                 installedCode = installedCode,
+                                installedUpdatedAt = installedUpdatedAt,
+                                lastSuccessfulCheck = uiState.lastSuccessfulCheck,
                                 onCheckAgain = {
                                     HapticHelper.vibrate(context)
                                     viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
@@ -186,68 +189,84 @@ fun UpdateScreen(
                             )
                         }
 
-                        UpdateStatus.UPDATE_AVAILABLE -> {
-                            uiState.updateManifest?.let { manifest ->
-                                UpdateAvailableContent(
-                                    isBangla = isBangla,
-                                    manifest = manifest,
-                                    onDownload = {
-                                        HapticHelper.vibrate(context)
-                                        viewModel.downloadUpdate()
-                                    },
-                                    onLater = {
-                                        HapticHelper.vibrate(context)
-                                        viewModel.dismissUpdateDialog()
-                                        onNavigateBack()
+                        else -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .verticalScroll(rememberScrollState())
+                            ) {
+                                when (uiState.updateStatus) {
+                                    UpdateStatus.IDLE, UpdateStatus.CHECKING -> {
+                                        CheckingContent(isBangla = isBangla)
                                     }
-                                )
+
+                                    UpdateStatus.UPDATE_AVAILABLE -> {
+                                        uiState.updateManifest?.let { manifest ->
+                                            UpdateAvailableContent(
+                                                isBangla = isBangla,
+                                                manifest = manifest,
+                                                onDownload = {
+                                                    HapticHelper.vibrate(context)
+                                                    viewModel.downloadUpdate()
+                                                },
+                                                onLater = {
+                                                    HapticHelper.vibrate(context)
+                                                    viewModel.dismissUpdateDialog()
+                                                    onNavigateBack()
+                                                }
+                                            )
+                                        }
+                                    }
+
+                                    UpdateStatus.DOWNLOADING -> {
+                                        DownloadingContent(
+                                            isBangla = isBangla,
+                                            downloadedBytes = uiState.downloadedBytes,
+                                            totalBytes = uiState.totalBytes,
+                                            progress = uiState.downloadProgress,
+                                            onCancel = {
+                                                HapticHelper.vibrate(context)
+                                                viewModel.cancelDownload()
+                                                onNavigateBack()
+                                            }
+                                        )
+                                    }
+
+                                    UpdateStatus.DOWNLOAD_READY -> {
+                                        DownloadReadyContent(
+                                            isBangla = isBangla,
+                                            versionName = uiState.updateManifest?.versionName.orEmpty(),
+                                            onLater = {
+                                                HapticHelper.vibrate(context)
+                                                viewModel.dismissUpdateDialog()
+                                                onNavigateBack()
+                                            },
+                                            onInstall = {
+                                                HapticHelper.vibrate(context)
+                                                uiState.downloadedUpdate?.let { requestInstall(it) }
+                                            }
+                                        )
+                                    }
+
+                                    UpdateStatus.INSTALLING -> {
+                                        InstallingContent(isBangla = isBangla)
+                                    }
+
+                                    UpdateStatus.ERROR -> {
+                                        ErrorContent(
+                                            isBangla = isBangla,
+                                            errorType = uiState.updateErrorType,
+                                            errorReason = uiState.updateErrorReason,
+                                            onRetry = {
+                                                HapticHelper.vibrate(context)
+                                                viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
+                                            }
+                                        )
+                                    }
+
+                                    UpdateStatus.UP_TO_DATE -> Unit
+                                }
                             }
-                        }
-
-                        UpdateStatus.DOWNLOADING -> {
-                            DownloadingContent(
-                                isBangla = isBangla,
-                                downloadedBytes = uiState.downloadedBytes,
-                                totalBytes = uiState.totalBytes,
-                                progress = uiState.downloadProgress,
-                                onCancel = {
-                                    HapticHelper.vibrate(context)
-                                    viewModel.cancelDownload()
-                                    onNavigateBack()
-                                }
-                            )
-                        }
-
-                        UpdateStatus.DOWNLOAD_READY -> {
-                            DownloadReadyContent(
-                                isBangla = isBangla,
-                                versionName = uiState.updateManifest?.versionName.orEmpty(),
-                                onLater = {
-                                    HapticHelper.vibrate(context)
-                                    viewModel.dismissUpdateDialog()
-                                    onNavigateBack()
-                                },
-                                onInstall = {
-                                    HapticHelper.vibrate(context)
-                                    uiState.downloadedUpdate?.let { requestInstall(it) }
-                                }
-                            )
-                        }
-
-                        UpdateStatus.INSTALLING -> {
-                            InstallingContent(isBangla = isBangla)
-                        }
-
-                        UpdateStatus.ERROR -> {
-                            ErrorContent(
-                                isBangla = isBangla,
-                                errorType = uiState.updateErrorType,
-                                errorReason = uiState.updateErrorReason,
-                                onRetry = {
-                                    HapticHelper.vibrate(context)
-                                    viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
-                                }
-                            )
                         }
                     }
                 }
@@ -302,31 +321,73 @@ private fun UpToDateContent(
     isBangla: Boolean,
     installedName: String,
     installedCode: Long,
+    installedUpdatedAt: Long,
+    lastSuccessfulCheck: Long?,
     onCheckAgain: () -> Unit
 ) {
-    Spacer(modifier = Modifier.height(40.dp))
-    CheckIcon()
-    Spacer(modifier = Modifier.height(28.dp))
-    Text(
-        if (isBangla) "আপনি ইতিমধ্যে সর্বশেষ ভার্সনে আছেন" else "You're already up to date",
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Medium
-    )
-    Spacer(modifier = Modifier.height(12.dp))
-    Text(
-        text = if (isBangla) {
-            "এই ডিভাইসে ক্যাশ ফিগার v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)}) ইনস্টল করা আছে।"
-        } else {
-            "Cash Figure v$installedName (Build $installedCode) is installed on this device."
-        },
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Spacer(modifier = Modifier.height(24.dp))
-    TextButton(onClick = onCheckAgain) {
-        Text(if (isBangla) "আবার চেক করুন" else "Check again")
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 80.dp)
+        ) {
+            Spacer(modifier = Modifier.height(40.dp))
+            CheckIcon()
+            Spacer(modifier = Modifier.height(28.dp))
+            Text(
+                if (isBangla) "আপনি ইতিমধ্যে সর্বশেষ ভার্সনে আছেন" else "You're already up to date",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = if (isBangla) {
+                    "এই ডিভাইসে ক্যাশ ফিগার v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)}) ইনস্টল করা আছে"
+                } else {
+                    "Cash Figure v$installedName (Build $installedCode) is installed on this device"
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            if (installedUpdatedAt > 0L) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = if (isBangla) {
+                        "আপডেট হয়েছে: ${DateTimeFormatter.formatUpdatedOn(installedUpdatedAt, isBangla = true)}"
+                    } else {
+                        "Updated on: ${DateTimeFormatter.formatUpdatedOn(installedUpdatedAt, isBangla = false)}"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            lastSuccessfulCheck?.let { timestamp ->
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = if (isBangla) {
+                        "সর্বশেষ সফল আপডেট চেক: ${DateTimeFormatter.formatTime(timestamp, isBangla = true)}"
+                    } else {
+                        "Last successful check for update: ${DateTimeFormatter.formatTime(timestamp, isBangla = false)}"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Button(
+            onClick = onCheckAgain,
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 16.dp)
+        ) {
+            Text(
+                if (isBangla) "আপডেট চেক করুন" else "Check for update",
+                fontWeight = FontWeight.SemiBold
+            )
+        }
     }
-    Spacer(modifier = Modifier.height(24.dp))
 }
 
 @Composable

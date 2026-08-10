@@ -116,4 +116,41 @@ class DateTimeFormatterTest {
             assertEquals("১৫ $expectedMonthName ২০২৬, দুপুর ১২:০০", formatted)
         }
     }
+
+    @Test
+    fun testFormatUpdatedOn_English() {
+        // 8:15 PM on Aug 9, 2026 → time first, full month name
+        val timestamp = getTimestampFor(2026, Calendar.AUGUST, 9, 20, 15)
+        assertEquals("08:15 PM, 09 August 2026", DateTimeFormatter.formatUpdatedOn(timestamp, isBangla = false))
+    }
+
+    @Test
+    fun testFormatUpdatedOn_Bangla() {
+        val t1 = getTimestampFor(2026, Calendar.JULY, 12, 10, 45)
+        assertEquals("সকাল ১০:৪৫, ১২ জুলাই ২০২৬", DateTimeFormatter.formatUpdatedOn(t1, isBangla = true))
+
+        val t2 = getTimestampFor(2026, Calendar.AUGUST, 9, 20, 15)
+        assertEquals("রাত্রি ০৮:১৫, ০৯ আগস্ট ২০২৬", DateTimeFormatter.formatUpdatedOn(t2, isBangla = true))
+    }
+
+    @Test
+    fun testFormatTime_English() {
+        val timestamp = getTimestampFor(2026, Calendar.AUGUST, 9, 20, 15)
+        assertEquals("08:15 PM", DateTimeFormatter.formatTime(timestamp, isBangla = false))
+
+        val morning = getTimestampFor(2026, Calendar.AUGUST, 9, 10, 45)
+        assertEquals("10:45 AM", DateTimeFormatter.formatTime(morning, isBangla = false))
+    }
+
+    @Test
+    fun testFormatTime_Bangla() {
+        val t1 = getTimestampFor(2026, Calendar.JULY, 12, 10, 45)
+        assertEquals("সকাল ১০:৪৫", DateTimeFormatter.formatTime(t1, isBangla = true))
+
+        val t2 = getTimestampFor(2026, Calendar.AUGUST, 9, 20, 15)
+        assertEquals("রাত্রি ০৮:১৫", DateTimeFormatter.formatTime(t2, isBangla = true))
+
+        val t3 = getTimestampFor(2026, Calendar.AUGUST, 9, 12, 0)
+        assertEquals("দুপুর ১২:০০", DateTimeFormatter.formatTime(t3, isBangla = true))
+    }
 }

@@ -24,15 +24,7 @@ object DateTimeFormatter {
         }
 
         val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
-        val hour = calendar.get(Calendar.HOUR_OF_DAY)
-        val label = when (hour) {
-            in 4..5 -> "ভোর"
-            in 6..11 -> "সকাল"
-            in 12..14 -> "দুপুর"
-            in 15..17 -> "বিকাল"
-            in 18..19 -> "সন্ধ্যা"
-            else -> "রাত্রি"
-        }
+        val label = timeOfDayLabel(calendar.get(Calendar.HOUR_OF_DAY))
 
         val datePartFormat = SimpleDateFormat("dd MMM yyyy", Locale.ENGLISH)
         val timePartFormat = SimpleDateFormat("hh:mm", Locale.ENGLISH)
@@ -56,5 +48,59 @@ object DateTimeFormatter {
         val bnTimePart = BanglaDigitConverter.toBangla(timePart)
 
         return "$bnDatePart, $label $bnTimePart"
+    }
+
+    /**
+     * Formats a timestamp as "10:45 AM, 12 July 2026" (time first, full month
+     * name). Bangla: "দুপুর ১০:৪৫, ১২ জুলাই ২০২৬".
+     */
+    fun formatUpdatedOn(timestamp: Long, isBangla: Boolean): String {
+        if (!isBangla) {
+            val dateFormat = SimpleDateFormat("hh:mm a, dd MMMM yyyy", Locale.ENGLISH)
+            return dateFormat.format(Date(timestamp))
+        }
+        return "${formatTime(timestamp, isBangla = true)}, ${banglaFullDate(timestamp)}"
+    }
+
+    /**
+     * Formats a timestamp as 12-hour time only, e.g. "10:45 AM".
+     * Bangla: "দুপুর ১০:৪৫".
+     */
+    fun formatTime(timestamp: Long, isBangla: Boolean): String {
+        if (!isBangla) {
+            return SimpleDateFormat("hh:mm a", Locale.ENGLISH).format(Date(timestamp))
+        }
+        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
+        val label = timeOfDayLabel(calendar.get(Calendar.HOUR_OF_DAY))
+        val timePart = BanglaDigitConverter.toBangla(
+            SimpleDateFormat("hh:mm", Locale.ENGLISH).format(Date(timestamp))
+        )
+        return "$label $timePart"
+    }
+
+    private fun timeOfDayLabel(hour: Int): String = when (hour) {
+        in 4..5 -> "ভোর"
+        in 6..11 -> "সকাল"
+        in 12..14 -> "দুপুর"
+        in 15..17 -> "বিকাল"
+        in 18..19 -> "সন্ধ্যা"
+        else -> "রাত্রি"
+    }
+
+    private fun banglaFullDate(timestamp: Long): String {
+        val datePart = SimpleDateFormat("dd MMMM yyyy", Locale.ENGLISH).format(Date(timestamp))
+        return BanglaDigitConverter.toBangla(datePart)
+            .replace("January", "জানুয়ারি")
+            .replace("February", "ফেব্রুয়ারি")
+            .replace("March", "মার্চ")
+            .replace("April", "এপ্রিল")
+            .replace("May", "মে")
+            .replace("June", "জুন")
+            .replace("July", "জুলাই")
+            .replace("August", "আগস্ট")
+            .replace("September", "সেপ্টেম্বর")
+            .replace("October", "অক্টোবর")
+            .replace("November", "নভেম্বর")
+            .replace("December", "ডিসেম্বর")
     }
 }
