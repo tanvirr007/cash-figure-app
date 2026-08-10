@@ -2,8 +2,10 @@ package app.cash.tanvir.info.data.repository
 
 import android.content.Context
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
+import app.cash.tanvir.info.domain.model.ReleaseChangelog
 import app.cash.tanvir.info.domain.model.UpdateManifest
 import app.cash.tanvir.info.domain.repository.UpdateRepository
+import app.cash.tanvir.info.util.ChangelogParser
 import app.cash.tanvir.info.util.UpdateManifestParser
 import app.cash.tanvir.info.util.report.StorageUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -44,6 +46,27 @@ class UpdateRepositoryImpl @Inject constructor(
             null
         }
     }
+
+    override suspend fun fetchReleaseChangelogs(): List<ReleaseChangelog> =
+        withContext(Dispatchers.IO) {
+            try {
+                val connection = URL(CHANGELOG_URL).openConnection() as HttpURLConnection
+                try {
+                    connection.requestMethod = "GET"
+                    connection.connectTimeout = CONNECT_TIMEOUT_MS
+                    connection.readTimeout = READ_TIMEOUT_MS
+                    connection.setRequestProperty("Accept", "application/json")
+                    connection.setRequestProperty("User-Agent", USER_AGENT)
+                    if (connection.responseCode != HttpURLConnection.HTTP_OK) return@withContext emptyList()
+                    val body = connection.inputStream.bufferedReader().use { it.readText() }
+                    ChangelogParser.parse(body)
+                } finally {
+                    connection.disconnect()
+                }
+            } catch (_: Exception) {
+                emptyList()
+            }
+        }
 
     override suspend fun downloadApk(
         manifest: UpdateManifest,
@@ -91,9 +114,11 @@ class UpdateRepositoryImpl @Inject constructor(
     private companion object {
         const val MANIFEST_URL =
             "https://raw.githubusercontent.com/tanvirr007/cash-figure-app/main/version.json"
+        const val CHANGELOG_URL =
+            "https://raw.githubusercontent.com/tanvirr007/cash-figure-app/main/changelog.json"
         const val CONNECT_TIMEOUT_MS = 10_000
         const val READ_TIMEOUT_MS = 30_000
-        const val USER_AGENT = "CashFigure-OTA/2.3.0"
+        const val USER_AGENT = "CashFigure-OTA/2.3.1"
         const val FILE_NAME = "CashFigure.apk"
         const val APK_MIME = "application/vnd.android.package-archive"
         const val OTA_SUBFOLDER = "ota"

@@ -173,21 +173,6 @@ jobs:
           path: app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.apk
           if-no-files-found: error
 
-      - name: Update Raw CDN version.json
-        env:
-          RUN_NUMBER: ${{ github.run_number }}
-          VERSION_NAME: ${{ env.VERSION_NAME }}
-          REPOSITORY: ${{ github.repository }}
-          CHANGELOG: ${{ env.CHANGELOG }}
-        run: |
-          python3 scripts/bot.py ota
-          CHANGE_ID="Change-Id: I$(python3 -c "import hashlib, os; print(hashlib.sha1(os.urandom(32)).hexdigest())")"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add version.json
-          git commit -s -m "release: OTA manifest v${{ env.VERSION_NAME }} [skip ci]" -m "- Auto-updated version manifest for raw GitHub CDN OTA checks"$'\n\n'"$CHANGE_ID" || exit 0
-          git push origin main || echo "Warning: Failed to push version.json to main branch"
-
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -201,6 +186,23 @@ jobs:
            gh release upload "v${{ env.VERSION_NAME }}" \
             app/build/outputs/apk/release/CashFigure-v${{ env.VERSION_NAME }}.apk \
             app/build/outputs/apk/release/CashFigure.apk --clobber)
+
+      - name: Update Raw CDN manifests (version.json + changelog.json)
+        env:
+          RUN_NUMBER: ${{ github.run_number }}
+          VERSION_NAME: ${{ env.VERSION_NAME }}
+          REPOSITORY: ${{ github.repository }}
+          CHANGELOG: ${{ env.CHANGELOG }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 scripts/bot.py ota || exit 1
+          python3 scripts/bot.py changelog || echo "Warning: changelog regeneration failed"
+          CHANGE_ID="Change-Id: I$(python3 -c "import hashlib, os; print(hashlib.sha1(os.urandom(32)).hexdigest())")"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add version.json changelog.json
+          git commit -s -m "release: OTA manifest v${{ env.VERSION_NAME }} [skip ci]" -m "- Auto-updated version manifest and changelog for raw GitHub CDN"$'\n\n'"$CHANGE_ID" || exit 0
+          git push origin main || echo "Warning: Failed to push manifests to main branch"
 
       - name: Send Telegram Notification
         continue-on-error: true

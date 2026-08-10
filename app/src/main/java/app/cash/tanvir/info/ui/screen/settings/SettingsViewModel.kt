@@ -9,6 +9,7 @@ import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.domain.model.Denomination
 import app.cash.tanvir.info.domain.model.DenominationRow
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
+import app.cash.tanvir.info.domain.model.ReleaseChangelog
 import app.cash.tanvir.info.domain.model.Sheet
 import app.cash.tanvir.info.domain.model.UpdateManifest
 import app.cash.tanvir.info.domain.repository.SettingsRepository
@@ -48,6 +49,13 @@ enum class UpdateErrorType {
     DOWNLOAD_FAILED
 }
 
+enum class ChangelogStatus {
+    IDLE,       // not loaded yet (fetched lazily on first expand)
+    LOADING,
+    LOADED,
+    ERROR
+}
+
 data class SettingsUiState(
     val theme: AppTheme = AppTheme.SYSTEM,
     val language: AppLanguage = AppLanguage.ENGLISH,
@@ -68,7 +76,9 @@ data class SettingsUiState(
     val totalBytes: Long = 0L,              // -1 when the server omits Content-Length
     val updateErrorType: UpdateErrorType? = null,
     val updateErrorReason: String? = null,   // raw exception message (download failures)
-    val isUpdateDialogVisible: Boolean = false
+    val isUpdateDialogVisible: Boolean = false,
+    val changelogStatus: ChangelogStatus = ChangelogStatus.IDLE,
+    val changelog: List<ReleaseChangelog> = emptyList()
 )
 
 @HiltViewModel
@@ -475,5 +485,26 @@ class SettingsViewModel @Inject constructor(
     /** Called by the screen right before the system installer intent fires. */
     fun onInstallLaunched() {
         _uiState.update { it.copy(updateStatus = UpdateStatus.INSTALLING) }
+    }
+
+    /**
+     * Fetches the remote changelog (all releases, newest first).
+     * Fetches once per session; [force] reloads after a failure.
+     */
+    fun loadChangelog(force: Boolean = false) {
+        val state = _uiState.value
+        if (state.changelogStatus == ChangelogStatus.LOADING) return
+        if (!force && state.changelogStatus == ChangelogStatus.LOADED) return
+        viewModelScope.launch {
+            _uiState.update { it.copy(changelogStatus = ChangelogStatus.LOADING) }
+            val changelog = updateRepository.fetchReleaseChangelogs()
+            _uiState.update {
+                if (changelog.isEmpty()) {
+                    it.copy(changelogStatus = ChangelogStatus.ERROR)
+                } else {
+                    it.copy(changelogStatus = ChangelogStatus.LOADED, changelog = changelog)
+                }
+            }
+        }
     }
 }

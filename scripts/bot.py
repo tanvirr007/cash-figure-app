@@ -654,6 +654,124 @@ def release():
 
 
 
+# ═══════════════════════════════════════════════════════════════════
+# Changelog — Regenerate changelog.json from GitHub releases
+# ═══════════════════════════════════════════════════════════════════
+
+def fetch_releases(repo, token):
+    """Fetch all releases (newest first) from the GitHub API."""
+    releases = []
+    page = 1
+    while True:
+        url = f"https://api.github.com/repos/{repo}/releases?per_page=100&page={page}"
+        req = urllib.request.Request(url, headers={
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "CashFigure-Changelog"
+        })
+        if token:
+            req.add_header("Authorization", f"Bearer {token}")
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            batch = json.loads(resp.read().decode("utf-8"))
+        if not batch:
+            break
+        releases.extend(batch)
+        page += 1
+        if len(batch) < 100:
+            break
+    return releases
+
+def parse_changelog_section(body):
+    """Parse the '### 📝 Changelog' section of a release body into items.
+    Strips '**' markers, trailing commit hashes '(abc1234)', and TEST blocks."""
+    if not body or "### 📝 Changelog" not in body:
+        return []
+    section = body.split("### 📝 Changelog", 1)[1]
+
+    main_re = re.compile(r'^\s*[*•-]\s*(.+?)\s*$')
+    hash_re = re.compile(r'\s*\([0-9a-f]{7,8}\)\s*$')
+    sub_re = re.compile(r'^[-*•]+\s*(.*)$')
+    test_re = re.compile(r'^[-*•]?\s*TEST\s*:?\s*$', re.IGNORECASE)
+
+    items = []
+    current = None
+    skipping_test = False
+    for raw in section.splitlines():
+        stripped = raw.strip()
+        if not stripped:
+            continue
+        is_indented = raw.startswith(" ") or raw.startswith("\t")
+        if not is_indented:
+            skipping_test = False
+
+        m = main_re.match(stripped)
+        if m and not is_indented:
+            title = hash_re.sub('', m.group(1)).strip()
+            title = title.strip('*').strip()
+            if title:
+                current = {"title": title, "subItems": []}
+                items.append(current)
+            skipping_test = False
+            continue
+
+        if skipping_test:
+            continue
+        if test_re.match(stripped):
+            skipping_test = True
+            continue
+
+        sm = sub_re.match(stripped)
+        if sm and current is not None:
+            text = sm.group(1).strip()
+            if text:
+                current["subItems"].append(text)
+    return items
+
+def changelog():
+    repo = os.environ.get("REPOSITORY", "tanvirr007/cash-figure-app")
+    token = os.environ.get("GH_TOKEN", "")
+    expected_tag = os.environ.get("VERSION_NAME", "").strip()
+    if expected_tag and not expected_tag.startswith("v"):
+        expected_tag = f"v{expected_tag}"
+
+    releases = []
+    attempts = 0
+    while attempts < 3:
+        try:
+            releases = fetch_releases(repo, token)
+        except Exception as e:
+            print(f"Warning: failed to fetch releases ({e})")
+            releases = []
+        if expected_tag and not any(r.get("tag_name") == expected_tag for r in releases):
+            # API eventual consistency — the just-created release may lag
+            attempts += 1
+            print(f"Warning: {expected_tag} not found yet (attempt {attempts}/3), retrying...")
+            time.sleep(2)
+            continue
+        break
+
+    if expected_tag and not any(r.get("tag_name") == expected_tag for r in releases):
+        print(f"WARNING: {expected_tag} missing from changelog.json — will catch up on the next release")
+
+    out = {"releases": []}
+    for r in releases:
+        if r.get("draft"):
+            continue
+        items = parse_changelog_section(r.get("body"))
+        if not items:
+            continue
+        out["releases"].append({
+            "tagName": r.get("tag_name", ""),
+            "publishedAt": r.get("published_at", ""),
+            "items": items
+        })
+
+    out_path = "changelog.json"
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(out, f, indent=2, ensure_ascii=False)
+
+    print(f"Successfully generated {out_path} with {len(out['releases'])} release(s)")
+
+
 def ota():
     run_number_str = os.environ.get("RUN_NUMBER", "1")
     version_name = os.environ.get("VERSION_NAME", "1.0.0")
@@ -698,6 +816,8 @@ def main():
         release()
     elif cmd == "ota":
         ota()
+    elif cmd == "changelog":
+        changelog()
     else:
         print(f"Unknown command: {cmd}")
         sys.exit(1)
