@@ -112,7 +112,10 @@ fun ChangelogScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    TextButton(onClick = { viewModel.loadChangelog(force = true) }) {
+                    TextButton(onClick = {
+                        HapticHelper.vibrate(context)
+                        viewModel.loadChangelog(force = true)
+                    }) {
                         Text(
                             if (isBangla) "আবার চেষ্টা করুন" else "Try again",
                             fontWeight = FontWeight.SemiBold

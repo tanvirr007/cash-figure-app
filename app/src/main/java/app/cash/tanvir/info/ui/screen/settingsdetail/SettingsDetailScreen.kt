@@ -239,6 +239,7 @@ private fun CurrencyContent(
     disabledDenominations: Set<Int>,
     onToggle: (Int, Boolean) -> Unit
 ) {
+    val context = LocalContext.current
     SettingsCard {
         Text(
             if (isBangla) "হোমপেজের নোটগুলো নিয়ন্ত্রণ করুন" else "Manage homepage notes",
@@ -264,7 +265,10 @@ private fun CurrencyContent(
                     .toggleable(
                         value = isEnabled,
                         role = Role.Switch,
-                        onValueChange = { checked -> onToggle(value, checked) }
+                        onValueChange = { checked ->
+                            HapticHelper.vibrate(context)
+                            onToggle(value, checked)
+                        }
                     )
                     .padding(vertical = 8.dp, horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -313,7 +317,10 @@ private fun MiscellaneousContent(
             title = if (isBangla) "স্ক্রিন সুরক্ষা" else "Screen Protection",
             subtitle = if (isBangla) "স্ক্রিন ক্যাপচার বন্ধ রাখুন" else "Prevent screen capture",
             checked = screenshotBlockEnabled,
-            onToggle = onScreenshotToggle
+            onToggle = { checked ->
+                HapticHelper.vibrate(context)
+                onScreenshotToggle(checked)
+            }
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
         ToggleRow(
