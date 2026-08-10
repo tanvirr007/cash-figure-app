@@ -307,12 +307,12 @@ private fun ResetAllCard(isBangla: Boolean, onClick: () -> Unit) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
+                    .size(36.dp)
                     .background(color = MaterialTheme.colorScheme.error.copy(alpha = 0.14f), shape = RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
@@ -320,10 +320,10 @@ private fun ResetAllCard(isBangla: Boolean, onClick: () -> Unit) {
                     imageVector = Icons.Rounded.DeleteSweep,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
                     if (isBangla) "রিসেট করুন" else "Reset All",
@@ -353,7 +353,7 @@ private fun BackupRestoreCard(
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
         BackupRestoreRow(
             icon = Icons.Rounded.CloudUpload,
             title = if (isBangla) "ব্যাকআপ ডাটা" else "Backup Data",
@@ -385,12 +385,12 @@ private fun BackupRestoreRow(
                 HapticHelper.vibrate(context)
                 onClick()
             }
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+            .padding(vertical = 6.dp, horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(36.dp)
                 .background(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f), shape = RoundedCornerShape(12.dp)),
             contentAlignment = Alignment.Center
         ) {
@@ -398,10 +398,10 @@ private fun BackupRestoreRow(
                 imageVector = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(20.dp)
             )
         }
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(10.dp))
         Column {
             Text(
                 title,
@@ -426,7 +426,7 @@ private fun SettingsCard(content: @Composable () -> Unit) {
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
             content()
         }
     }
@@ -648,7 +648,7 @@ private fun ToggleRow(
                 role = Role.Switch,
                 onValueChange = onToggle
             )
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+            .padding(vertical = 6.dp, horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
     ) {
@@ -659,7 +659,7 @@ private fun ToggleRow(
                 .padding(end = 12.dp)
         ) {
             icon()
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Column {
                 Text(
                     title,

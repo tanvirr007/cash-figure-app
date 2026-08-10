@@ -200,7 +200,7 @@ private fun SettingsIconBadge(
 ) {
     Box(
         modifier = Modifier
-            .size(40.dp)
+            .size(36.dp)
             .background(color = tint.copy(alpha = 0.14f), shape = RoundedCornerShape(12.dp)),
         contentAlignment = Alignment.Center
     ) {
@@ -208,7 +208,7 @@ private fun SettingsIconBadge(
             imageVector = icon,
             contentDescription = null,
             tint = tint,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(20.dp)
         )
     }
 }
@@ -225,13 +225,13 @@ private fun SettingsGroupCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(12.dp)) {
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(6.dp))
             content()
         }
     }
@@ -253,11 +253,11 @@ private fun SettingsGroupRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp, horizontal = 8.dp),
+            .padding(vertical = 6.dp, horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         SettingsIconBadge(icon)
-        Spacer(modifier = Modifier.width(12.dp))
+        Spacer(modifier = Modifier.width(10.dp))
         Column {
             Text(
                 title,
@@ -292,11 +292,11 @@ private fun SettingsLinkCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             icon()
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     title,
