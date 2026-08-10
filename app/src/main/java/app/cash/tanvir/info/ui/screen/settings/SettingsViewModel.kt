@@ -68,7 +68,8 @@ data class SettingsUiState(
     val totalBytes: Long = 0L,              // -1 when the server omits Content-Length
     val updateErrorType: UpdateErrorType? = null,
     val updateErrorReason: String? = null,   // raw exception message (download failures)
-    val isUpdateDialogVisible: Boolean = false
+    val isUpdateDialogVisible: Boolean = false,
+    val restoreCountdown: Int = 0            // seconds remaining before Restore enables (0 = enabled)
 )
 
 @HiltViewModel
@@ -82,6 +83,7 @@ class SettingsViewModel @Inject constructor(
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
     private var downloadJob: Job? = null
+    private var restoreCountdownJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -184,16 +186,28 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun onRestoreFileSelected(uri: Uri) {
-        _uiState.update { it.copy(pendingRestoreUri = uri, showRestoreWarningDialog = true) }
+        restoreCountdownJob?.cancel()
+        _uiState.update { it.copy(pendingRestoreUri = uri, showRestoreWarningDialog = true, restoreCountdown = 15) }
+        restoreCountdownJob = viewModelScope.launch {
+            while (_uiState.value.restoreCountdown > 0) {
+                delay(1000)
+                _uiState.update { it.copy(restoreCountdown = (it.restoreCountdown - 1).coerceAtLeast(0)) }
+            }
+        }
     }
 
     fun dismissRestoreDialog() {
-        _uiState.update { it.copy(showRestoreWarningDialog = false, pendingRestoreUri = null) }
+        restoreCountdownJob?.cancel()
+        restoreCountdownJob = null
+        _uiState.update { it.copy(showRestoreWarningDialog = false, pendingRestoreUri = null, restoreCountdown = 0) }
     }
 
     fun confirmRestore(context: Context) {
+        if (_uiState.value.restoreCountdown > 0) return
+        restoreCountdownJob?.cancel()
+        restoreCountdownJob = null
         val uri = uiState.value.pendingRestoreUri
-        _uiState.update { it.copy(showRestoreWarningDialog = false, pendingRestoreUri = null) }
+        _uiState.update { it.copy(showRestoreWarningDialog = false, pendingRestoreUri = null, restoreCountdown = 0) }
         if (uri != null) {
             restoreDataFromUri(context, uri)
         }

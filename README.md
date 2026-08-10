@@ -5,7 +5,7 @@
 <h1 align="center">Cash Figure App</h1>
 
 <p align="center">
-  Count Bangladeshi cash (Taka) like a pro. 100% offline, zero ads, fully open source.
+  The simple way to count money
 </p>
 
 <p align="center">
@@ -49,7 +49,7 @@ optional in-app update check.
 - **JSON Backup and Restore** — back up all data to JSON and restore seamlessly
   with schema-version safety.
 - **In-App OTA Updates** — silent update check on launch, in-app APK download with
-  live progress, and a bilingual (EN/BN) changelog — see [ota.md](ota.md).
+  live progress, and a bilingual (EN/BN) changelog.
 - **Screen On Mode** — keeps the screen awake during active counting sessions.
 - **No Ads** — zero advertisements, zero in-app purchases, zero paywalls.
 - **Open Source** — full source under the MIT license; audit it, fork it, improve it.

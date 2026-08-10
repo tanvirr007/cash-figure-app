@@ -2,6 +2,7 @@ package app.cash.tanvir.info.ui
 
 import android.os.Bundle
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
@@ -121,6 +124,22 @@ class MainActivity : FragmentActivity() {
                 }
             }
 
+            // "Update complete" toast when the app was just updated via OTA
+            LaunchedEffect(isAppLocked) {
+                if (!isAppLocked) {
+                    val installedCode = getInstalledVersion(this@MainActivity).second
+                    val lastKnown = preferencesManager.lastKnownVersionFlow.first()
+                    if (lastKnown != null && installedCode > lastKnown) {
+                        Toast.makeText(
+                            this@MainActivity,
+                            if (isBangla) "আপডেট সম্পন্ন" else "Update complete",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    preferencesManager.setLastKnownVersion(installedCode)
+                }
+            }
+
             DisposableEffect(isDark) {
                 enableEdgeToEdge(
                     statusBarStyle = SystemBarStyle.auto(
@@ -154,49 +173,66 @@ class MainActivity : FragmentActivity() {
                         NavGraph(navController = navController)
                     }
 
-                    // Lightweight launch update dialog — hands off to Settings for the full flow
+                    // Lightweight launch update dialog — hands off to the Update screen for the full flow
                     if (!isAppLocked && isUpdateAvailable != null) {
                         val availableManifest = isUpdateAvailable!!
-                        AlertDialog(
-                            onDismissRequest = { isUpdateAvailable = null },
-                            title = {
-                                Text(
-                                    if (isBangla) "ওটিএ" else "OTA",
-                                    fontWeight = FontWeight.Bold
-                                )
-                            },
-                            text = {
-                                Text(
-                                    if (isBangla) {
-                                        "নতুন ভার্সন ${BanglaDigitConverter.toBangla(availableManifest.versionName)} পাওয়া গেছে"
-                                    } else {
-                                        "New version ${availableManifest.versionName} is available"
-                                    }
-                                )
-                            },
-                            confirmButton = {
-                                Button(
-                                    onClick = {
-                                        isUpdateAvailable = null
-                                        navController.navigate(Screen.Settings.createRoute(autoCheck = true))
-                                    },
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
+                        Dialog(
+                            onDismissRequest = {},
+                            properties = DialogProperties(
+                                dismissOnBackPress = false,
+                                dismissOnClickOutside = false
+                            )
+                        ) {
+                            Surface(
+                                shape = RoundedCornerShape(28.dp),
+                                color = MaterialTheme.colorScheme.surface,
+                                tonalElevation = 6.dp,
+                                modifier = Modifier.padding(24.dp)
+                            ) {
+                                Column(modifier = Modifier.padding(24.dp)) {
                                     Text(
-                                        if (isBangla) "আপডেট করুন" else "Update",
+                                        if (isBangla) "ওটিএ" else "OTA",
+                                        style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold
                                     )
-                                }
-                            },
-                            dismissButton = {
-                                OutlinedButton(
-                                    onClick = { isUpdateAvailable = null },
-                                    shape = RoundedCornerShape(12.dp)
-                                ) {
-                                    Text(if (isBangla) "পরে" else "Later")
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        if (isBangla) {
+                                            "নতুন ভার্সন ${BanglaDigitConverter.toBangla(availableManifest.versionName)} পাওয়া গেছে"
+                                        } else {
+                                            "New version ${availableManifest.versionName} is available"
+                                        },
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(modifier = Modifier.height(20.dp))
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        TextButton(
+                                            onClick = {
+                                                HapticHelper.vibrate(this@MainActivity)
+                                                isUpdateAvailable = null
+                                            }
+                                        ) {
+                                            Text(if (isBangla) "পরে" else "Later")
+                                        }
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Button(
+                                            onClick = {
+                                                HapticHelper.vibrate(this@MainActivity)
+                                                isUpdateAvailable = null
+                                                navController.navigate(Screen.Update.route)
+                                            },
+                                            contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+                                        ) {
+                                            Text(if (isBangla) "আপডেট" else "Update")
+                                        }
+                                    }
                                 }
                             }
-                        )
+                        }
                     }
                 }
             }

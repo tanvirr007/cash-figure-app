@@ -11,7 +11,8 @@ data class UpdateManifest(
     val versionCode: Long,
     val versionName: String,
     val downloadUrl: String,
-    val changelog: String
+    val changelog: String,
+    val fileSize: Long? = null
 )
 
 /**

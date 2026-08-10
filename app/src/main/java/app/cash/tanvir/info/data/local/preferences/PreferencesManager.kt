@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -35,6 +36,7 @@ class PreferencesManager @Inject constructor(
         val SCREENSHOT_BLOCK_ENABLED = booleanPreferencesKey("screenshot_block_enabled")
         val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
         val HAPTIC_FEEDBACK_INTENSITY = floatPreferencesKey("haptic_feedback_intensity")
+        val LAST_KNOWN_VERSION = longPreferencesKey("last_known_version")
     }
 
     val themeFlow: Flow<AppTheme> = context.dataStore.data.map { prefs ->
@@ -70,6 +72,10 @@ class PreferencesManager @Inject constructor(
 
     val hapticFeedbackIntensityFlow: Flow<Float> = context.dataStore.data.map { prefs ->
         prefs[Keys.HAPTIC_FEEDBACK_INTENSITY] ?: 0.5f
+    }
+
+    val lastKnownVersionFlow: Flow<Long?> = context.dataStore.data.map { prefs ->
+        prefs[Keys.LAST_KNOWN_VERSION]
     }
 
     suspend fun setTheme(theme: AppTheme) {
@@ -123,6 +129,12 @@ class PreferencesManager @Inject constructor(
     suspend fun setHapticFeedbackIntensity(intensity: Float) {
         context.dataStore.edit { prefs ->
             prefs[Keys.HAPTIC_FEEDBACK_INTENSITY] = intensity
+        }
+    }
+
+    suspend fun setLastKnownVersion(versionCode: Long) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.LAST_KNOWN_VERSION] = versionCode
         }
     }
 

@@ -21,7 +21,8 @@ object UpdateManifestParser {
                 versionCode = json.optLong("versionCode", 0L),
                 versionName = json.optString("versionName", ""),
                 downloadUrl = json.optString("downloadUrl", ""),
-                changelog = json.optString("changelog", "")
+                changelog = json.optString("changelog", ""),
+                fileSize = json.optLong("fileSize", 0L).takeIf { it > 0L }
             ).takeIf { it.versionCode > 0L && it.downloadUrl.isNotBlank() }
         } catch (_: Exception) {
             null

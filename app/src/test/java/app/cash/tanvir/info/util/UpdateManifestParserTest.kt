@@ -25,6 +25,37 @@ class UpdateManifestParserTest {
         assertEquals("v2.0.5", manifest?.versionName)
         assertEquals("https://github.com/tanvirr007/cash-figure-app/releases/download/v2.0.5/CashFigure.apk", manifest?.downloadUrl)
         assertTrue(manifest?.changelog?.contains("0822cb6") == true)
+        assertNull(manifest?.fileSize)
+    }
+
+    @Test
+    fun testParse_FileSize_Parsed() {
+        val json = """
+            {
+              "versionCode": 18,
+              "versionName": "v2.2.0",
+              "downloadUrl": "https://example.com/CashFigure.apk",
+              "changelog": "x",
+              "fileSize": 25165824
+            }
+        """.trimIndent()
+        val manifest = UpdateManifestParser.parse(json)
+        assertEquals(18L, manifest?.versionCode)
+        assertEquals(25165824L, manifest?.fileSize)
+    }
+
+    @Test
+    fun testParse_ZeroFileSize_Ignored() {
+        val json = """
+            {
+              "versionCode": 19,
+              "versionName": "v2.2.1",
+              "downloadUrl": "https://example.com/CashFigure.apk",
+              "changelog": "x",
+              "fileSize": 0
+            }
+        """.trimIndent()
+        assertNull(UpdateManifestParser.parse(json)?.fileSize)
     }
 
     @Test

@@ -12,11 +12,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import app.cash.tanvir.info.ui.screen.about.AboutScreen
 import app.cash.tanvir.info.ui.screen.calculator.CalculatorScreen
 import app.cash.tanvir.info.ui.screen.changelog.ChangelogScreen
 import app.cash.tanvir.info.ui.screen.history.HistoryScreen
 import app.cash.tanvir.info.ui.screen.report.ReportScreen
 import app.cash.tanvir.info.ui.screen.settings.SettingsScreen
+import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsDetailScreen
+import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsSection
+import app.cash.tanvir.info.ui.screen.update.UpdateScreen
 
 sealed class Screen(val route: String) {
     object Calculator : Screen("calculator")
@@ -25,9 +29,12 @@ sealed class Screen(val route: String) {
         fun createRoute(sheetId: Long, fromSave: Boolean = false) = "report/$sheetId?fromSave=$fromSave"
     }
     object Changelog : Screen("changelog")
-    object Settings : Screen("settings?autoCheck={autoCheck}") {
-        fun createRoute(autoCheck: Boolean = false) = "settings?autoCheck=$autoCheck"
+    object Update : Screen("update")
+    object About : Screen("about")
+    object SettingsDetail : Screen("settings-detail?section={section}") {
+        fun createRoute(section: SettingsSection) = "settings-detail?section=${section.routeParam}"
     }
+    object Settings : Screen("settings")
 }
 
 @Composable
@@ -54,7 +61,7 @@ fun NavGraph(
             CalculatorScreen(
                 onNavigateToHistory = { navController.navigate(Screen.History.route) },
                 onNavigateToReport = { sheetId, fromSave -> navController.navigate(Screen.Report.createRoute(sheetId, fromSave)) },
-                onNavigateToSettings = { navController.navigate(Screen.Settings.createRoute()) }
+                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
             )
         }
 
@@ -83,23 +90,48 @@ fun NavGraph(
         }
 
         composable(
-            route = Screen.Settings.route,
-            arguments = listOf(
-                navArgument("autoCheck") {
-                    type = NavType.BoolType
-                    defaultValue = false
-                }
-            )
+            route = Screen.Settings.route
         ) {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
                 onNavigateToChangelog = { navController.navigate(Screen.Changelog.route) },
-                autoCheck = it.arguments?.getBoolean("autoCheck") ?: false
+                onNavigateToUpdate = { navController.navigate(Screen.Update.route) },
+                onNavigateToAbout = { navController.navigate(Screen.About.route) },
+                onNavigateToSettingsDetail = { section ->
+                    navController.navigate(Screen.SettingsDetail.createRoute(section))
+                }
             )
         }
 
         composable(Screen.Changelog.route) {
             ChangelogScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.Update.route) {
+            UpdateScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(Screen.About.route) {
+            AboutScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(
+            route = Screen.SettingsDetail.route,
+            arguments = listOf(
+                navArgument("section") { type = NavType.StringType }
+            )
+        ) {
+            val section = SettingsSection.fromRouteParam(
+                it.arguments?.getString("section")
+            )
+            SettingsDetailScreen(
+                section = section,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

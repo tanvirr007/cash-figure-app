@@ -786,18 +786,32 @@ def ota():
     full_version_name = f"v{version_name}"
     download_url = f"https://github.com/{repo}/releases/download/{full_version_name}/CashFigure.apk"
 
+    file_size = None
+    for candidate in (
+        f"app/build/outputs/apk/release/CashFigure-v{version_name}.apk",
+        "app/build/outputs/apk/release/CashFigure.apk",
+        "app/build/outputs/apk/release/app-release.apk",
+    ):
+        try:
+            file_size = os.path.getsize(candidate)
+            break
+        except OSError:
+            continue
+
     manifest = {
         "versionCode": version_code,
         "versionName": full_version_name,
         "downloadUrl": download_url,
         "changelog": changelog
     }
+    if file_size:
+        manifest["fileSize"] = file_size
 
     out_path = "version.json"
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 
-    print(f"Successfully generated {out_path} for {full_version_name}")
+    print(f"Successfully generated {out_path} for {full_version_name}" + (f" ({file_size} bytes)" if file_size else " (no APK size)"))
 
 
 # ═══════════════════════════════════════════════════════════════════

@@ -23,8 +23,8 @@ android {
         applicationId = "app.cash.tanvir.info"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
-        versionName = "2.3.1"
+        versionCode = 28
+        versionName = "3.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
