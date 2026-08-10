@@ -16,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -46,6 +45,7 @@ class MainActivity : FragmentActivity() {
     private var isAppLocked by mutableStateOf(false)
     private var backgroundTimestamp: Long = 0L
     private var isFirstLaunch = true
+    private var promptInProgress = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -163,15 +163,19 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun showBiometricPrompt(isBangla: Boolean) {
+        if (promptInProgress) return
+        promptInProgress = true
         val executor = ContextCompat.getMainExecutor(this)
         val biometricPrompt = BiometricPrompt(this, executor,
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
+                    promptInProgress = false
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     super.onAuthenticationSucceeded(result)
+                    promptInProgress = false
                     isAppLocked = false
                 }
 
@@ -218,15 +222,6 @@ fun LockScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = if (isBangla)
-                    "এগিয়ে যেতে ফিঙ্গারপ্রিন্ট ব্যবহার করুন অথবা আনলক চাপুন"
-                    else "Use your fingerprint or tap Unlock to continue",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(32.dp))
             Button(

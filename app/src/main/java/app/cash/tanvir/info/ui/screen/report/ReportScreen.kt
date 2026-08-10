@@ -17,12 +17,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.TableChart
-import androidx.compose.material.icons.filled.TextSnippet
+import androidx.compose.material.icons.automirrored.filled.TextSnippet
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -90,7 +90,7 @@ fun ReportScreen(
                         HapticHelper.vibrate(context)
                         onNavigateBack()
                     }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = if (isBangla) "ফিরে যান" else "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = if (isBangla) "ফিরে যান" else "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -147,7 +147,9 @@ fun ReportScreen(
                         Text(
                             text = if (isBangla) "কথায়: $words" else "Words: $words",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         HorizontalDivider()
@@ -338,7 +340,7 @@ fun ReportScreen(
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        Icon(Icons.Default.TextSnippet, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.TextSnippet, contentDescription = null)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("TXT")
                     }
