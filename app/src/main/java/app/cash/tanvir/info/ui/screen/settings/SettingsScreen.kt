@@ -3,8 +3,10 @@ package app.cash.tanvir.info.ui.screen.settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,16 +22,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Backup
-import androidx.compose.material.icons.filled.DeleteForever
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.SystemUpdate
-import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material.icons.rounded.AccountBalanceWallet
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.CloudDownload
+import androidx.compose.material.icons.rounded.CloudUpload
+import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material.icons.rounded.HistoryToggleOff
+import androidx.compose.material.icons.rounded.Info
+import androidx.compose.material.icons.rounded.SettingsSuggest
+import androidx.compose.material.icons.rounded.SystemUpdateAlt
+import androidx.compose.material.icons.rounded.Translate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -49,6 +52,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -125,7 +130,7 @@ fun SettingsScreen(
             }
 
             SettingsLinkCard(
-                icon = { Icon(Icons.Default.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                icon = { SettingsIconBadge(Icons.Rounded.AutoAwesome) },
                 title = if (isBangla) "অ্যাপ থিম" else "App Theme",
                 subtitle = currentThemeText,
                 onClick = {
@@ -135,7 +140,7 @@ fun SettingsScreen(
             )
 
             SettingsLinkCard(
-                icon = { Icon(Icons.Default.Language, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                icon = { SettingsIconBadge(Icons.Rounded.Translate) },
                 title = if (isBangla) "ভাষা" else "Language",
                 subtitle = currentLangText,
                 onClick = {
@@ -145,7 +150,7 @@ fun SettingsScreen(
             )
 
             SettingsLinkCard(
-                icon = { Icon(Icons.Default.Payments, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                icon = { SettingsIconBadge(Icons.Rounded.AccountBalanceWallet) },
                 title = if (isBangla) "নোটসমূহ" else "Currency",
                 subtitle = if (isBangla) "হোমপেজের নোটগুলো নিয়ন্ত্রণ করুন" else "Manage homepage notes",
                 onClick = {
@@ -155,7 +160,7 @@ fun SettingsScreen(
             )
 
             SettingsLinkCard(
-                icon = { Icon(Icons.Default.Tune, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                icon = { SettingsIconBadge(Icons.Rounded.SettingsSuggest) },
                 title = if (isBangla) "টুলস" else "Miscellaneous",
                 subtitle = if (isBangla) "অতিরিক্ত ফিচারসমূহ" else "Add-on Features",
                 onClick = {
@@ -188,7 +193,7 @@ fun SettingsScreen(
                             .padding(vertical = 8.dp, horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Backup, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        SettingsIconBadge(Icons.Rounded.CloudUpload)
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
@@ -216,7 +221,7 @@ fun SettingsScreen(
                             .padding(vertical = 8.dp, horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Restore, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        SettingsIconBadge(Icons.Rounded.CloudDownload)
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
@@ -235,7 +240,7 @@ fun SettingsScreen(
             }
 
             SettingsLinkCard(
-                icon = { Icon(Icons.Default.SystemUpdate, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                icon = { SettingsIconBadge(Icons.Rounded.SystemUpdateAlt) },
                 title = if (isBangla) "আপডেটসমূহ" else "Updates",
                 subtitle = if (isBangla) "নতুন ভার্সন চেক করুন" else "Check for new versions",
                 onClick = {
@@ -245,7 +250,7 @@ fun SettingsScreen(
             )
 
             SettingsLinkCard(
-                icon = { Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                icon = { SettingsIconBadge(Icons.Rounded.HistoryToggleOff) },
                 title = if (isBangla) "পরিবর্তন লগ" else "Changelog",
                 subtitle = if (isBangla) "সব ভার্সনের পরিবর্তন দেখুন" else "See what's new in each version",
                 onClick = {
@@ -270,7 +275,7 @@ fun SettingsScreen(
                         .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.DeleteForever, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                    SettingsIconBadge(Icons.Rounded.DeleteSweep, tint = MaterialTheme.colorScheme.error)
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
@@ -289,7 +294,7 @@ fun SettingsScreen(
             }
 
             SettingsLinkCard(
-                icon = { Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                icon = { SettingsIconBadge(Icons.Rounded.Info) },
                 title = if (isBangla) "ক্যাশ ফিগার সম্পর্কে" else "About Cash Figure",
                 subtitle = if (isBangla) "অ্যাপ সম্পর্কে জানুন" else "Learn about the app",
                 onClick = {
@@ -384,6 +389,26 @@ fun SettingsScreen(
                     Text(if (isBangla) "বাতিল" else "Cancel")
                 }
             }
+        )
+    }
+}
+
+@Composable
+private fun SettingsIconBadge(
+    icon: ImageVector,
+    tint: Color = MaterialTheme.colorScheme.primary
+) {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .background(color = tint.copy(alpha = 0.14f), shape = RoundedCornerShape(12.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = tint,
+            modifier = Modifier.size(22.dp)
         )
     }
 }
