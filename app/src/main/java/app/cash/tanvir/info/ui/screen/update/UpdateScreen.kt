@@ -11,6 +11,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,15 +22,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.SystemUpdate
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -50,11 +50,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
+import app.cash.tanvir.info.domain.model.UpdateManifest
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
 import app.cash.tanvir.info.ui.screen.settings.UpdateErrorType
 import app.cash.tanvir.info.ui.screen.settings.UpdateStatus
@@ -65,8 +65,9 @@ import app.cash.tanvir.info.util.SizeFormatter
 import app.cash.tanvir.info.util.getInstalledVersion
 
 /**
- * Full-page Pixel-style updater. Shares the update state machine with the
- * Settings screen via the activity-scoped [SettingsViewModel].
+ * Full-page Pixel-system-update-style updater. Shares the update state machine
+ * with the Settings screen via the activity-scoped [SettingsViewModel].
+ * Only the presentation changed — all update/download/install logic is reused.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -78,7 +79,7 @@ fun UpdateScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isBangla = uiState.language == AppLanguage.BANGLA
-    val (_, installedCode) = remember(context) { getInstalledVersion(context) }
+    val (installedName, installedCode) = remember(context) { getInstalledVersion(context) }
 
     val installSettingsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -130,9 +131,10 @@ fun UpdateScreen(
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
             TopAppBar(
-                title = { Text(if (isBangla) "আপডেট" else "Update") },
+                title = {},
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.vibrate(context)
@@ -154,317 +156,288 @@ fun UpdateScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(24.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .verticalScroll(rememberScrollState())
         ) {
-            when (uiState.updateStatus) {
-                UpdateStatus.IDLE, UpdateStatus.CHECKING -> {
-                    Spacer(modifier = Modifier.height(120.dp))
-                    CircularProgressIndicator(modifier = Modifier.size(40.dp), strokeWidth = 3.dp)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        if (isBangla) "আপডেট চেক হচ্ছে…" else "Checking for updates…",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                UpdateStatus.UP_TO_DATE -> {
-                    Spacer(modifier = Modifier.height(100.dp))
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        modifier = Modifier.size(96.dp),
-                        tint = MaterialTheme.colorScheme.tertiary
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        if (isBangla) "আপনি সর্বশেষ ভার্সনে আছেন" else "You're up to date",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        if (isBangla) "আপনার ডিভাইসে ${BanglaDigitConverter.toBangla(installedCode)} বিল্ড ইনস্টল করা আছে"
-                        else "Build $installedCode is installed on this device",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(28.dp))
-                    TextButton(onClick = {
-                        HapticHelper.vibrate(context)
-                        viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
-                    }) {
-                        Text(if (isBangla) "আবার চেক করুন" else "Check again")
-                    }
-                }
-
-                UpdateStatus.UPDATE_AVAILABLE -> {
-                    uiState.updateManifest?.let { manifest ->
-                        Spacer(modifier = Modifier.height(32.dp))
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
-                            )
-                        ) {
-                            Column(modifier = Modifier.padding(20.dp)) {
-                                Text(
-                                    if (isBangla) "নতুন ভার্সন উপলব্ধ" else "New version available",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                InfoRow(
-                                    label = if (isBangla) "নাম" else "Name",
-                                    value = "Cash Figure"
-                                )
-                                InfoRow(
-                                    label = if (isBangla) "ভার্সন" else "Version",
-                                    value = if (isBangla) {
-                                        BanglaDigitConverter.toBangla(manifest.versionName.removePrefix("v"))
-                                    } else {
-                                        manifest.versionName.removePrefix("v")
-                                    }
-                                )
-                                InfoRow(
-                                    label = if (isBangla) "বিল্ড" else "Build",
-                                    value = if (isBangla) {
-                                        BanglaDigitConverter.toBangla(manifest.versionCode)
-                                    } else {
-                                        manifest.versionCode.toString()
-                                    }
-                                )
-                                manifest.fileSize?.let { size ->
-                                    InfoRow(
-                                        label = if (isBangla) "আকার" else "Size",
-                                        value = SizeFormatter.format(size)
-                                    )
-                                }
-                                if (manifest.changelog.isNotBlank()) {
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text(
-                                        if (isBangla) "নতুন কী আছে" else "What's new",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    manifest.changelog.split("\n").forEach { rawLine ->
-                                        val isIndented = rawLine.startsWith(" ") || rawLine.startsWith("\t")
-                                        val trimmed = rawLine.trim()
-                                        when {
-                                            trimmed.startsWith("*") -> {
-                                                val clean = ChangelogParser.stripCommitHash(
-                                                    trimmed.removePrefix("*")
-                                                        .trim()
-                                                        .removePrefix("**")
-                                                        .removeSuffix("**")
-                                                        .trim()
-                                                )
-                                                if (clean.isNotEmpty()) {
-                                                    Text(
-                                                        text = "• $clean",
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        fontWeight = FontWeight.SemiBold,
-                                                        modifier = Modifier.padding(top = 4.dp)
-                                                    )
-                                                }
-                                            }
-                                            isIndented && trimmed.startsWith("-") -> {
-                                                val clean = trimmed.removePrefix("-").trim()
-                                                if (clean.isNotEmpty()) {
-                                                    Text(
-                                                        text = "◦ $clean",
-                                                        style = MaterialTheme.typography.bodySmall,
-                                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                        modifier = Modifier.padding(start = 16.dp, top = 2.dp)
-                                                    )
-                                                }
-                                            }
-                                            trimmed.isNotEmpty() -> {
-                                                Text(
-                                                    text = "• $trimmed",
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    modifier = Modifier.padding(top = 4.dp)
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
-                            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                contentAlignment = Alignment.CenterHorizontally
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .widthIn(max = 600.dp)
+                ) {
+                    when (uiState.updateStatus) {
+                        UpdateStatus.IDLE, UpdateStatus.CHECKING -> {
+                            CheckingContent(isBangla = isBangla)
                         }
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.End,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            TextButton(onClick = {
-                                HapticHelper.vibrate(context)
-                                viewModel.dismissUpdateDialog()
-                                onNavigateBack()
-                            }) {
-                                Text(if (isBangla) "পরে" else "Later")
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Button(
-                                onClick = {
+
+                        UpdateStatus.UP_TO_DATE -> {
+                            UpToDateContent(
+                                isBangla = isBangla,
+                                installedName = installedName,
+                                installedCode = installedCode,
+                                onCheckAgain = {
                                     HapticHelper.vibrate(context)
-                                    viewModel.downloadUpdate()
-                                },
-                                contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
-                            ) {
-                                Text(
-                                    if (isBangla) "আপডেট" else "Update",
-                                    fontWeight = FontWeight.SemiBold
+                                    viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
+                                }
+                            )
+                        }
+
+                        UpdateStatus.UPDATE_AVAILABLE -> {
+                            uiState.updateManifest?.let { manifest ->
+                                UpdateAvailableContent(
+                                    isBangla = isBangla,
+                                    manifest = manifest,
+                                    onDownload = {
+                                        HapticHelper.vibrate(context)
+                                        viewModel.downloadUpdate()
+                                    },
+                                    onLater = {
+                                        HapticHelper.vibrate(context)
+                                        viewModel.dismissUpdateDialog()
+                                        onNavigateBack()
+                                    }
                                 )
                             }
                         }
-                    }
-                }
 
-                UpdateStatus.DOWNLOADING -> {
-                    Spacer(modifier = Modifier.height(100.dp))
-                    Text(
-                        if (isBangla) "ফাইল পাওয়া যাচ্ছে…" else "Getting file…",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = if (uiState.downloadedBytes > 0) {
-                            val total = if (uiState.totalBytes > 0) {
-                                " / ${SizeFormatter.format(uiState.totalBytes)}"
-                            } else {
-                                ""
-                            }
-                            "${SizeFormatter.format(uiState.downloadedBytes)}$total"
-                        } else {
-                            if (isBangla) "অপেক্ষা করুন…" else "Please wait…"
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                    LinearProgressIndicator(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(6.dp),
-                        progress = { uiState.downloadProgress.coerceIn(0f, 1f) }
-                    )
-                    Spacer(modifier = Modifier.height(32.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TextButton(onClick = {
-                            HapticHelper.vibrate(context)
-                            viewModel.cancelDownload()
-                            onNavigateBack()
-                        }) {
-                            Text(if (isBangla) "বাতিল" else "Cancel")
+                        UpdateStatus.DOWNLOADING -> {
+                            DownloadingContent(
+                                isBangla = isBangla,
+                                downloadedBytes = uiState.downloadedBytes,
+                                totalBytes = uiState.totalBytes,
+                                progress = uiState.downloadProgress,
+                                onCancel = {
+                                    HapticHelper.vibrate(context)
+                                    viewModel.cancelDownload()
+                                    onNavigateBack()
+                                }
+                            )
                         }
-                    }
-                }
 
-                UpdateStatus.DOWNLOAD_READY -> {
-                    Spacer(modifier = Modifier.height(100.dp))
-                    Icon(
-                        imageVector = Icons.Default.CheckCircle,
-                        contentDescription = null,
-                        modifier = Modifier.size(96.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Text(
-                        if (isBangla) "ডাউনলোড সম্পন্ন" else "Download complete",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(28.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        TextButton(onClick = {
-                            HapticHelper.vibrate(context)
-                            viewModel.dismissUpdateDialog()
-                            onNavigateBack()
-                        }) {
-                            Text(if (isBangla) "পরে" else "Later")
+                        UpdateStatus.DOWNLOAD_READY -> {
+                            DownloadReadyContent(
+                                isBangla = isBangla,
+                                versionName = uiState.updateManifest?.versionName.orEmpty(),
+                                onLater = {
+                                    HapticHelper.vibrate(context)
+                                    viewModel.dismissUpdateDialog()
+                                    onNavigateBack()
+                                },
+                                onInstall = {
+                                    HapticHelper.vibrate(context)
+                                    uiState.downloadedUpdate?.let { requestInstall(it) }
+                                }
+                            )
                         }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Button(
-                            onClick = {
-                                HapticHelper.vibrate(context)
-                                uiState.downloadedUpdate?.let { requestInstall(it) }
-                            },
-                            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
-                        ) {
-                            Text(
-                                if (isBangla) "ইনস্টল করুন" else "Install",
-                                fontWeight = FontWeight.SemiBold
+
+                        UpdateStatus.INSTALLING -> {
+                            InstallingContent(isBangla = isBangla)
+                        }
+
+                        UpdateStatus.ERROR -> {
+                            ErrorContent(
+                                isBangla = isBangla,
+                                errorType = uiState.updateErrorType,
+                                errorReason = uiState.updateErrorReason,
+                                onRetry = {
+                                    HapticHelper.vibrate(context)
+                                    viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
+                                }
                             )
                         }
                     }
                 }
+            }
+        }
+    }
+}
 
-                UpdateStatus.ERROR -> {
-                    Spacer(modifier = Modifier.height(100.dp))
-                    Text(
-                        text = when (uiState.updateErrorType) {
-                            UpdateErrorType.DOWNLOAD_FAILED -> if (isBangla) {
-                                "ডাউনলোড ব্যর্থ হয়েছে${uiState.updateErrorReason?.let { ": $it" } ?: ""}"
-                            } else {
-                                "Download failed${uiState.updateErrorReason?.let { ": $it" } ?: ""}"
-                            }
-                            else -> if (isBangla) {
-                                "আপডেট চেক করা যায়নি। ইন্টারনেট সংযোগ পরীক্ষা করুন।"
-                            } else {
-                                "Couldn't check for updates. Check your connection."
-                            }
-                        },
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center
+@Composable
+private fun UpdateIcon(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Icon(
+            imageVector = Icons.Outlined.SystemUpdate,
+            contentDescription = null,
+            modifier = Modifier.size(36.dp),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun CheckIcon(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Icon(
+            imageVector = Icons.Outlined.CheckCircle,
+            contentDescription = null,
+            modifier = Modifier.size(36.dp),
+            tint = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@Composable
+private fun CheckingContent(isBangla: Boolean) {
+    Spacer(modifier = Modifier.height(120.dp))
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(modifier = Modifier.size(32.dp), strokeWidth = 3.dp)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            if (isBangla) "আপডেট চেক হচ্ছে…" else "Checking for updates…",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+private fun UpToDateContent(
+    isBangla: Boolean,
+    installedName: String,
+    installedCode: Long,
+    onCheckAgain: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(40.dp))
+    CheckIcon()
+    Spacer(modifier = Modifier.height(28.dp))
+    Text(
+        if (isBangla) "আপনি ইতিমধ্যে সর্বশেষ ভার্সনে আছেন" else "You're already up to date",
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Medium
+    )
+    Spacer(modifier = Modifier.height(12.dp))
+    Text(
+        text = if (isBangla) {
+            "এই ডিভাইসে ক্যাশ ফিগার v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)}) ইনস্টল করা আছে।"
+        } else {
+            "Cash Figure v$installedName (Build $installedCode) is installed on this device."
+        },
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(modifier = Modifier.height(24.dp))
+    TextButton(onClick = onCheckAgain) {
+        Text(if (isBangla) "আবার চেক করুন" else "Check again")
+    }
+    Spacer(modifier = Modifier.height(24.dp))
+}
+
+@Composable
+private fun UpdateAvailableContent(
+    isBangla: Boolean,
+    manifest: UpdateManifest,
+    onDownload: () -> Unit,
+    onLater: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(40.dp))
+    UpdateIcon()
+    Spacer(modifier = Modifier.height(28.dp))
+    Text(
+        if (isBangla) "ক্যাশ ফিগার আপডেট উপলব্ধ" else "Cash Figure update available",
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Medium
+    )
+    Spacer(modifier = Modifier.height(16.dp))
+
+    val versionText = manifest.versionName.removePrefix("v")
+    val versionDisplay = if (isBangla) BanglaDigitConverter.toBangla(versionText) else versionText
+    val sizeText = manifest.fileSize?.let { SizeFormatter.format(it) }
+    Text(
+        text = buildString {
+            append(if (isBangla) "ক্যাশ ফিগার v$versionDisplay" else "Cash Figure v$versionDisplay")
+            if (sizeText != null) append(" · $sizeText")
+            append(
+                if (isBangla) {
+                    " এখন উপলব্ধ। এই আপডেটে নতুন ফিচার ও উন্নতি যুক্ত হয়েছে। ডাউনলোড করে ইনস্টল করুন।"
+                } else {
+                    " is now available. This update brings new features and improvements. Download and install to get the latest version."
+                }
+            )
+        },
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+
+    if (manifest.changelog.isNotBlank()) {
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(
+            if (isBangla) "নতুন কী আছে" else "What's new?",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        ChangelogText(changelog = manifest.changelog)
+    }
+
+    Spacer(modifier = Modifier.height(40.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(onClick = onLater) {
+            Text(if (isBangla) "পরে" else "Later")
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Button(
+            onClick = onDownload,
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
+        ) {
+            Text(
+                if (isBangla) "ডাউনলোড" else "Download",
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(24.dp))
+}
+
+@Composable
+private fun ChangelogText(changelog: String) {
+    Column {
+        changelog.split("\n").forEach { rawLine ->
+            val isIndented = rawLine.startsWith(" ") || rawLine.startsWith("\t")
+            val trimmed = rawLine.trim()
+            when {
+                trimmed.startsWith("*") -> {
+                    val clean = ChangelogParser.stripCommitHash(
+                        trimmed.removePrefix("*")
+                            .trim()
+                            .removePrefix("**")
+                            .removeSuffix("**")
+                            .trim()
                     )
-                    Spacer(modifier = Modifier.height(28.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Button(
-                            onClick = {
-                                HapticHelper.vibrate(context)
-                                viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
-                            },
-                            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
-                        ) {
-                            Text(
-                                if (isBangla) "আবার চেষ্টা করুন" else "Retry",
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
+                    if (clean.isNotEmpty()) {
+                        Text(
+                            text = "• $clean",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
                     }
                 }
-
-                UpdateStatus.INSTALLING -> {
-                    Spacer(modifier = Modifier.height(120.dp))
-                    CircularProgressIndicator(modifier = Modifier.size(40.dp), strokeWidth = 3.dp)
-                    Spacer(modifier = Modifier.height(16.dp))
+                isIndented && trimmed.startsWith("-") -> {
+                    val clean = trimmed.removePrefix("-").trim()
+                    if (clean.isNotEmpty()) {
+                        Text(
+                            text = "◦ $clean",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        )
+                    }
+                }
+                trimmed.isNotEmpty() -> {
                     Text(
-                        if (isBangla) "ইনস্টল হচ্ছে…" else "Installing…",
+                        text = "• $trimmed",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        modifier = Modifier.padding(top = 8.dp)
                     )
                 }
             }
@@ -473,25 +446,166 @@ fun UpdateScreen(
 }
 
 @Composable
-private fun InfoRow(label: String, value: String) {
-    Row(
+private fun DownloadingContent(
+    isBangla: Boolean,
+    downloadedBytes: Long,
+    totalBytes: Long,
+    progress: Float,
+    onCancel: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(40.dp))
+    Text(
+        if (isBangla) "ফাইল পাওয়া যাচ্ছে…" else "Getting file…",
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Medium
+    )
+    Spacer(modifier = Modifier.height(12.dp))
+    Text(
+        text = if (downloadedBytes > 0) {
+            val total = if (totalBytes > 0) {
+                " / ${SizeFormatter.format(totalBytes)}"
+            } else {
+                ""
+            }
+            "${SizeFormatter.format(downloadedBytes)}$total"
+        } else {
+            if (isBangla) "অপেক্ষা করুন…" else "Please wait…"
+        },
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(modifier = Modifier.height(24.dp))
+    LinearProgressIndicator(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .height(4.dp),
+        progress = { progress.coerceIn(0f, 1f) }
+    )
+    Spacer(modifier = Modifier.height(24.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        TextButton(onClick = onCancel) {
+            Text(if (isBangla) "বাতিল" else "Cancel")
+        }
+    }
+    Spacer(modifier = Modifier.height(24.dp))
+}
+
+@Composable
+private fun DownloadReadyContent(
+    isBangla: Boolean,
+    versionName: String,
+    onLater: () -> Unit,
+    onInstall: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(40.dp))
+    CheckIcon()
+    Spacer(modifier = Modifier.height(28.dp))
+    Text(
+        if (isBangla) "ডাউনলোড সম্পন্ন" else "Download complete",
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Medium
+    )
+    Spacer(modifier = Modifier.height(12.dp))
+    val versionDisplay = if (isBangla) {
+        BanglaDigitConverter.toBangla(versionName.removePrefix("v"))
+    } else {
+        versionName.removePrefix("v")
+    }
+    Text(
+        if (isBangla) "ক্যাশ ফিগার v$versionDisplay ইনস্টলের জন্য প্রস্তুত।" else "Cash Figure v$versionDisplay is ready to install.",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant
+    )
+    Spacer(modifier = Modifier.height(28.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        TextButton(onClick = onLater) {
+            Text(if (isBangla) "পরে" else "Later")
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Button(
+            onClick = onInstall,
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
+        ) {
+            Text(
+                if (isBangla) "ইনস্টল করুন" else "Install",
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(24.dp))
+}
+
+@Composable
+private fun InstallingContent(isBangla: Boolean) {
+    Spacer(modifier = Modifier.height(120.dp))
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(modifier = Modifier.size(32.dp), strokeWidth = 3.dp)
+        Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.width(72.dp)
-        )
-        Text(
-            text = value,
+            if (isBangla) "ইনস্টল হচ্ছে…" else "Installing…",
             style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Medium
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
+}
+
+@Composable
+private fun ErrorContent(
+    isBangla: Boolean,
+    errorType: UpdateErrorType?,
+    errorReason: String?,
+    onRetry: () -> Unit
+) {
+    Spacer(modifier = Modifier.height(40.dp))
+    val isDownloadFailed = errorType == UpdateErrorType.DOWNLOAD_FAILED
+    Text(
+        text = when {
+            isDownloadFailed -> if (isBangla) "ডাউনলোড ব্যর্থ হয়েছে" else "Download failed"
+            else -> if (isBangla) "আপডেট চেক করা যায়নি" else "Couldn't check for updates"
+        },
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.Medium
+    )
+    Spacer(modifier = Modifier.height(12.dp))
+    Text(
+        text = if (isDownloadFailed) {
+            errorReason?.let {
+                if (isBangla) "ডাউনলোড ব্যর্থ হয়েছে: $it" else "Download failed: $it"
+            } ?: if (isBangla) "আবার চেষ্টা করুন।" else "Please try again."
+        } else {
+            if (isBangla) "ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।" else "Check your internet connection and try again."
+        },
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.error
+    )
+    Spacer(modifier = Modifier.height(28.dp))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Button(
+            onClick = onRetry,
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
+        ) {
+            Text(
+                if (isBangla) "আবার চেষ্টা করুন" else "Retry",
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+    Spacer(modifier = Modifier.height(24.dp))
 }
 
 /**
