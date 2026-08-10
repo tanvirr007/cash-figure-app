@@ -79,23 +79,7 @@ fun CalculatorScreen(
     var showBreakdownDialog by remember { mutableStateOf(false) }
     var showAddNotesDialog by remember { mutableStateOf(false) }
     var notesInputText by remember { mutableStateOf("") }
-    var placeholderText by remember { mutableStateOf("") }
     val fullPlaceholder = "BRAC BANK PLC"
-
-    androidx.compose.runtime.LaunchedEffect(showAddNotesDialog) {
-        if (showAddNotesDialog) {
-            notesInputText = ""
-            while (true) {
-                for (i in 1..fullPlaceholder.length) {
-                    placeholderText = fullPlaceholder.substring(0, i)
-                    kotlinx.coroutines.delay(150L)
-                }
-                kotlinx.coroutines.delay(2000L)
-                placeholderText = ""
-                kotlinx.coroutines.delay(500L)
-            }
-        }
-    }
 
     // Denomination value pending single-row clear confirmation (null = no dialog)
     var pendingClearDenomination by remember { mutableStateOf<Int?>(null) }
@@ -402,7 +386,7 @@ fun CalculatorScreen(
                                     .padding(12.dp),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Bold,
-                                textAlign = androidx.compose.ui.text.style.TextAlign.End
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
                             )
                         }
                         
@@ -555,7 +539,7 @@ fun CalculatorScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         label = { Text(if (isBangla) "নোট" else "Notes") },
-                        placeholder = { Text(placeholderText) },
+                        placeholder = { Text(fullPlaceholder) },
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                         supportingText = {

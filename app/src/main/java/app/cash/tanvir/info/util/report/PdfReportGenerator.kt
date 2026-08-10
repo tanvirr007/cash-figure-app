@@ -157,21 +157,24 @@ object PdfReportGenerator {
             // Grand Total Row
             paint.isFakeBoldText = true
             val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
-            val totalText = if (isBangla) "সর্বমোট: $totalFormatted" else "Grand Total: $totalFormatted"
+            val totalLabel = if (isBangla) "সর্বমোট:" else "Grand Total:"
+            canvas.drawText(totalLabel, margin, y, paint)
+            paint.textAlign = Paint.Align.RIGHT
+            canvas.drawText(totalFormatted, rightMargin, y, paint)
             paint.textAlign = Paint.Align.LEFT
-            canvas.drawText(totalText, margin, y, paint)
             paint.isFakeBoldText = false
-            
-            y += 8f
+
+            val rowGap = paint.fontMetrics.descent + 4f
+            y += rowGap
             canvas.drawLine(margin, y, rightMargin, y, paint)
-            
+
             val tableBottom = y
             y += 24f
-            
+
             // Draw vertical lines
             canvas.drawLine(margin, tableTop, margin, tableBottom, paint)
-            canvas.drawLine(240f, tableTop, 240f, tableBottom - 26f, paint)
-            canvas.drawLine(360f, tableTop, 360f, tableBottom - 26f, paint)
+            canvas.drawLine(240f, tableTop, 240f, tableBottom - rowGap - 18f, paint)
+            canvas.drawLine(360f, tableTop, 360f, tableBottom - rowGap - 18f, paint)
             canvas.drawLine(rightMargin, tableTop, rightMargin, tableBottom, paint)
         }
 
