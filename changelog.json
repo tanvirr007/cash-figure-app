@@ -1,6 +1,69 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.1",
+      "publishedAt": "2026-08-10T20:25:46Z",
+      "items": [
+        {
+          "title": "fix: use Alignment.Center for update screen content Box",
+          "subItems": [
+            "Replace Alignment.CenterHorizontally with Alignment.Center in the update screen content Box."
+          ]
+        },
+        {
+          "title": "feat: redesign update screen with Pixel-style UI",
+          "subItems": [
+            "Rebuild the Update screen with a minimal back-arrow top bar and scrollable content.",
+            "Use a small monochrome update icon, left-aligned title and muted description text.",
+            "Render What's new changelog as plain document text without cards or borders.",
+            "Show the real installed version on the already-up-to-date state.",
+            "Keep all existing update, download, install and error logic unchanged."
+          ]
+        },
+        {
+          "title": "feat: move Reset All into Miscellaneous settings",
+          "subItems": [
+            "Remove the Reset All card and its confirmation dialog from the Settings page.",
+            "Add a red Reset All card at the bottom of the Miscellaneous screen.",
+            "Reuse the shared reset dialog state machine from the activity-scoped ViewModel."
+          ]
+        },
+        {
+          "title": "feat: restructure settings into grouped sections",
+          "subItems": [
+            "Group App Theme, Language and Currency rows into a single General card.",
+            "Merge Updates and Changelog rows into a single Update card.",
+            "Move Miscellaneous directly above Author and rename About Cash Figure to Author.",
+            "Add shared SettingsGroupCard, SettingsGroupRow and divider composables."
+          ]
+        },
+        {
+          "title": "docs: add Bangla translation contribution guide",
+          "subItems": [
+            "Explain that the Bangla translation is a work in progress and invite native speakers to contribute.",
+            "Add a step-by-step guide with real before/after string examples and build/test verification.",
+            "Document the exact commit structure including type prefixes, TEST section, Change-Id and sign-off.",
+            "Point to docs/FILES.md, the no-code issue path and PR etiquette rules."
+          ]
+        },
+        {
+          "title": "style: upgrade settings icons to premium rounded badges",
+          "subItems": [
+            "Wrap every settings icon in a tinted rounded badge tile for a modern look.",
+            "Swap flat icons for Rounded-style premium icons across all settings rows.",
+            "Use an error-tinted badge for Reset All and primary tint for the rest."
+          ]
+        },
+        {
+          "title": "fix: add missing haptic feedback in settings and changelog",
+          "subItems": [
+            "Vibrate when toggling Screen Protection and currency denomination notes in Settings detail.",
+            "Vibrate when retrying the changelog load after an error."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.0",
       "publishedAt": "2026-08-10T18:33:30Z",
       "items": [
