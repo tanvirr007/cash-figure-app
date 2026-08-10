@@ -719,7 +719,7 @@ fun SettingsScreen(
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
-                                            if (isBangla) "স্ক্রিনশট ও ভিডিও রেকর্ড ব্লক করুন" else "Block screenshots and screen recording",
+                                            if (isBangla) "স্ক্রিন ক্যাপচার বন্ধ রাখুন" else "Prevent screen capture",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                             maxLines = 2,
