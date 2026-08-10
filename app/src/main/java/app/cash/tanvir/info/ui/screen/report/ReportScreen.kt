@@ -198,7 +198,7 @@ fun ReportScreen(
                                         .padding(12.dp),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.Bold,
-                                    textAlign = androidx.compose.ui.text.style.TextAlign.End
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                 )
                             }
                             
@@ -315,7 +315,7 @@ fun ReportScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.PictureAsPdf, contentDescription = null)
-                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text("PDF")
                     }
                     Button(
@@ -327,7 +327,7 @@ fun ReportScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.TableChart, contentDescription = null)
-                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text("CSV")
                     }
                     Button(
@@ -339,7 +339,7 @@ fun ReportScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.TextSnippet, contentDescription = null)
-                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text("TXT")
                     }
                 }
@@ -357,7 +357,7 @@ fun ReportScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.Print, contentDescription = null)
-                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(if (isBangla) "প্রিন্ট" else "Print")
                     }
                     OutlinedButton(
@@ -369,7 +369,7 @@ fun ReportScreen(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Icon(Icons.Default.Share, contentDescription = null)
-                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(if (isBangla) "শেয়ার" else "Share")
                     }
                 }

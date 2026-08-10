@@ -17,6 +17,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -74,7 +75,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
@@ -218,7 +221,7 @@ fun SettingsScreen(
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(Icons.Default.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
                                     if (isBangla) "অ্যাপ থিম" else "App Theme",
@@ -241,7 +244,11 @@ fun SettingsScreen(
                         }
                         Icon(
                             imageVector = if (isThemeExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (isThemeExpanded) "Collapse" else "Expand",
+                            contentDescription = if (isBangla) {
+                                if (isThemeExpanded) "ভাঁজ করুন" else "প্রসারিত করুন"
+                            } else {
+                                if (isThemeExpanded) "Collapse" else "Expand"
+                            },
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -273,6 +280,7 @@ fun SettingsScreen(
                                             viewModel.setTheme(theme)
                                         }
                                     )
+                                    Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = when (theme) {
                                             AppTheme.SYSTEM -> if (isBangla) "সিস্টেম থিম" else "Follow System"
@@ -318,7 +326,7 @@ fun SettingsScreen(
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(Icons.Default.Language, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
                                     if (isBangla) "ভাষা" else "Language",
@@ -340,7 +348,11 @@ fun SettingsScreen(
                         }
                         Icon(
                             imageVector = if (isLanguageExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (isLanguageExpanded) "Collapse" else "Expand",
+                            contentDescription = if (isBangla) {
+                                if (isLanguageExpanded) "ভাঁজ করুন" else "প্রসারিত করুন"
+                            } else {
+                                if (isLanguageExpanded) "Collapse" else "Expand"
+                            },
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -371,6 +383,7 @@ fun SettingsScreen(
                                           viewModel.setLanguage(AppLanguage.ENGLISH)
                                       }
                                   )
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(if (isBangla) "ইংরেজি" else "English", style = MaterialTheme.typography.bodyMedium)
                             }
                             Row(
@@ -391,6 +404,7 @@ fun SettingsScreen(
                                           viewModel.setLanguage(AppLanguage.BANGLA)
                                       }
                                   )
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(if (isBangla) "বাংলা" else "Bangla", style = MaterialTheme.typography.bodyMedium)
                             }
                         }
@@ -428,7 +442,7 @@ fun SettingsScreen(
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(Icons.Default.Payments, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
                                     if (isBangla) "নোটসমূহ" else "Currency",
@@ -446,7 +460,11 @@ fun SettingsScreen(
                         }
                         Icon(
                             imageVector = if (isHomepageNotesExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (isHomepageNotesExpanded) "Collapse" else "Expand",
+                            contentDescription = if (isBangla) {
+                                if (isHomepageNotesExpanded) "ভাঁজ করুন" else "প্রসারিত করুন"
+                            } else {
+                                if (isHomepageNotesExpanded) "Collapse" else "Expand"
+                            },
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -481,10 +499,14 @@ fun SettingsScreen(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(8.dp))
-                                        .clickable {
-                                            HapticHelper.vibrate(context)
-                                            viewModel.toggleDenomination(value, !isEnabled)
-                                        }
+                                        .toggleable(
+                                            value = isEnabled,
+                                            role = Role.Switch,
+                                            onValueChange = { checked ->
+                                                HapticHelper.vibrate(context)
+                                                viewModel.toggleDenomination(value, checked)
+                                            }
+                                        )
                                         .padding(vertical = 8.dp, horizontal = 8.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.SpaceBetween
@@ -492,14 +514,16 @@ fun SettingsScreen(
                                     Text(
                                         text = if (isBangla) labelBn else labelEn,
                                         style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Medium
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(end = 12.dp),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                     Switch(
                                         checked = isEnabled,
-                                        onCheckedChange = { checked ->
-                                            HapticHelper.vibrate(context)
-                                            viewModel.toggleDenomination(value, checked)
-                                        }
+                                        onCheckedChange = null
                                     )
                                 }
                             }
@@ -538,7 +562,7 @@ fun SettingsScreen(
                             modifier = Modifier.weight(1f)
                         ) {
                             Icon(Icons.Default.Tune, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
                             Column {
                                 Text(
                                     if (isBangla) "টুলস" else "Miscellaneous",
@@ -556,7 +580,11 @@ fun SettingsScreen(
                         }
                         Icon(
                             imageVector = if (isMiscExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (isMiscExpanded) "Collapse" else "Expand",
+                            contentDescription = if (isBangla) {
+                                if (isMiscExpanded) "ভাঁজ করুন" else "প্রসারিত করুন"
+                            } else {
+                                if (isMiscExpanded) "Collapse" else "Expand"
+                            },
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -575,35 +603,43 @@ fun SettingsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
-                                    .clickable {
-                                        onBiometricToggle(!uiState.biometricEnabled)
-                                    }
+                                    .toggleable(
+                                        value = uiState.biometricEnabled,
+                                        role = Role.Switch,
+                                        onValueChange = onBiometricToggle
+                                    )
                                     .padding(vertical = 8.dp, horizontal = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 12.dp)
                                 ) {
                                     Icon(Icons.Default.Fingerprint, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
                                     Column {
                                         Text(
                                             if (isBangla) "অ্যাপ লক" else "App Lock",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Medium
+                                            fontWeight = FontWeight.Medium,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
                                             if (isBangla) "অ্যাপ লক চালু করুন" else "Enable app lock",
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                     }
                                 }
                                 Switch(
                                     checked = uiState.biometricEnabled,
-                                    onCheckedChange = onBiometricToggle
+                                    onCheckedChange = null
                                 )
                             }
 
@@ -614,39 +650,46 @@ fun SettingsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
-                                    .clickable {
-                                        HapticHelper.vibrate(context)
-                                        viewModel.setScreenshotBlockEnabled(!uiState.screenshotBlockEnabled)
-                                    }
+                                    .toggleable(
+                                        value = uiState.screenshotBlockEnabled,
+                                        role = Role.Switch,
+                                        onValueChange = { checked ->
+                                            HapticHelper.vibrate(context)
+                                            viewModel.setScreenshotBlockEnabled(checked)
+                                        }
+                                    )
                                     .padding(vertical = 8.dp, horizontal = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 12.dp)
                                 ) {
                                     Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
                                     Column {
                                         Text(
                                             if (isBangla) "স্ক্রিন সুরক্ষা" else "Screen Protection",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Medium
+                                            fontWeight = FontWeight.Medium,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
                                             if (isBangla) "স্ক্রিনশট ও ভিডিও রেকর্ড ব্লক করুন" else "Block screenshots and screen recording",
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                     }
                                 }
                                 Switch(
                                     checked = uiState.screenshotBlockEnabled,
-                                    onCheckedChange = { checked ->
-                                        HapticHelper.vibrate(context)
-                                        viewModel.setScreenshotBlockEnabled(checked)
-                                    }
+                                    onCheckedChange = null
                                 )
                             }
 
@@ -657,39 +700,46 @@ fun SettingsScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
-                                    .clickable {
-                                        HapticHelper.vibrate(context)
-                                        viewModel.setHapticFeedbackEnabled(!uiState.hapticFeedbackEnabled)
-                                    }
+                                    .toggleable(
+                                        value = uiState.hapticFeedbackEnabled,
+                                        role = Role.Switch,
+                                        onValueChange = { checked ->
+                                            HapticHelper.vibrate(context)
+                                            viewModel.setHapticFeedbackEnabled(checked)
+                                        }
+                                    )
                                     .padding(vertical = 8.dp, horizontal = 8.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.weight(1f)
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(end = 12.dp)
                                 ) {
                                     Icon(Icons.Default.Vibration, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
                                     Column {
                                         Text(
                                             if (isBangla) "হ্যাপটিক ফিডব্যাক" else "Haptic Feedback",
                                             style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Medium
+                                            fontWeight = FontWeight.Medium,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                         Text(
                                             if (isBangla) "বাটন ও টগলে কম্পন সক্রিয় করুন" else "Vibrate on interactions",
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
                                         )
                                     }
                                 }
                                 Switch(
                                     checked = uiState.hapticFeedbackEnabled,
-                                    onCheckedChange = { checked ->
-                                        HapticHelper.vibrate(context)
-                                        viewModel.setHapticFeedbackEnabled(checked)
-                                    }
+                                    onCheckedChange = null
                                 )
                             }
 
@@ -739,76 +789,76 @@ fun SettingsScreen(
             }
 
             // Backup & Restore Card
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        if (isBangla) "ব্যাকআপ ও রিস্টোর" else "Backup & Restore",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable {
+                                HapticHelper.vibrate(context)
+                                viewModel.backupData(context)
+                            }
+                            .padding(vertical = 8.dp, horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Icon(Icons.Default.Backup, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
                             Text(
-                                if (isBangla) "ব্যাকআপ ও রিস্টোর" else "Backup & Restore",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                if (isBangla) "ব্যাকআপ ডাটা" else "Backup Data",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .clickable {
-                                        HapticHelper.vibrate(context)
-                                        viewModel.backupData(context)
-                                    }
-                                    .padding(vertical = 8.dp, horizontal = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Default.Backup, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                                Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                                Column {
-                                    Text(
-                                        if (isBangla) "ব্যাকআপ ডাটা" else "Backup Data",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Text(
-                                        if (isBangla) "ব্যাকআপ ফাইল সেভ করুন" else "Save backup file to Downloads",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                                    )
-                                }
-                            }
-
-                            HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .clickable {
-                                        HapticHelper.vibrate(context)
-                                        restoreFileLauncher.launch("application/json")
-                                    }
-                                    .padding(vertical = 8.dp, horizontal = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(Icons.Default.Restore, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                                Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                                Column {
-                                    Text(
-                                        if (isBangla) "রিস্টোর ডাটা" else "Restore Data",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.SemiBold
-                                    )
-                                    Text(
-                                        if (isBangla) "ব্যাকআপ ফাইল রিস্টোর করুন" else "Restore from backup file",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                                    )
-                                }
-                            }
+                            Text(
+                                if (isBangla) "ব্যাকআপ ফাইল সেভ করুন" else "Save backup file to Downloads",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
                         }
                     }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .clickable {
+                                HapticHelper.vibrate(context)
+                                restoreFileLauncher.launch("application/json")
+                            }
+                            .padding(vertical = 8.dp, horizontal = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Restore, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                if (isBangla) "রিস্টোর ডাটা" else "Restore Data",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                            Text(
+                                if (isBangla) "ব্যাকআপ ফাইল রিস্টোর করুন" else "Restore from backup file",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
+                        }
+                    }
+                }
+            }
 
             // Destructive Actions Card
             Card(
@@ -827,7 +877,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(Icons.Default.DeleteForever, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
                             if (isBangla) "রিসেট করুন" else "Reset All",
@@ -853,7 +903,7 @@ fun SettingsScreen(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(Icons.Default.Info, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             if (isBangla) "ক্যাশ ফিগার সম্পর্কে" else "About Cash Figure",
                             style = MaterialTheme.typography.titleMedium,

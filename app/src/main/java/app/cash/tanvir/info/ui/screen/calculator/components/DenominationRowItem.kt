@@ -21,11 +21,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import app.cash.tanvir.info.util.CurrencyFormatter
 
@@ -46,11 +48,12 @@ fun DenominationRowItem(
     modifier: Modifier = Modifier
 ) {
     val focusManager = LocalFocusManager.current
+    val isCompact = LocalConfiguration.current.screenWidthDp < 360
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
+            .padding(horizontal = if (isCompact) 8.dp else 16.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -60,8 +63,9 @@ fun DenominationRowItem(
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.width(80.dp),
+            modifier = Modifier.width(if (isCompact) 64.dp else 80.dp),
             maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
             softWrap = false
         )
 
@@ -115,9 +119,10 @@ fun DenominationRowItem(
                 MaterialTheme.colorScheme.onSurface
             else
                 MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
-            modifier = Modifier.width(115.dp),
+            modifier = Modifier.width(if (isCompact) 96.dp else 115.dp),
             textAlign = TextAlign.End,
-            maxLines = 1
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
 
         // Clear button
