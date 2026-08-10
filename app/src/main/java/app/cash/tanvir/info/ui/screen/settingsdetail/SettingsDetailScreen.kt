@@ -2,6 +2,8 @@ package app.cash.tanvir.info.ui.screen.settingsdetail
 
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.activityViewModels
+import androidx.activity.compose.LocalActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.clickable
@@ -48,7 +50,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.viewmodel.compose.activityViewModels
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
@@ -66,7 +67,8 @@ fun SettingsDetailScreen(
     section: SettingsSection,
     onNavigateBack: () -> Unit
 ) {
-    val viewModel: SettingsViewModel = activityViewModels()
+    val activity = LocalActivity.current
+    val viewModel: SettingsViewModel by activity.activityViewModels()
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isBangla = uiState.language == AppLanguage.BANGLA
