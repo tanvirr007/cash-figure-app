@@ -1,6 +1,61 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.2",
+      "publishedAt": "2026-08-10T21:08:22Z",
+      "items": [
+        {
+          "title": "feat: improve up-to-date update screen",
+          "subItems": [
+            "Pin filled Check for update button to bottom-right of the screen.",
+            "Rename Check again button to Check for update.",
+            "Drop trailing full stops from the installed version sentence.",
+            "Show app last update time (Updated on) with 12h time and full date.",
+            "Track and show last successful manual update check time.",
+            "Persist last check timestamp in DataStore; only manual checks update it.",
+            "Add DateTimeFormatter full-date and 12h-time helpers with tests."
+          ]
+        },
+        {
+          "title": "style: reduce settings card size",
+          "subItems": [
+            "Reduce card inner padding to 12dp and row padding to 6dp.",
+            "Shrink icon badges to 36dp and icons to 20dp.",
+            "Tighten title spacers and icon-to-text gaps."
+          ]
+        },
+        {
+          "title": "style: improve settings card visibility",
+          "subItems": [
+            "Use solid surfaceVariant/errorContainer colors for settings cards.",
+            "Add 1dp elevation and outline border to distinguish cards from background."
+          ]
+        },
+        {
+          "title": "style: clarify Miscellaneous card subtitle",
+          "subItems": [
+            "Change Miscellaneous card subtitle to \"Extra features & data tools\"."
+          ]
+        },
+        {
+          "title": "style: use Person icon on Author card",
+          "subItems": [
+            "Replace Info icon with Person icon on the Author card in Settings.",
+            "Update icon import accordingly."
+          ]
+        },
+        {
+          "title": "feat: move Backup & Restore into Miscellaneous settings",
+          "subItems": [
+            "Remove standalone Backup & Restore card from main Settings screen.",
+            "Move backup/restore rows, file picker and restore warning dialog into the Miscellaneous detail page.",
+            "Keep Reset All at the bottom of the Miscellaneous screen.",
+            "Move status-message toast handling to the detail screen."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.1",
       "publishedAt": "2026-08-10T20:25:46Z",
       "items": [
