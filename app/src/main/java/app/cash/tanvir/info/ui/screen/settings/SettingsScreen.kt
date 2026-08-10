@@ -172,7 +172,7 @@ fun SettingsScreen(
             SettingsLinkCard(
                 icon = { SettingsIconBadge(Icons.Rounded.SettingsSuggest) },
                 title = if (isBangla) "টুলস" else "Miscellaneous",
-                subtitle = if (isBangla) "অতিরিক্ত ফিচারসমূহ" else "Add-on Features",
+                subtitle = if (isBangla) "অতিরিক্ত ফিচার ও ডাটা টুলস" else "Extra features & data tools",
                 onClick = {
                     HapticHelper.vibrate(context)
                     onNavigateToSettingsDetail(SettingsSection.MISCELLANEOUS)
