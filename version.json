@@ -1,6 +1,6 @@
 {
-  "versionCode": 21,
-  "versionName": "v2.3.3",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.3/CashFigure.apk",
-  "changelog": "* **style: update fingerprint verification prompt and update banner** (81dc62c)\n"
+  "versionCode": 22,
+  "versionName": "v2.3.4",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.4/CashFigure.apk",
+  "changelog": "* **style: update screen capture setting label** (9ffb6c4)\n"
 }
