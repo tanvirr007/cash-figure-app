@@ -8,6 +8,7 @@ import app.cash.tanvir.info.util.UpdateManifestParser
 import app.cash.tanvir.info.util.report.StorageUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.net.HttpURLConnection
+import java.net.URI
 import java.net.URL
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -84,7 +85,7 @@ class UpdateRepositoryImpl @Inject constructor(
             throw e
         }
 
-        DownloadedUpdate(uri = handle.uri.toURI(), file = handle.file)
+        DownloadedUpdate(uri = URI.create(handle.uri.toString()), file = handle.file)
     }
 
     private companion object {

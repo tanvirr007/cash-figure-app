@@ -142,12 +142,12 @@ object PdfReportGenerator {
                 val subtotalFormatted = CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)
                 val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
 
-                paint.textAlign = Paint.Align.LEFT
-                canvas.drawText(denomLabel, margin + 8f, y, paint)
+                paint.textAlign = Paint.Align.CENTER
+                canvas.drawText(denomLabel, (margin + 240f) / 2f, y, paint)
                 paint.textAlign = Paint.Align.CENTER
                 canvas.drawText(qtyStr, 300f, y, paint)
-                paint.textAlign = Paint.Align.RIGHT
-                canvas.drawText(subtotalFormatted, rightMargin, y, paint)
+                paint.textAlign = Paint.Align.CENTER
+                canvas.drawText(subtotalFormatted, (360f + rightMargin) / 2f, y, paint)
                 paint.textAlign = Paint.Align.LEFT
                 
                 y += 8f
@@ -158,9 +158,9 @@ object PdfReportGenerator {
             // Grand Total Row
             val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
             val totalLabel = if (isBangla) "সর্বমোট:" else "Grand Total:"
-            canvas.drawText(totalLabel, margin, y, paint)
-            paint.textAlign = Paint.Align.RIGHT
-            canvas.drawText(totalFormatted, rightMargin, y, paint)
+            val totalText = "$totalLabel $totalFormatted"
+            paint.textAlign = Paint.Align.CENTER
+            canvas.drawText(totalText, (margin + rightMargin) / 2f, y, paint)
             paint.textAlign = Paint.Align.LEFT
 
             val rowGap = paint.fontMetrics.descent + 4f

@@ -107,6 +107,8 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
 
+    val isBangla = uiState.language == AppLanguage.BANGLA
+
     val restoreFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
@@ -172,8 +174,6 @@ fun SettingsScreen(
     var isHomepageNotesExpanded by remember { mutableStateOf(false) }
     var isMiscExpanded by remember { mutableStateOf(false) }
     var isUpdatesExpanded by remember { mutableStateOf(false) }
-
-    val isBangla = uiState.language == AppLanguage.BANGLA
 
     val onBiometricToggle: (Boolean) -> Unit = { checked ->
         HapticHelper.vibrate(context)
