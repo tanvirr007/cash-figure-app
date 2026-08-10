@@ -162,7 +162,7 @@ fun UpdateScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp),
-                contentAlignment = Alignment.CenterHorizontally
+                contentAlignment = Alignment.Center
             ) {
                 Column(
                     modifier = Modifier
