@@ -1,6 +1,6 @@
 {
-  "versionCode": 16,
-  "versionName": "v2.3.0",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.0/CashFigure.apk",
-  "changelog": "* **style: polish biometric lock, PDF table and layout details** (43ddaa0)\n  - Prevent multiple biometric prompts from stacking in MainActivity.\n  - Remove lock screen hint text and unused imports.\n  - Remove animated typing placeholder in notes dialog.\n  - Center total value text and fix PDF table vertical lines.\n  - Use auto-mirrored back and text icons for RTL safety.\n"
+  "versionCode": 17,
+  "versionName": "v2.3.1",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.1/CashFigure.apk",
+  "changelog": "* **style: right-align PDF subtotals and un-bold grand total** (2edbd2e)\n  - Subtotal values now align right inside their column instead of left.\n  - Grand total row is no longer bold; label stays left aligned.\n"
 }
