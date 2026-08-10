@@ -1,6 +1,6 @@
 {
-  "versionCode": 22,
-  "versionName": "v2.3.4",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.4/CashFigure.apk",
-  "changelog": "* **style: update screen capture setting label** (9ffb6c4)\n"
+  "versionCode": 23,
+  "versionName": "v2.3.5",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.5/CashFigure.apk",
+  "changelog": "* **style: left-align in-words in report preview** (3dd8285)\n  - Remove centered alignment so the amount in words sits left-aligned just below the grand total.\n"
 }
