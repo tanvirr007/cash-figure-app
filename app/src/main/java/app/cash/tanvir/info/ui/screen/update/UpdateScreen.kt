@@ -7,8 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
-import androidx.activity.compose.LocalActivity
-import androidx.activity.activityViewModels
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +52,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
@@ -73,8 +73,8 @@ import app.cash.tanvir.info.util.getInstalledVersion
 fun UpdateScreen(
     onNavigateBack: () -> Unit
 ) {
-    val activity = LocalActivity.current
-    val viewModel: SettingsViewModel by activity.activityViewModels()
+    val activity = LocalContext.current as ComponentActivity
+    val viewModel: SettingsViewModel = hiltViewModel(viewModelStoreOwner = activity)
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isBangla = uiState.language == AppLanguage.BANGLA
