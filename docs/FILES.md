@@ -21,12 +21,13 @@ app/src/main/java/app/cash/tanvir/info/
 ├── di/                                   DatabaseModule, RepositoryModule (Hilt)
 ├── ui/
 │   ├── MainActivity.kt                   Entry point: splash, biometric lock, FLAG_SECURE, launch OTA check
-│   ├── navigation/NavGraph.kt            4 routes
+│   ├── navigation/NavGraph.kt            5 routes
 │   ├── theme/                            Color.kt, Theme.kt, Type.kt (Tiro Bangla font)
 │   └── screen/
 │       ├── calculator/                   CalculatorScreen, CalculatorViewModel, components/
 │       ├── history/                      HistoryScreen, HistoryViewModel
 │       ├── report/                       ReportScreen, ReportViewModel
+│       ├── changelog/                    ChangelogScreen, ChangelogViewModel (full-screen)
 │       └── settings/                     SettingsScreen, SettingsViewModel
 └── util/
     ├── BanglaDigitConverter.kt           Digits ০-৯ conversion
@@ -96,7 +97,7 @@ app/src/test/java/app/cash/tanvir/info/util/  6 JUnit test classes
 | File | Lines | Purpose |
 |---|---|---|
 | `ui/MainActivity.kt` | 277 | Single activity: splash, edge-to-edge, dark/dynamic theme, FLAG_SECURE (screenshot block), FLAG_KEEP_SCREEN_ON, biometric lock (40s background timeout), one-shot launch OTA check + lightweight update dialog, `LockScreen` composable |
-| `ui/navigation/NavGraph.kt` | 70 | Sealed `Screen`: Calculator (start) / History / Report (`report/{sheetId}?fromSave=`) / Settings |
+| `ui/navigation/NavGraph.kt` | 84 | Sealed `Screen`: Calculator (start) / History / Report (`report/{sheetId}?fromSave=`) / Changelog / Settings |
 | `ui/theme/Color.kt` | 51 | Teal/Amber M3 palettes, light/dark schemes |
 | `ui/theme/Theme.kt` | 97 | `CashFigureTheme`, dynamic color support |
 | `ui/theme/Type.kt` | 101 | Typography with Tiro Bangla font |
@@ -110,10 +111,12 @@ app/src/test/java/app/cash/tanvir/info/util/  6 JUnit test classes
 | `calculator/components/DenominationRowItem.kt` | 140 | Single denomination row with quantity input |
 | `history/HistoryScreen.kt` | 339 | History list: search, rename, duplicate, pin, favorite, restore deleted, stats |
 | `history/HistoryViewModel.kt` | 123 | History state, filters, actions |
+| `changelog/ChangelogScreen.kt` | 230 | Full-screen changelog: TopAppBar, release cards, Latest badge, loading/error/empty states |
+| `changelog/ChangelogViewModel.kt` | 66 | Changelog state (`ChangelogStatus`), language flow, `loadChangelog()` fetch |
 | `report/ReportScreen.kt` | 425 | Report view: sheet summary, notes, export (PDF/CSV/TXT), print, share |
 | `report/ReportViewModel.kt` | 134 | Report state, export/print/share orchestration |
-| `settings/SettingsScreen.kt` | 1804 | **Large** — language, theme, denominations, haptics, biometric, screenshot block, backup/restore, **updates card + OTA dialog**, **changelog card**, reset all |
-| `settings/SettingsViewModel.kt` | 520 | All settings state + backup/restore/reset actions + OTA state machine (`UpdateStatus`, check/download/cancel/dismiss) + changelog state (`ChangelogStatus`, lazy fetch/retry) |
+| `settings/SettingsScreen.kt` | 1644 | **Large** — language, theme, denominations, haptics, biometric, screenshot block, backup/restore, **updates card + OTA dialog**, **changelog navigation row**, reset all |
+| `settings/SettingsViewModel.kt` | 473 | All settings state + backup/restore/reset actions + OTA state machine (`UpdateStatus`, check/download/cancel/dismiss) |
 
 ### util/ — Pure Helpers
 | File | Lines | Purpose / Key APIs |
@@ -164,6 +167,7 @@ Compose Screen ──events──> ViewModel ──calls──> Repository (impl
 | `calculator` | — | Start destination |
 | `history` | — | History list |
 | `report/{sheetId}?fromSave=` | `sheetId: Long`, `fromSave: Bool = false` | Report/export |
+| `changelog` | — | Full-screen changelog (from Settings) |
 | `settings` | — | Settings |
 
 ## Conventions Cheat-Sheet

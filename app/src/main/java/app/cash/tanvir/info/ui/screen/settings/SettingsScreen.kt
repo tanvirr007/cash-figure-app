@@ -40,6 +40,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Info
@@ -94,9 +95,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
-import app.cash.tanvir.info.domain.model.ChangelogItem
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
-import app.cash.tanvir.info.domain.model.ReleaseChangelog
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.ChangelogParser
 import app.cash.tanvir.info.util.DateTimeFormatter
@@ -107,6 +106,7 @@ import app.cash.tanvir.info.util.getInstalledVersion
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToChangelog: () -> Unit,
     autoCheck: Boolean = false,
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
@@ -180,7 +180,6 @@ fun SettingsScreen(
     var isHomepageNotesExpanded by remember { mutableStateOf(false) }
     var isMiscExpanded by remember { mutableStateOf(false) }
     var isUpdatesExpanded by remember { mutableStateOf(autoCheck) }
-    var isChangelogExpanded by remember { mutableStateOf(false) }
 
     val onBiometricToggle: (Boolean) -> Unit = { checked ->
         HapticHelper.vibrate(context)
@@ -1043,75 +1042,39 @@ fun SettingsScreen(
 
             // Changelog Card
             Card(
+                onClick = {
+                    HapticHelper.vibrate(context)
+                    onNavigateToChangelog()
+                },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
             ) {
-                Column {
-                    val changelogHeaderShape = RoundedCornerShape(
-                        topStart = 16.dp,
-                        topEnd = 16.dp,
-                        bottomStart = if (isChangelogExpanded) 0.dp else 16.dp,
-                        bottomEnd = if (isChangelogExpanded) 0.dp else 16.dp
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            if (isBangla) "পরিবর্তন লগ" else "Changelog",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            if (isBangla) "সব ভার্সনের পরিবর্তন দেখুন" else "See what's new in each version",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = if (isBangla) "খুলুন" else "Open",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(changelogHeaderShape)
-                            .clickable {
-                                HapticHelper.vibrate(context)
-                                isChangelogExpanded = !isChangelogExpanded
-                            }
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Icon(Icons.Default.History, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    if (isBangla) "পরিবর্তন লগ" else "Changelog",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
-                                if (!isChangelogExpanded) {
-                                    Text(
-                                        if (isBangla) "সব ভার্সনের পরিবর্তন দেখুন" else "See what's new in each version",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                                    )
-                                }
-                            }
-                        }
-                        Icon(
-                            imageVector = if (isChangelogExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                            contentDescription = if (isBangla) {
-                                if (isChangelogExpanded) "ভাঁজ করুন" else "প্রসারিত করুন"
-                            } else {
-                                if (isChangelogExpanded) "Collapse" else "Expand"
-                            },
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    AnimatedVisibility(
-                        visible = isChangelogExpanded,
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut()
-                    ) {
-                        LaunchedEffect(Unit) {
-                            viewModel.loadChangelog()
-                        }
-                        ChangelogContent(
-                            isBangla = isBangla,
-                            status = uiState.changelogStatus,
-                            changelog = uiState.changelog,
-                            onRetry = { viewModel.loadChangelog(force = true) }
-                        )
-                    }
                 }
             }
 
@@ -1494,130 +1457,6 @@ private fun authenticateWithFingerprint(
         .build()
 
     biometricPrompt.authenticate(promptInfo)
-}
-
-@Composable
-private fun ChangelogContent(
-    isBangla: Boolean,
-    status: ChangelogStatus,
-    changelog: List<ReleaseChangelog>,
-    onRetry: () -> Unit
-) {
-    when (status) {
-        ChangelogStatus.IDLE -> {}
-        ChangelogStatus.LOADING -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    if (isBangla) "পরিবর্তন লগ লোড হচ্ছে..." else "Loading changelog...",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        ChangelogStatus.ERROR -> {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    if (isBangla) "পরিবর্তন লগ লোড করা যায়নি।" else "Couldn't load the changelog.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                TextButton(onClick = onRetry) {
-                    Text(
-                        if (isBangla) "আবার চেষ্টা করুন" else "Try again",
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-            }
-        }
-        ChangelogStatus.LOADED -> {
-            Column(modifier = Modifier.padding(horizontal = 8.dp)) {
-                if (changelog.isEmpty()) {
-                    Text(
-                        text = if (isBangla) "কোনো রিলিজ পাওয়া যায়নি।" else "No releases found.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 16.dp)
-                    )
-                } else {
-                    changelog.forEachIndexed { index, release ->
-                        ReleaseChangelogEntry(
-                            isBangla = isBangla,
-                            release = release
-                        )
-                        if (index < changelog.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(vertical = 12.dp),
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ReleaseChangelogEntry(
-    isBangla: Boolean,
-    release: ReleaseChangelog
-) {
-    Column {
-        val tagText = if (isBangla) {
-            BanglaDigitConverter.toBangla(release.tagName.removePrefix("v"))
-        } else {
-            release.tagName.removePrefix("v")
-        }
-        val dateText = DateTimeFormatter.format(release.publishedAt, isBangla)
-        Text(
-            text = "v$tagText · $dateText",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(6.dp))
-        release.items.forEachIndexed { index, item ->
-            ChangelogItemRow(item = item)
-            if (index < release.items.lastIndex) {
-                Spacer(modifier = Modifier.height(6.dp))
-            }
-        }
-    }
-}
-
-@Composable
-private fun ChangelogItemRow(
-    item: ChangelogItem
-) {
-    Column {
-        Text(
-            text = "• ${item.title}",
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.SemiBold
-        )
-        item.subItems.forEach { sub ->
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = "◦ $sub",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 16.dp)
-            )
-        }
-    }
 }
 
 @Composable

@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import app.cash.tanvir.info.ui.screen.calculator.CalculatorScreen
+import app.cash.tanvir.info.ui.screen.changelog.ChangelogScreen
 import app.cash.tanvir.info.ui.screen.history.HistoryScreen
 import app.cash.tanvir.info.ui.screen.report.ReportScreen
 import app.cash.tanvir.info.ui.screen.settings.SettingsScreen
@@ -23,6 +24,7 @@ sealed class Screen(val route: String) {
     object Report : Screen("report/{sheetId}?fromSave={fromSave}") {
         fun createRoute(sheetId: Long, fromSave: Boolean = false) = "report/$sheetId?fromSave=$fromSave"
     }
+    object Changelog : Screen("changelog")
     object Settings : Screen("settings?autoCheck={autoCheck}") {
         fun createRoute(autoCheck: Boolean = false) = "settings?autoCheck=$autoCheck"
     }
@@ -91,7 +93,14 @@ fun NavGraph(
         ) {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
+                onNavigateToChangelog = { navController.navigate(Screen.Changelog.route) },
                 autoCheck = it.arguments?.getBoolean("autoCheck") ?: false
+            )
+        }
+
+        composable(Screen.Changelog.route) {
+            ChangelogScreen(
+                onNavigateBack = { navController.popBackStack() }
             )
         }
     }
