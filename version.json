@@ -1,6 +1,6 @@
 {
-  "versionCode": 15,
-  "versionName": "v2.0.5",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.0.5/CashFigure.apk",
-  "changelog": "* **﻿style: polish UI animations, compact layouts and toggles** (0822cb6)\n  - Add slide/fade transitions between screens.\n  - Animate grand total count-up on the dashboard card.\n  - Compact paddings and text ellipsis for small screens.\n  - Convert settings rows to proper Switch toggles.\n  - Left-align PDF breakdown rows and center table title.\n  - Clear search field, disable empty rename save.\n  - Ignore .kotlin build artifacts.\n"
+  "versionCode": 16,
+  "versionName": "v2.3.0",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v2.3.0/CashFigure.apk",
+  "changelog": "* **style: polish biometric lock, PDF table and layout details** (43ddaa0)\n  - Prevent multiple biometric prompts from stacking in MainActivity.\n  - Remove lock screen hint text and unused imports.\n  - Remove animated typing placeholder in notes dialog.\n  - Center total value text and fix PDF table vertical lines.\n  - Use auto-mirrored back and text icons for RTL safety.\n"
 }
