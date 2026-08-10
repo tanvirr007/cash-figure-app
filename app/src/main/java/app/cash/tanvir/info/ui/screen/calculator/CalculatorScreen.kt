@@ -48,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -71,6 +72,7 @@ fun CalculatorScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+    val isCompact = LocalConfiguration.current.screenWidthDp < 360
     val isBangla = uiState.currentLanguage == AppLanguage.BANGLA
     val isIdle = uiState.quantities.values.all { it.isEmpty() }
     var showClearAllConfirmation by remember { mutableStateOf(false) }
@@ -177,8 +179,8 @@ fun CalculatorScreen(
                 .fillMaxSize()
                 .padding(paddingValues),
             contentPadding = PaddingValues(
-                start = 8.dp,
-                end = 8.dp,
+                start = if (isCompact) 4.dp else 8.dp,
+                end = if (isCompact) 4.dp else 8.dp,
                 top = 8.dp,
                 bottom = 100.dp
             ),
@@ -188,7 +190,7 @@ fun CalculatorScreen(
             item {
                 val words = if (isBangla) uiState.amountInWordsBn else uiState.amountInWordsEn
                 DashboardCard(
-                    grandTotalFormatted = uiState.grandTotalFormatted,
+                    grandTotal = uiState.grandTotal,
                     amountInWords = words,
                     totalPieces = uiState.totalPieces,
                     activeDenominations = uiState.activeDenominations,
@@ -245,7 +247,7 @@ fun CalculatorScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Icon(Icons.Default.Bookmark, contentDescription = null)
-                        Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(if (isBangla) "সেভ করুন" else "Save")
                     }
                 }

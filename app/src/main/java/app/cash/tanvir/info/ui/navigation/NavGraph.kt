@@ -1,5 +1,10 @@
 package app.cash.tanvir.info.ui.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -27,7 +32,19 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Calculator.route
+        startDestination = Screen.Calculator.route,
+        enterTransition = {
+            slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300)) + fadeIn(tween(300))
+        },
+        exitTransition = {
+            fadeOut(tween(200))
+        },
+        popEnterTransition = {
+            fadeIn(tween(300))
+        },
+        popExitTransition = {
+            slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300)) + fadeOut(tween(200))
+        }
     ) {
         composable(Screen.Calculator.route) {
             CalculatorScreen(

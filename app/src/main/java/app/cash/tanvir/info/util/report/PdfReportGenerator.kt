@@ -94,7 +94,9 @@ object PdfReportGenerator {
         paint.textSize = 14f
         paint.isFakeBoldText = true
         paint.color = Color.parseColor("#00695C") // Deep Teal
-        canvas.drawText(if (isBangla) "ক্যাশ ব্রেকডাউন" else "Cash Breakdown", margin, y, paint)
+        paint.textAlign = Paint.Align.CENTER
+        canvas.drawText(if (isBangla) "ক্যাশ ব্রেকডাউন" else "Cash Breakdown", (margin + rightMargin) / 2f, y, paint)
+        paint.textAlign = Paint.Align.LEFT
 
         y += 28f
 
@@ -140,11 +142,12 @@ object PdfReportGenerator {
                 val subtotalFormatted = CurrencyFormatter.format(row.total, useBengaliDigits = isBangla)
                 val qtyStr = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(row.quantity) else row.quantity.toString()
 
-                paint.textAlign = Paint.Align.CENTER
-                canvas.drawText(denomLabel, (margin + 240f) / 2f, y, paint)
-                canvas.drawText(qtyStr, 300f, y, paint)
-                canvas.drawText(subtotalFormatted, (360f + rightMargin) / 2f, y, paint)
                 paint.textAlign = Paint.Align.LEFT
+                canvas.drawText(denomLabel, margin + 8f, y, paint)
+                paint.textAlign = Paint.Align.CENTER
+                canvas.drawText(qtyStr, 300f, y, paint)
+                paint.textAlign = Paint.Align.LEFT
+                canvas.drawText(subtotalFormatted, 360f + 8f, y, paint)
                 
                 y += 8f
                 canvas.drawLine(margin, y, rightMargin, y, paint)
@@ -155,9 +158,8 @@ object PdfReportGenerator {
             paint.isFakeBoldText = true
             val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
             val totalText = if (isBangla) "সর্বমোট: $totalFormatted" else "Grand Total: $totalFormatted"
-            paint.textAlign = Paint.Align.CENTER
-            canvas.drawText(totalText, (margin + rightMargin) / 2f, y, paint)
             paint.textAlign = Paint.Align.LEFT
+            canvas.drawText(totalText, margin, y, paint)
             paint.isFakeBoldText = false
             
             y += 8f

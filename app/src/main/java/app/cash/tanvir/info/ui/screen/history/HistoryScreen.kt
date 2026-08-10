@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.History
@@ -51,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.domain.model.Sheet
@@ -118,6 +120,19 @@ fun HistoryScreen(
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 placeholder = { Text(if (isBangla) "নাম বা পরিমাণ দিয়ে খুঁজুন..." else "Search by name or amount...") },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = if (isBangla) "খুঁজুন" else "Search") },
+                trailingIcon = {
+                    if (uiState.searchQuery.isNotEmpty()) {
+                        IconButton(onClick = {
+                            HapticHelper.vibrate(context)
+                            viewModel.onSearchQueryChange("")
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = if (isBangla) "সাফ করুন" else "Clear search"
+                            )
+                        }
+                    }
+                },
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp)
             )
@@ -156,6 +171,7 @@ fun HistoryScreen(
                         HistoryCard(
                             sheet = sheet,
                             isBangla = isBangla,
+                            modifier = Modifier.animateItem(),
                             onClick = {
                                 HapticHelper.vibrate(context)
                                 onSelectSheet(sheet)
@@ -201,7 +217,8 @@ fun HistoryScreen(
                         if (renameText.isNotBlank()) {
                             viewModel.renameSheet(targetSheet, renameText.trim())
                         }
-                    }
+                    },
+                    enabled = renameText.isNotBlank()
                 ) {
                     Text(if (isBangla) "সেভ করুন" else "Save")
                 }
@@ -263,6 +280,7 @@ private fun formatHistoryDate(timestamp: Long, isBangla: Boolean): String {
 private fun HistoryCard(
     sheet: Sheet,
     isBangla: Boolean,
+    modifier: Modifier = Modifier,
     onClick: () -> Unit,
     onRename: () -> Unit,
     onDelete: () -> Unit
@@ -271,7 +289,7 @@ private fun HistoryCard(
 
     Card(
         onClick = onClick,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -288,7 +306,12 @@ private fun HistoryCard(
                     text = sheet.name.ifEmpty { if (isBangla) "সেভ করা হিসাব" else "Saved Sheet" },
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla),

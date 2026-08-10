@@ -1,6 +1,8 @@
 package app.cash.tanvir.info.ui.screen.calculator.components
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,11 +14,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.cash.tanvir.info.util.CurrencyFormatter
 
 /**
  * Dashboard card showing the grand total, amount in words,
@@ -24,13 +30,22 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun DashboardCard(
-    grandTotalFormatted: String,
+    grandTotal: Long,
     amountInWords: String,
     totalPieces: Long,
     activeDenominations: Int,
     isBangla: Boolean = false,
     modifier: Modifier = Modifier
 ) {
+    // Count-up animation: 0 -> grandTotal over 600ms whenever the total changes
+    val countUpProgress = remember { Animatable(1f) }
+    LaunchedEffect(grandTotal) {
+        countUpProgress.snapTo(0f)
+        countUpProgress.animateTo(1f, tween(durationMillis = 600))
+    }
+    val animatedTotal = (grandTotal.toDouble() * countUpProgress.value).toLong()
+    val grandTotalFormatted = CurrencyFormatter.format(animatedTotal, useBengaliDigits = isBangla)
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -55,7 +70,9 @@ fun DashboardCard(
                     fontWeight = FontWeight.Bold
                 ),
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
-                maxLines = 1
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis
             )
 
             // Amount in words — only show when there's a non-zero amount
