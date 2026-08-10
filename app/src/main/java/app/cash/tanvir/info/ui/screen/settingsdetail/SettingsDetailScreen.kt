@@ -5,7 +5,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
@@ -23,6 +26,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material.icons.rounded.DeleteSweep
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +36,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -140,16 +147,109 @@ fun SettingsDetailScreen(
                     disabledDenominations = uiState.disabledDenominations,
                     onToggle = { value, checked -> viewModel.toggleDenomination(value, checked) }
                 )
-                SettingsSection.MISCELLANEOUS -> MiscellaneousContent(
-                    isBangla = isBangla,
-                    biometricEnabled = uiState.biometricEnabled,
-                    screenshotBlockEnabled = uiState.screenshotBlockEnabled,
-                    hapticEnabled = uiState.hapticFeedbackEnabled,
-                    hapticIntensity = uiState.hapticFeedbackIntensity,
-                    onBiometricToggle = onBiometricToggle,
-                    onScreenshotToggle = { checked -> viewModel.setScreenshotBlockEnabled(checked) },
-                    onHapticToggle = { checked -> viewModel.setHapticFeedbackEnabled(checked) },
-                    onIntensityChange = { v -> viewModel.setHapticFeedbackIntensity(v) }
+                SettingsSection.MISCELLANEOUS -> {
+                    MiscellaneousContent(
+                        isBangla = isBangla,
+                        biometricEnabled = uiState.biometricEnabled,
+                        screenshotBlockEnabled = uiState.screenshotBlockEnabled,
+                        hapticEnabled = uiState.hapticFeedbackEnabled,
+                        hapticIntensity = uiState.hapticFeedbackIntensity,
+                        onBiometricToggle = onBiometricToggle,
+                        onScreenshotToggle = { checked -> viewModel.setScreenshotBlockEnabled(checked) },
+                        onHapticToggle = { checked -> viewModel.setHapticFeedbackEnabled(checked) },
+                        onIntensityChange = { v -> viewModel.setHapticFeedbackIntensity(v) }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    ResetAllCard(
+                        isBangla = isBangla,
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            viewModel.openResetDialog()
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    // Explicit Confirmation Dialog for Reset All Data
+    if (uiState.showResetConfirmationDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                viewModel.dismissResetDialog()
+            },
+            title = { Text(if (isBangla) "সকল ডাটা রিসেট করবেন?" else "Reset All Data?") },
+            text = {
+                Text(
+                    if (isBangla) "এটি সেভ করা সকল হিসাব, ইতিহাস এবং সেটিংস স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।"
+                    else "This will permanently delete all saved calculations, history, and user settings. This action cannot be undone."
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        viewModel.confirmResetAllData()
+                    }
+                ) {
+                    Text(
+                        if (isBangla) "রিসেট করুন" else "Reset",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    viewModel.dismissResetDialog()
+                }) {
+                    Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun ResetAllCard(isBangla: Boolean, onClick: () -> Unit) {
+    Card(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f))
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(color = MaterialTheme.colorScheme.error.copy(alpha = 0.14f), shape = RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.DeleteSweep,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text(
+                    if (isBangla) "রিসেট করুন" else "Reset All",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error
+                )
+                Text(
+                    if (isBangla) "সব ডাটা ও সেটিংস মুছে ফেলুন" else "Delete all data and settings",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                 )
             }
         }

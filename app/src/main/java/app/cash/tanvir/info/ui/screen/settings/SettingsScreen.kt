@@ -27,7 +27,6 @@ import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudUpload
-import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.HistoryToggleOff
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.SettingsSuggest
@@ -209,40 +208,6 @@ fun SettingsScreen(
                 )
             }
 
-            // Destructive Actions Card
-            Card(
-                onClick = {
-                    HapticHelper.vibrate(context)
-                    viewModel.openResetDialog()
-                },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.3f))
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    SettingsIconBadge(Icons.Rounded.DeleteSweep, tint = MaterialTheme.colorScheme.error)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            if (isBangla) "রিসেট করুন" else "Reset All",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Text(
-                            if (isBangla) "সব ডাটা ও সেটিংস মুছে ফেলুন" else "Delete all data and settings",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-                        )
-                    }
-                }
-            }
-
             SettingsLinkCard(
                 icon = { SettingsIconBadge(Icons.Rounded.SettingsSuggest) },
                 title = if (isBangla) "টুলস" else "Miscellaneous",
@@ -263,44 +228,6 @@ fun SettingsScreen(
                 }
             )
         }
-    }
-
-    // Explicit Confirmation Dialog for Reset All Data
-    if (uiState.showResetConfirmationDialog) {
-        AlertDialog(
-            onDismissRequest = {
-                HapticHelper.vibrate(context)
-                viewModel.dismissResetDialog()
-            },
-            title = { Text(if (isBangla) "সকল ডাটা রিসেট করবেন?" else "Reset All Data?") },
-            text = {
-                Text(
-                    if (isBangla) "এটি সেভ করা সকল হিসাব, ইতিহাস এবং সেটিংস স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।"
-                    else "This will permanently delete all saved calculations, history, and user settings. This action cannot be undone."
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        HapticHelper.vibrate(context)
-                        viewModel.confirmResetAllData()
-                    }
-                ) {
-                    Text(
-                        if (isBangla) "রিসেট করুন" else "Reset",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                OutlinedButton(onClick = {
-                    HapticHelper.vibrate(context)
-                    viewModel.dismissResetDialog()
-                }) {
-                    Text(if (isBangla) "বাতিল" else "Cancel")
-                }
-            }
-        )
     }
 
     // Warning Dialog for Restore Data — Restore stays disabled during the 15s countdown
