@@ -1,0 +1,764 @@
+{
+  "releases": [
+    {
+      "tagName": "v2.3.0",
+      "publishedAt": "2026-08-10T00:40:40Z",
+      "items": [
+        {
+          "title": "docs: add agent guides and git skill",
+          "subItems": [
+            "Add AGENTS.md with build commands, architecture rules, and conventions.",
+            "Add docs/FILES.md with per-file reference and data-flow map.",
+            "Add opencode git skill for commit message and workflow rules."
+          ]
+        },
+        {
+          "title": "fix: lock app to portrait orientation",
+          "subItems": [
+            "Add android:screenOrientation=portrait to MainActivity.",
+            "App stays in portrait on devices with auto-rotate enabled."
+          ]
+        },
+        {
+          "title": "style: left-align in-words in report preview",
+          "subItems": [
+            "Remove centered alignment so the amount in words sits left-aligned just below the grand total."
+          ]
+        },
+        {
+          "title": "style: update screen capture setting label",
+          "subItems": []
+        },
+        {
+          "title": "style: update fingerprint verification prompt and update banner",
+          "subItems": []
+        },
+        {
+          "title": "fix: resolve build errors and center-align PDF table values",
+          "subItems": [
+            "Replace android Uri toURI with java URI create in OTA download.",
+            "Move isBangla declaration above OTA install launchers in settings.",
+            "Center-align denomination and subtotal columns in PDF table.",
+            "Center the combined grand total text within its row."
+          ]
+        },
+        {
+          "title": "feat: add in-app OTA updater with manifest check and APK install",
+          "subItems": [
+            "Add UpdateManifest model and UpdateRepository contract in domain.",
+            "Fetch version.json and stream APK downloads via HttpURLConnection.",
+            "Add streaming openReportFile handle to StorageUtil with rollback.",
+            "Wire UpdateRepository through Hilt in RepositoryModule.",
+            "Add package version, size formatter and manifest parser utilities.",
+            "Extend SettingsViewModel with the OTA state machine and actions.",
+            "Add Updates card, status line, download dialog and install flow.",
+            "Add silent launch auto-check and update dialog in MainActivity.",
+            "Add INTERNET and REQUEST_INSTALL_PACKAGES manifest permissions.",
+            "Add parser and size formatter unit tests with org.json test dep.",
+            "Document the OTA feature and network exception in the docs."
+          ]
+        },
+        {
+          "title": "style: right-align PDF subtotals and un-bold grand total",
+          "subItems": [
+            "Subtotal values now align right inside their column instead of left.",
+            "Grand total row is no longer bold; label stays left aligned."
+          ]
+        },
+        {
+          "title": "style: polish biometric lock, PDF table and layout details",
+          "subItems": [
+            "Prevent multiple biometric prompts from stacking in MainActivity.",
+            "Remove lock screen hint text and unused imports.",
+            "Remove animated typing placeholder in notes dialog.",
+            "Center total value text and fix PDF table vertical lines.",
+            "Use auto-mirrored back and text icons for RTL safety."
+          ]
+        },
+        {
+          "title": "﻿style: polish UI animations, compact layouts and toggles",
+          "subItems": [
+            "Add slide/fade transitions between screens.",
+            "Animate grand total count-up on the dashboard card.",
+            "Compact paddings and text ellipsis for small screens.",
+            "Convert settings rows to proper Switch toggles.",
+            "Left-align PDF breakdown rows and center table title.",
+            "Clear search field, disable empty rename save.",
+            "Ignore .kotlin build artifacts."
+          ]
+        },
+        {
+          "title": "﻿fix: require note before saving and add back button",
+          "subItems": [
+            "Prevent saving a transaction with empty notes in the Add Notes dialog.",
+            "Disable the Save button until a note is entered.",
+            "Replace the Cancel button with Back to return to the breakdown dialog."
+          ]
+        },
+        {
+          "title": "fix: haptic feedback crashes the app",
+          "subItems": [
+            "Add missing VIBRATE permission to the manifest.",
+            "Wrap all vibrate calls in try-catch so haptics never crash."
+          ]
+        },
+        {
+          "title": "feat: auth required on app lock toggle",
+          "subItems": [
+            "App lock toggle now asks for fingerprint verification before enabling or disabling.",
+            "Only a successful fingerprint scan changes the app lock setting.",
+            "Update biometric prompt title to Unlock Cash Figure App.",
+            "Update biometric prompt subtitle to Scan your fingerprint."
+          ]
+        },
+        {
+          "title": "style: pushes the entire table section down within the PDF layout",
+          "subItems": []
+        },
+        {
+          "title": "style: modified the vertical Spacer between the breakdown table and the \"Notes: \" text block from 4.dp to 12.dp",
+          "subItems": []
+        },
+        {
+          "title": "style: update currency card title",
+          "subItems": []
+        },
+        {
+          "title": "style: update settings labels and descs",
+          "subItems": [
+            "Update Fingerprint Lock label to App Lock.",
+            "Update Screenshot Block label to Screen Protection.",
+            "Change Miscellaneous category subtext to Add-on Features.",
+            "Shorten descriptions for App Lock, Screen Protection, and Haptic Feedback."
+          ]
+        },
+        {
+          "title": "style: reduced the font size of the grand total amount displayed on the dashboard card",
+          "subItems": []
+        },
+        {
+          "title": "style: merged the two cells of the Grand Total row in the cash breakdown table",
+          "subItems": []
+        },
+        {
+          "title": "style: updated both CalculatorScreen.kt and ReportScreen.kt to align the \"Denom.\" / \"নোটের বিবরণ\" header to the center",
+          "subItems": []
+        },
+        {
+          "title": "style: shortened Table Column Header",
+          "subItems": [
+            "updated the table column header from \"Denomination Detail\" to \"Denom.\" in both the calculator screen and the history report screen.",
+            "This ensures the column header fits on a single line as requested."
+          ]
+        },
+        {
+          "title": "style: formatted the Grand Total text into a single line combining the label and amount",
+          "subItems": []
+        },
+        {
+          "title": "style: center align table cells in PDF",
+          "subItems": [
+            "Change Denomination, Quantity, and Subtotal headers to be center-aligned.",
+            "Center-align breakdown row values across all columns.",
+            "Center-align Grand Total sum in Subtotal column."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v2.0.5",
+      "publishedAt": "2026-08-10T00:14:13Z",
+      "items": [
+        {
+          "title": "﻿style: polish UI animations, compact layouts and toggles",
+          "subItems": [
+            "Add slide/fade transitions between screens.",
+            "Animate grand total count-up on the dashboard card.",
+            "Compact paddings and text ellipsis for small screens.",
+            "Convert settings rows to proper Switch toggles.",
+            "Left-align PDF breakdown rows and center table title.",
+            "Clear search field, disable empty rename save.",
+            "Ignore .kotlin build artifacts."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v2.0.4",
+      "publishedAt": "2026-08-09T23:20:42Z",
+      "items": [
+        {
+          "title": "﻿fix: require note before saving and add back button",
+          "subItems": [
+            "Prevent saving a transaction with empty notes in the Add Notes dialog.",
+            "Disable the Save button until a note is entered.",
+            "Replace the Cancel button with Back to return to the breakdown dialog."
+          ]
+        },
+        {
+          "title": "fix: haptic feedback crashes the app",
+          "subItems": [
+            "Add missing VIBRATE permission to the manifest.",
+            "Wrap all vibrate calls in try-catch so haptics never crash."
+          ]
+        },
+        {
+          "title": "feat: auth required on app lock toggle",
+          "subItems": [
+            "App lock toggle now asks for fingerprint verification before enabling or disabling.",
+            "Only a successful fingerprint scan changes the app lock setting.",
+            "Update biometric prompt title to Unlock Cash Figure App.",
+            "Update biometric prompt subtitle to Scan your fingerprint."
+          ]
+        },
+        {
+          "title": "style: pushes the entire table section down within the PDF layout",
+          "subItems": []
+        },
+        {
+          "title": "style: modified the vertical Spacer between the breakdown table and the \"Notes: \" text block from 4.dp to 12.dp",
+          "subItems": []
+        },
+        {
+          "title": "style: update currency card title",
+          "subItems": []
+        },
+        {
+          "title": "style: update settings labels and descs",
+          "subItems": [
+            "Update Fingerprint Lock label to App Lock.",
+            "Update Screenshot Block label to Screen Protection.",
+            "Change Miscellaneous category subtext to Add-on Features.",
+            "Shorten descriptions for App Lock, Screen Protection, and Haptic Feedback."
+          ]
+        },
+        {
+          "title": "style: reduced the font size of the grand total amount displayed on the dashboard card",
+          "subItems": []
+        },
+        {
+          "title": "style: merged the two cells of the Grand Total row in the cash breakdown table",
+          "subItems": []
+        },
+        {
+          "title": "style: updated both CalculatorScreen.kt and ReportScreen.kt to align the \"Denom.\" / \"নোটের বিবরণ\" header to the center",
+          "subItems": []
+        },
+        {
+          "title": "style: shortened Table Column Header",
+          "subItems": [
+            "updated the table column header from \"Denomination Detail\" to \"Denom.\" in both the calculator screen and the history report screen.",
+            "This ensures the column header fits on a single line as requested."
+          ]
+        },
+        {
+          "title": "style: formatted the Grand Total text into a single line combining the label and amount",
+          "subItems": []
+        },
+        {
+          "title": "style: center align table cells in PDF",
+          "subItems": [
+            "Change Denomination, Quantity, and Subtotal headers to be center-aligned.",
+            "Center-align breakdown row values across all columns.",
+            "Center-align Grand Total sum in Subtotal column."
+          ]
+        },
+        {
+          "title": "docs: add agent guides and git skill",
+          "subItems": [
+            "Add AGENTS.md with build commands, architecture rules, and conventions.",
+            "Add docs/FILES.md with per-file reference and data-flow map.",
+            "Add opencode git skill for commit message and workflow rules."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v2.0.3",
+      "publishedAt": "2026-08-09T20:06:04Z",
+      "items": [
+        {
+          "title": "chore: update readme",
+          "subItems": [
+            "Remove unused 1.1MB icon.png from the project root directory.",
+            "Update and complete project README.md file without using emojis.",
+            "Document directory layouts, features, tech stack, and build steps."
+          ]
+        },
+        {
+          "title": "feat: improve save flow & breakdown",
+          "subItems": [
+            "Restructured calculator screen to prompt notes before saving.",
+            "Added gridline-based table format to breakdown dialog and report card.",
+            "Updated PDF generator to draw breakdown table with vertical and horizontal borders.",
+            "Renamed breakdown action button to Next.",
+            "Set notes dialog Save button to be active and visible."
+          ]
+        },
+        {
+          "title": "style: show notes on a single line",
+          "subItems": [
+            "Display notes label and content on a single line in ReportScreen.",
+            "Render notes label and content on a single line in PdfReportGenerator."
+          ]
+        },
+        {
+          "title": "feat: add misc settings and haptics",
+          "subItems": [
+            "Add fingerprint lock to secure app after backgrounding.",
+            "Add screenshot and screen recording blocking toggle.",
+            "Add haptic feedback toggle and intensity slider.",
+            "Integrate haptics on all primary screen controls.",
+            "Implement screen lock overlay in MainActivity."
+          ]
+        },
+        {
+          "title": "refactor: remove cash breakdown",
+          "subItems": [
+            "Delete redundant Cash Breakdown section from homepage.",
+            "Remove isBreakdownExpanded state and toggleBreakdown from ViewModel.",
+            "Remove references and imports of BreakdownSection in CalculatorScreen."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v2.0.2",
+      "publishedAt": "2026-08-09T19:20:25Z",
+      "items": [
+        {
+          "title": "feat: show grand total in reports",
+          "subItems": [
+            "Add Grand Total row to PDF table.",
+            "Add Grand Total row to CSV table.",
+            "Add Grand Total row to TXT breakdown.",
+            "Add unit tests for CSV Grand Total."
+          ]
+        },
+        {
+          "title": "fix: remove CSV BOM in English",
+          "subItems": [
+            "Avoid prepending UTF-8 BOM bytes when CSV export is in English.",
+            "Prevent spreadsheet applications from displaying garbage characters at the beginning.",
+            "Ensure BOM is still prepended when exporting in Bangla language."
+          ]
+        },
+        {
+          "title": "style: refactor dialog buttons",
+          "subItems": [
+            "Convert dialog confirmation, dismiss, and clear buttons to filled and outlined buttons.",
+            "Replace TextButtons with OutlinedButtons for cancel and secondary actions.",
+            "Use filled Buttons for primary confirmation actions.",
+            "Use filled Buttons with error colors for destructive delete and clear actions."
+          ]
+        },
+        {
+          "title": "feat: relocate notes to report screen",
+          "subItems": [
+            "Move the notes input from calculator screen save dialog to report screen.",
+            "Make notes dialog compulsory and show typewriter example of bank name.",
+            "Strip newline and carriage return characters from notes in DB and PDF.",
+            "Increase layout widths of BDT labels and subtotals on home screen."
+          ]
+        },
+        {
+          "title": "feat: make pdf logo larger",
+          "subItems": [
+            "Increase PDF report seal logo width to 150f.",
+            "Update Bangla edit button label to \"এডিট\"."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v2.0.1",
+      "publishedAt": "2026-08-09T17:27:20Z",
+      "items": [
+        {
+          "title": "feat: update layout and add seal",
+          "subItems": [
+            "Add seal image to Android assets folder.",
+            "Set PDF report margins to one inch.",
+            "Right-align the table subtotal column.",
+            "Center official seal image at the page bottom.",
+            "Mask out the seal image white background.",
+            "Shorten settings backup and restore labels."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v2.0.0",
+      "publishedAt": "2026-08-09T16:59:32Z",
+      "items": [
+        {
+          "title": "chore: shorten settings descriptions",
+          "subItems": [
+            "Shorten description for homepage notes.",
+            "Shorten description for JSON backup.",
+            "Shorten description for restore data.",
+            "Shorten description for reset data."
+          ]
+        },
+        {
+          "title": "fix: remove clobber from gh release",
+          "subItems": [
+            "Removed the --clobber flag from the 'gh release create' command.",
+            "Kept the --clobber flag in the fallback 'gh release upload' command."
+          ]
+        },
+        {
+          "title": "fix: imports in calculator screen",
+          "subItems": [
+            "Import missing Jetpack Compose and Material3 symbols.",
+            "Resolve unresolved references in CalculatorScreen dialog."
+          ]
+        },
+        {
+          "title": "feat: add notes prompt on save",
+          "subItems": [
+            "Persist notes field in Sheet model and Room database.",
+            "Show Add Notes prompt on save with cash breakdown.",
+            "Restrict notes input to 30 characters max.",
+            "Include remaining count counter in notes field.",
+            "Render notes on details screen and exports.",
+            "Integrate notes in json backup and restore."
+          ]
+        },
+        {
+          "title": "fix: improve ripple animations",
+          "subItems": [
+            "Migrate HistoryCard to use native Card(onClick) for rounded ripple clipping.",
+            "Update BreakdownSection header to clip to a dynamic shape.",
+            "Restructure SettingsScreen expandable card headers to clip dynamically.",
+            "Update option rows, notes, and backup items in SettingsScreen with rounded clips.",
+            "Re-route SettingsScreen reset action to use Card(onClick)."
+          ]
+        },
+        {
+          "title": "chore: set versioning to 2.0.0",
+          "subItems": [
+            "Set default app version to 2.0.0.",
+            "Implemented auto-incrementing patch versioning logic in build_apk.yml workflow.",
+            "Updated python bot script to generate 3-segment OTA version manifests."
+          ]
+        },
+        {
+          "title": "fix: reset calculator and settings",
+          "subItems": [
+            "Reset home calculator immediately after saving sheet to history.",
+            "Use atomic Room transaction to save sheet and clear active sheet.",
+            "Reset home calculator when Reset All Data is triggered in settings.",
+            "Handle null current sheet emissions in CalculatorViewModel.",
+            "Improve success toast to show the saved transaction amount."
+          ]
+        },
+        {
+          "title": "style: improve delete icon visibility",
+          "subItems": [
+            "Make clear and delete icons fully opaque with theme error color.",
+            "Remove alpha mask to improve contrast and readability across all themes."
+          ]
+        },
+        {
+          "title": "feat: prevent delete in idle mode",
+          "subItems": [
+            "Prevent clear confirmation when quantities are empty.",
+            "Show a toast message indicating nothing to clear in idle mode.",
+            "Style the header delete icon as inactive in idle mode."
+          ]
+        },
+        {
+          "title": "fix: update English currency to BDT",
+          "subItems": [
+            "Replace English currency symbol ৳ with BDT to prevent encoding errors in CSV reports.",
+            "Add trailing ledger suffix /- to Bangla currency figures.",
+            "Update denomination labels to prefix BDT in English.",
+            "Update CSV report generator to always prepend UTF-8 BOM.",
+            "Add unit tests for CsvReportGenerator and update CurrencyFormatterTest."
+          ]
+        },
+        {
+          "title": "update: shorten report titles",
+          "subItems": [
+            "Replace old report titles with 'ক্যাশ রিপোর্ট' / 'CASH REPORT' in TXT exports.",
+            "Replace old report titles with 'ক্যাশ রিপোর্ট' / 'CASH REPORT' in CSV exports."
+          ]
+        },
+        {
+          "title": "feat: add bangla time-of-day labels",
+          "subItems": [
+            "Add custom time-of-day labels for Bangla locales (ভোর, সকাল, দুপুর, বিকাল, সন্ধ্যা, রাত্রি).",
+            "Implement centralized DateTimeFormatter.kt for consistent date-time rendering.",
+            "Centralize 12-hour format usage in screen display and exported formats (CSV, PDF, TXT).",
+            "Clean up unused imports across updated report generators and screens."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v1.0.0.7",
+      "publishedAt": "2026-08-09T13:50:37Z",
+      "items": [
+        {
+          "title": "fix: split changelog and bypass crash",
+          "subItems": [
+            "Split Telegram changelogs exceeding 4000 characters into separate messages.",
+            "Wrap notification APIs in try-except blocks to prevent script crashes.",
+            "Format text-only fallbacks similarly to prevent size errors."
+          ]
+        },
+        {
+          "title": "fix: remove value from clear title",
+          "subItems": [
+            "Remove specific denomination label from individual clear confirmation dialog title.",
+            "Keep dialog body description intact to provide specific denomination context.",
+            "Support both English (\"Clear?\") and Bangla (\"মুছে ফেলবেন?\") titles."
+          ]
+        },
+        {
+          "title": "fix: hide stats when calculator is idle",
+          "subItems": [
+            "Hide pieces and denominations stats in DashboardCard when totalPieces is 0."
+          ]
+        },
+        {
+          "title": "feat: add export confirmation dialogs",
+          "subItems": [
+            "Ask for confirmation before exporting report as PDF, CSV, or TXT.",
+            "Implement dialog localized in English and Bangla."
+          ]
+        },
+        {
+          "title": "feat: show grand total in report UI",
+          "subItems": [
+            "Add a grand total row with a divider to report screen breakdown.",
+            "Align the total value with primary color and bold formatting."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v1.0.0.6",
+      "publishedAt": "2026-08-09T10:03:14Z",
+      "items": [
+        {
+          "title": "chore: update major version to v1.0.0",
+          "subItems": [
+            "Updated versionName to 1.0.0 and versionCode to 2 in app build config.",
+            "Updated release manifest and OTA metadata to v1.0.0.6 in version.json.",
+            "Updated fallback version string in SettingsScreen and bot script."
+          ]
+        },
+        {
+          "title": "feat: make settings cards collapsible",
+          "subItems": [
+            "Make App Theme, Language, and Homepage Notes cards collapsible to save vertical screen space.",
+            "Display current setting selection summaries on collapsed headers.",
+            "Animate expansion state using AnimatedVisibility."
+          ]
+        },
+        {
+          "title": "fix: restore functionality & backup settings",
+          "subItems": [
+            "Fix restore logic to import calculation history into database instead of overwriting draft sheet.",
+            "Include full app preferences (theme, language, disabled denominations) in backup and restore JSON data.",
+            "Show restore warning dialog (\"Restoring outdated/old data might corrupt or overwrite your present data.\") when backup file is selected.",
+            "Re-sequence restored history items in chronological order to maintain proper serial numbering (\"Sheet #1\", \"Sheet #2\", etc.)."
+          ]
+        },
+        {
+          "title": "fix: dynamic about version info",
+          "subItems": [
+            "Query app package info dynamically in Settings screen.",
+            "Format version digits into Bangla when Bangla language is set."
+          ]
+        },
+        {
+          "title": "fix: apply Tiro Bangla font globally",
+          "subItems": [
+            "Apply TiroBanglaFontFamily across all 15 Material 3 typography styles.",
+            "Map Normal, Medium, SemiBold, and Bold weights to tiro_bangla font.",
+            "Fallback to ResourcesCompat and assets for PDF report font resolution."
+          ]
+        },
+        {
+          "title": "feat: support immediate Bangla mode",
+          "subItems": [
+            "Apply complete Bangla localization across all app screens, dialogs, components, and reports when Bangla is selected.",
+            "Recalculate calculator state immediately on language setting change.",
+            "Use full Bangla month names in date formatting across history and exported reports."
+          ]
+        },
+        {
+          "title": "feat: add splash screen image",
+          "subItems": [
+            "Add androidx.core:core-splashscreen dependency for Android splash API support.",
+            "Set splash theme and logo using assets/icon.png with centered 1:1 scaling.",
+            "Rename app title in README.md to Cash Figure App."
+          ]
+        },
+        {
+          "title": "style: simplify PDF report header",
+          "subItems": [
+            "Simplified the title header text to Cash Report.",
+            "Updated the footer text to Generated by Cash Figure App."
+          ]
+        },
+        {
+          "title": "feat: require delete confirmation",
+          "subItems": [
+            "Add confirmation dialog before deleting calculation entries from history.",
+            "Update HistoryViewModel state to handle delete dialog visibility."
+          ]
+        },
+        {
+          "title": "fix: reset sheet numbering on data wipe",
+          "subItems": [
+            "Use count-based naming (Sheet #N) instead of DB auto-increment ID.",
+            "Add getHistorySheetCount() DAO query for sequential numbering.",
+            "Reset sqlite_sequence on resetAllData() so IDs restart from 1.",
+            "Simplify toDomainModel() display name to use stored name directly."
+          ]
+        },
+        {
+          "title": "fix: Bangla text encoding in exports",
+          "subItems": [
+            "Add UTF-8 BOM to CSV export for Bangla mode.",
+            "Add UTF-8 BOM to TXT export for Bangla mode.",
+            "BOM ensures spreadsheet apps and text editors"
+          ]
+        },
+        {
+          "title": "style: Clean up settings labels",
+          "subItems": [
+            "Remove duplicate Bengali text from Language section heading.",
+            "Remove redundant (Bangla) from বাংলা option label."
+          ]
+        },
+        {
+          "title": "fix: Hide zero amount in words label",
+          "subItems": [
+            "Hide the amount-in-words text in DashboardCard when totalPieces is 0.",
+            "Avoids showing redundant Zero Taka label on empty state."
+          ]
+        },
+        {
+          "title": "feat: add grand total in breakdown",
+          "subItems": [
+            "Show sum of all active denomination totals at the bottom of the Cash Breakdown section.",
+            "Separated by a thicker divider for visual distinction.",
+            "Grand total value highlighted with primary color and bold styling."
+          ]
+        },
+        {
+          "title": "feat: add clear row confirmation",
+          "subItems": [
+            "Add confirmation dialog before clearing individual denomination row via cross icon.",
+            "Track pending denomination with nullable state instead of clearing immediately.",
+            "Show denomination label in dialog with Bangla/English support.",
+            "Match existing Clear All dialog pattern for consistent UX."
+          ]
+        },
+        {
+          "title": "fix: Prevent duplicate toast stacking",
+          "subItems": [
+            "Add activeToast reference to cancel previous toast before showing new one.",
+            "Add 500ms debounce on Save button click to ignore rapid repeated taps.",
+            "Apply toast deduplication to back-to-exit handler for consistency."
+          ]
+        },
+        {
+          "title": "fix: strip TEST section from changelog",
+          "subItems": [
+            "Filter TEST blocks and separator lines from commit body in changelog generation.",
+            "Clean existing version.json changelog entries to remove TEST sections."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v0.1.0.5",
+      "publishedAt": "2026-08-09T05:13:33Z",
+      "items": [
+        {
+          "title": "feat: add homepage notes settings",
+          "subItems": [
+            "Added settings options to toggle visibility of 1, 2, 5, 10, 20, 50 Tk notes.",
+            "Persisted disabled note denominations in DataStore preferences.",
+            "Filtered homepage calculator rows based on enabled note denominations."
+          ]
+        },
+        {
+          "title": "fix: reset calculator on save",
+          "subItems": [
+            "Reset calculator inputs and grand total after saving sheet to history."
+          ]
+        },
+        {
+          "title": "fix: sync system bars with app theme",
+          "subItems": [
+            "Update edge-to-edge system bars in MainActivity to react dynamically to theme changes.",
+            "Set light status and navigation bar icon appearance in CashFigureTheme based on dark theme state."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v0.1.0.4",
+      "publishedAt": "2026-08-08T21:22:14Z",
+      "items": [
+        {
+          "title": "feat: update app UI and PDF report",
+          "subItems": [
+            "Add Tiro Bangla font for UI typography and PDF report rendering.",
+            "Enhance calculator, history, settings, and report screens.",
+            "Support subfolder organization in storage utility for saved reports."
+          ]
+        },
+        {
+          "title": "fix: override node 20 deprecation",
+          "subItems": [
+            "Allow unsecure node version to override Node 20 deprecation in workflow.",
+            "Update building APK progress message format in bot script."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v0.1.0.2",
+      "publishedAt": "2026-08-08T21:14:22Z",
+      "items": [
+        {
+          "title": "fix: override node 20 deprecation",
+          "subItems": [
+            "Allow unsecure node version to override Node 20 deprecation in workflow.",
+            "Update building APK progress message format in bot script."
+          ]
+        }
+      ]
+    },
+    {
+      "tagName": "v0.1.0.1",
+      "publishedAt": "2026-08-08T20:44:24Z",
+      "items": [
+        {
+          "title": "ci: add Telegram bot and release workflow",
+          "subItems": []
+        },
+        {
+          "title": "feat: add initial app source code",
+          "subItems": [
+            "Add Jetpack Compose UI for Bangladeshi cash counter.",
+            "Add Room database, Hilt DI, DataStore, and export utilities.",
+            "Add app assets, gradle configuration, and setup project structure."
+          ]
+        },
+        {
+          "title": "Initial commit",
+          "subItems": []
+        }
+      ]
+    }
+  ]
+}
