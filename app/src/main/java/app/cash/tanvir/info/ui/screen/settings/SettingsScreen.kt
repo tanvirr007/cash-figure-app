@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -129,135 +130,84 @@ fun SettingsScreen(
                 AppLanguage.BANGLA -> if (isBangla) "বাংলা" else "Bangla"
             }
 
-            SettingsLinkCard(
-                icon = { SettingsIconBadge(Icons.Rounded.AutoAwesome) },
-                title = if (isBangla) "অ্যাপ থিম" else "App Theme",
-                subtitle = currentThemeText,
-                onClick = {
-                    HapticHelper.vibrate(context)
-                    onNavigateToSettingsDetail(SettingsSection.THEME)
-                }
-            )
-
-            SettingsLinkCard(
-                icon = { SettingsIconBadge(Icons.Rounded.Translate) },
-                title = if (isBangla) "ভাষা" else "Language",
-                subtitle = currentLangText,
-                onClick = {
-                    HapticHelper.vibrate(context)
-                    onNavigateToSettingsDetail(SettingsSection.LANGUAGE)
-                }
-            )
-
-            SettingsLinkCard(
-                icon = { SettingsIconBadge(Icons.Rounded.AccountBalanceWallet) },
-                title = if (isBangla) "নোটসমূহ" else "Currency",
-                subtitle = if (isBangla) "হোমপেজের নোটগুলো নিয়ন্ত্রণ করুন" else "Manage homepage notes",
-                onClick = {
-                    HapticHelper.vibrate(context)
-                    onNavigateToSettingsDetail(SettingsSection.CURRENCY)
-                }
-            )
-
-            SettingsLinkCard(
-                icon = { SettingsIconBadge(Icons.Rounded.SettingsSuggest) },
-                title = if (isBangla) "টুলস" else "Miscellaneous",
-                subtitle = if (isBangla) "অতিরিক্ত ফিচারসমূহ" else "Add-on Features",
-                onClick = {
-                    HapticHelper.vibrate(context)
-                    onNavigateToSettingsDetail(SettingsSection.MISCELLANEOUS)
-                }
-            )
-
-            // Backup & Restore Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        if (isBangla) "ব্যাকআপ ও রিস্টোর" else "Backup & Restore",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                HapticHelper.vibrate(context)
-                                viewModel.backupData(context)
-                            }
-                            .padding(vertical = 8.dp, horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        SettingsIconBadge(Icons.Rounded.CloudUpload)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                if (isBangla) "ব্যাকআপ ডাটা" else "Backup Data",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                if (isBangla) "ব্যাকআপ ফাইল সেভ করুন" else "Save backup file to Downloads",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                            )
-                        }
+            // General group: App Theme / Language / Currency
+            SettingsGroupCard(title = if (isBangla) "সাধারণ" else "General") {
+                SettingsGroupRow(
+                    icon = Icons.Rounded.AutoAwesome,
+                    title = if (isBangla) "অ্যাপ থিম" else "App Theme",
+                    subtitle = currentThemeText,
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateToSettingsDetail(SettingsSection.THEME)
                     }
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                HapticHelper.vibrate(context)
-                                restoreFileLauncher.launch("application/json")
-                            }
-                            .padding(vertical = 8.dp, horizontal = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        SettingsIconBadge(Icons.Rounded.CloudDownload)
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                if (isBangla) "রিস্টোর ডাটা" else "Restore Data",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            Text(
-                                if (isBangla) "ব্যাকআপ ফাইল রিস্টোর করুন" else "Restore from backup file",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                            )
-                        }
+                )
+                SettingsGroupDivider()
+                SettingsGroupRow(
+                    icon = Icons.Rounded.Translate,
+                    title = if (isBangla) "ভাষা" else "Language",
+                    subtitle = currentLangText,
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateToSettingsDetail(SettingsSection.LANGUAGE)
                     }
-                }
+                )
+                SettingsGroupDivider()
+                SettingsGroupRow(
+                    icon = Icons.Rounded.AccountBalanceWallet,
+                    title = if (isBangla) "নোটসমূহ" else "Currency",
+                    subtitle = if (isBangla) "হোমপেজের নোটগুলো নিয়ন্ত্রণ করুন" else "Manage homepage notes",
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateToSettingsDetail(SettingsSection.CURRENCY)
+                    }
+                )
             }
 
-            SettingsLinkCard(
-                icon = { SettingsIconBadge(Icons.Rounded.SystemUpdateAlt) },
-                title = if (isBangla) "আপডেটসমূহ" else "Updates",
-                subtitle = if (isBangla) "নতুন ভার্সন চেক করুন" else "Check for new versions",
-                onClick = {
-                    HapticHelper.vibrate(context)
-                    onNavigateToUpdate()
-                }
-            )
+            // Backup & Restore Card
+            SettingsGroupCard(title = if (isBangla) "ব্যাকআপ ও রিস্টোর" else "Backup & Restore") {
+                SettingsGroupRow(
+                    icon = Icons.Rounded.CloudUpload,
+                    title = if (isBangla) "ব্যাকআপ ডাটা" else "Backup Data",
+                    subtitle = if (isBangla) "ব্যাকআপ ফাইল সেভ করুন" else "Save backup file to Downloads",
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        viewModel.backupData(context)
+                    }
+                )
+                SettingsGroupDivider()
+                SettingsGroupRow(
+                    icon = Icons.Rounded.CloudDownload,
+                    title = if (isBangla) "রিস্টোর ডাটা" else "Restore Data",
+                    subtitle = if (isBangla) "ব্যাকআপ ফাইল রিস্টোর করুন" else "Restore from backup file",
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        restoreFileLauncher.launch("application/json")
+                    }
+                )
+            }
 
-            SettingsLinkCard(
-                icon = { SettingsIconBadge(Icons.Rounded.HistoryToggleOff) },
-                title = if (isBangla) "পরিবর্তন লগ" else "Changelog",
-                subtitle = if (isBangla) "সব ভার্সনের পরিবর্তন দেখুন" else "See what's new in each version",
-                onClick = {
-                    HapticHelper.vibrate(context)
-                    onNavigateToChangelog()
-                }
-            )
+            // Update group: check for updates / changelog
+            SettingsGroupCard(title = if (isBangla) "আপডেট" else "Update") {
+                SettingsGroupRow(
+                    icon = Icons.Rounded.SystemUpdateAlt,
+                    title = if (isBangla) "আপডেট চেক করুন" else "Check for updates",
+                    subtitle = if (isBangla) "নতুন ভার্সন খুঁজে ইনস্টল করুন" else "Find and install the latest version",
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateToUpdate()
+                    }
+                )
+                SettingsGroupDivider()
+                SettingsGroupRow(
+                    icon = Icons.Rounded.HistoryToggleOff,
+                    title = if (isBangla) "পরিবর্তন লগ" else "Changelog",
+                    subtitle = if (isBangla) "সব ভার্সনের পরিবর্তন দেখুন" else "See what's new in each version",
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateToChangelog()
+                    }
+                )
+            }
 
             // Destructive Actions Card
             Card(
@@ -294,8 +244,18 @@ fun SettingsScreen(
             }
 
             SettingsLinkCard(
+                icon = { SettingsIconBadge(Icons.Rounded.SettingsSuggest) },
+                title = if (isBangla) "টুলস" else "Miscellaneous",
+                subtitle = if (isBangla) "অতিরিক্ত ফিচারসমূহ" else "Add-on Features",
+                onClick = {
+                    HapticHelper.vibrate(context)
+                    onNavigateToSettingsDetail(SettingsSection.MISCELLANEOUS)
+                }
+            )
+
+            SettingsLinkCard(
                 icon = { SettingsIconBadge(Icons.Rounded.Info) },
-                title = if (isBangla) "ক্যাশ ফিগার সম্পর্কে" else "About Cash Figure",
+                title = if (isBangla) "লেখক" else "Author",
                 subtitle = if (isBangla) "অ্যাপ সম্পর্কে জানুন" else "Learn about the app",
                 onClick = {
                     HapticHelper.vibrate(context)
@@ -410,6 +370,64 @@ private fun SettingsIconBadge(
             tint = tint,
             modifier = Modifier.size(22.dp)
         )
+    }
+}
+
+@Composable
+private fun SettingsGroupCard(
+    title: String,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            content()
+        }
+    }
+}
+
+@Composable
+private fun SettingsGroupDivider() {
+    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+}
+
+@Composable
+private fun SettingsGroupRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SettingsIconBadge(icon)
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
+        }
     }
 }
 
