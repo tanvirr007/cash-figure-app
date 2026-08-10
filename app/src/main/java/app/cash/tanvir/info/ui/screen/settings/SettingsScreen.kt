@@ -1382,7 +1382,7 @@ private fun authenticateWithFingerprint(
 
     val promptInfo = BiometricPrompt.PromptInfo.Builder()
         .setTitle(if (isBangla) "ক্যাশ ফিগার অ্যাপ আনলক করুন" else "Unlock Cash Figure App")
-        .setSubtitle(if (isBangla) "আপনার ফিঙ্গারপ্রিন্ট স্ক্যান করুন" else "Scan your fingerprint")
+        .setSubtitle(if (isBangla) "আপনার পরিচয় যাচাই করুন" else "Verify it’s you")
         .setNegativeButtonText(if (isBangla) "বাতিল" else "Cancel")
         .build()
 
