@@ -114,6 +114,170 @@ All history transactions can be exported to a JSON backup file and restored on
 the same or another device. Backups are versioned inside the database schema,
 so restoring data created by an older app version stays safe.
 
+## Bangla Translation
+
+The Bangla (বাংলা) translation of Cash Figure is a **work in progress**. The app
+is bilingual (English + Bangla), but the Bangla side is not fully polished yet:
+
+- Some translations are correct and read naturally.
+- Others are not — awkward phrasing, inconsistent word choice, or spots that
+  still fall back to English.
+- The amount-in-words feature (`NumberToWordsConverter`) and the report
+  generators (PDF/CSV/TXT) also carry Bangla text that needs the same review.
+
+We are fixing these gradually, and it takes time to get every string right.
+If you are a native Bangla speaker and want to help, **you are very welcome** —
+contributions of any size help. You do not need to know Android; fixing a single
+string is a perfectly good contribution.
+
+### How to contribute (step by step)
+
+<details>
+<summary>Click to expand the in-depth guide</summary>
+
+There are no string resources. Every UI string is inline in the Kotlin source,
+written as `if (isBangla) "..." else "..."` — the Bangla text is the first
+argument, the English text is the second.
+
+**1. Find the string.** Grep for `isBangla` and open the file where the issue
+is, e.g.:
+
+```bash
+grep -rn "isBangla" --include="*.kt" app/src/main/java
+```
+
+**2. Fix the Bangla text.** Look at the example below — change only the Bangla
+part, never the English one, and keep the surrounding code untouched:
+
+```kotlin
+// settingsdetail/SettingsDetailScreen.kt
+SettingsSection.THEME -> if (isBangla) "অ্যাপ থিম" else "App Theme"
+```
+
+A rough or unnatural translation might be improved like this:
+
+```kotlin
+SettingsSection.THEME -> if (isBangla) "অ্যাপের থিম" else "App Theme"
+```
+
+**3. Verify it builds and renders.**
+
+```bash
+./gradlew assembleDebug
+```
+
+Then install the APK and switch the app to Bangla:
+**Settings > Language > বাংলা**, and open the screen you edited to confirm the
+corrected string shows. Also check the English side still renders — you must
+never change the English text.
+
+If you edited Bangla text in `NumberToWordsConverter.kt` (amounts in words), the
+unit tests for it must keep passing:
+
+```bash
+./gradlew test
+```
+
+**4. Submit a pull request.** Follow the repo's commit structure exactly:
+
+```text
+<type>: <short summary>
+
+- Bullet list of what changed
+- One line per change
+- Explain why, not just what
+
+TEST:
+- Run ./gradlew assembleDebug and confirm the app compiles.
+- <what you verified manually>
+
+----------------------------------------
+Change-Id: I<40-char hex>
+
+Signed-off-by: Your Name <you@example.com>
+```
+
+**The `<type>` prefix — which one do I use?**
+
+Every commit title starts with a lowercase type followed by a colon and a space.
+Pick the type that matches the *nature* of your change:
+
+| Type       | Use it when…                                                            | Example title                          |
+|------------|-------------------------------------------------------------------------|----------------------------------------|
+| `fix:`     | Correcting a wrong behavior — bad translation, crash, wrong layout       | `fix: correct Bangla theme label`      |
+| `feat:`    | Adding something new — a screen, a setting, a new feature                | `feat: add Bangla currency hint`       |
+| `style:`   | Cosmetic only — visuals, spacing, icons; no behavior change              | `style: align settings row icons`      |
+| `refactor:`| Rewriting code without changing what it does                             | `refactor: extract translation helper` |
+| `docs:`    | Documentation only — README, docs/, comments                             | `docs: document translation workflow`  |
+| `test:`    | Tests only — adding or updating unit tests                               | `test: cover Bangla word conversion`   |
+| `release:` | Auto-generated release commits (CI only, skip this)                      | `release: OTA manifest v3.4.0`         |
+
+For a translation fix, the answer is almost always **`fix:`**. When in doubt,
+`fix:` is safer than `feat:`.
+
+**The summary after the colon:**
+
+- Imperative mood ("correct", "add", "fix"), not past tense ("corrected", "fixed").
+- Lowercase start, no trailing period.
+- Concise — one line, under ~70 characters; details go in the bullets.
+
+**The bullets:**
+
+- One bullet per logical change, each starting with a hyphen `-`.
+- State what changed and why — someone reading the log in two years should
+  understand it without opening the diff.
+- Example for a translation PR:
+
+```text
+fix: correct Bangla theme label in settings
+
+- Change "অ্যাপ থিম" to "অ্যাপের থিম" for a natural possessive form.
+- The previous wording read as two loose words rather than a proper phrase.
+
+TEST:
+- Run ./gradlew assembleDebug and confirm the app compiles.
+- Open Settings > App Theme and confirm the corrected label shows in Bangla.
+```
+
+**The `TEST:` section:**
+
+- Starts with `TEST:` on its own line.
+- First bullet: the build command (it must pass).
+- Following bullets: what you manually verified on a device or emulator.
+- For a translation change, always confirm the string renders correctly in the
+  Bangla app language, not just that it compiles.
+
+**The footer:**
+
+Two required lines at the bottom, after a `----------------------------------------`
+separator:
+
+- `Change-Id: I<40-char hex>` — a unique ID for the commit. Pick any 40 hex
+  characters (0-9, a-f) not already used in the repo, or generate one with
+  `openssl rand -hex 20` and prefix it with `I`.
+- `Signed-off-by: Your Name <you@example.com>` — added automatically when you
+  commit with `git commit -s`.
+
+That is all — one fixed string, one PR. Every PR gets reviewed and merged
+gratefully.
+
+**Other places to check:** besides the UI screens under
+`app/src/main/java/app/cash/tanvir/info/ui/`, Bangla text also lives in
+`util/NumberToWordsConverter.kt` (number-to-words) and the generators in
+`util/report/` (PDF/CSV/TXT headers and labels). For a per-file map of every
+screen, see [docs/FILES.md](docs/FILES.md).
+
+**No-code way to help:** if you spot a wrong translation but don't want to touch
+code, simply open a GitHub issue at
+`https://github.com/tanvirr007/cash-figure-app/issues` — name the screen, paste
+the wrong Bangla text, and suggest the correct one. That alone is a valuable
+contribution.
+
+**PR etiquette:** don't force-push to your PR branch (just add new commits),
+and keep your branch rebased on the latest `main` before opening the PR.
+
+</details>
+
 ## License
 
 Distributed under the [MIT License](LICENSE) — use it, modify it, share it.
