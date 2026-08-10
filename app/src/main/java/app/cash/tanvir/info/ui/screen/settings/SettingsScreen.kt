@@ -1,8 +1,6 @@
 package app.cash.tanvir.info.ui.screen.settings
 
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,15 +23,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.CloudDownload
-import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.HistoryToggleOff
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.SettingsSuggest
 import androidx.compose.material.icons.rounded.SystemUpdateAlt
 import androidx.compose.material.icons.rounded.Translate
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,7 +35,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -61,7 +54,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsSection
-import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,14 +69,6 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isBangla = uiState.language == AppLanguage.BANGLA
-
-    val restoreFileLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        if (uri != null) {
-            viewModel.onRestoreFileSelected(uri)
-        }
-    }
 
     LaunchedEffect(uiState.statusMessage) {
         uiState.statusMessage?.let { msg ->
@@ -162,29 +146,6 @@ fun SettingsScreen(
                 )
             }
 
-            // Backup & Restore Card
-            SettingsGroupCard(title = if (isBangla) "ব্যাকআপ ও রিস্টোর" else "Backup & Restore") {
-                SettingsGroupRow(
-                    icon = Icons.Rounded.CloudUpload,
-                    title = if (isBangla) "ব্যাকআপ ডাটা" else "Backup Data",
-                    subtitle = if (isBangla) "ব্যাকআপ ফাইল সেভ করুন" else "Save backup file to Downloads",
-                    onClick = {
-                        HapticHelper.vibrate(context)
-                        viewModel.backupData(context)
-                    }
-                )
-                SettingsGroupDivider()
-                SettingsGroupRow(
-                    icon = Icons.Rounded.CloudDownload,
-                    title = if (isBangla) "রিস্টোর ডাটা" else "Restore Data",
-                    subtitle = if (isBangla) "ব্যাকআপ ফাইল রিস্টোর করুন" else "Restore from backup file",
-                    onClick = {
-                        HapticHelper.vibrate(context)
-                        restoreFileLauncher.launch("application/json")
-                    }
-                )
-            }
-
             // Update group: check for updates / changelog
             SettingsGroupCard(title = if (isBangla) "আপডেট" else "Update") {
                 SettingsGroupRow(
@@ -228,55 +189,6 @@ fun SettingsScreen(
                 }
             )
         }
-    }
-
-    // Warning Dialog for Restore Data — Restore stays disabled during the 15s countdown
-    if (uiState.showRestoreWarningDialog) {
-        val countdown = uiState.restoreCountdown
-        AlertDialog(
-            onDismissRequest = {
-                HapticHelper.vibrate(context)
-                viewModel.dismissRestoreDialog()
-            },
-            title = { Text(if (isBangla) "ডাটা রিস্টোর করবেন?" else "Restore Data?") },
-            text = {
-                Text(
-                    if (isBangla) "পুরানো বা পূর্বের ডাটা রিস্টোর করলে আপনার বর্তমান ডাটা ওভাররাইট বা ক্ষতিগ্রস্ত হতে পারে।"
-                    else "Restoring outdated/old data might corrupt or overwrite your present data."
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        HapticHelper.vibrate(context)
-                        viewModel.confirmRestore(context)
-                    },
-                    enabled = countdown <= 0
-                ) {
-                    Text(
-                        text = if (countdown > 0) {
-                            val secs = if (isBangla) {
-                                BanglaDigitConverter.toBangla(countdown)
-                            } else {
-                                countdown.toString()
-                            }
-                            if (isBangla) "রিস্টোর করুন ($secs)" else "Restore ($secs)"
-                        } else {
-                            if (isBangla) "রিস্টোর করুন" else "Restore"
-                        },
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                OutlinedButton(onClick = {
-                    HapticHelper.vibrate(context)
-                    viewModel.dismissRestoreDialog()
-                }) {
-                    Text(if (isBangla) "বাতিল" else "Cancel")
-                }
-            }
-        )
     }
 }
 

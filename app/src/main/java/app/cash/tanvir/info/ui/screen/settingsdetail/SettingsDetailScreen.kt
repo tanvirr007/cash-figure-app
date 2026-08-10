@@ -3,6 +3,8 @@ package app.cash.tanvir.info.ui.screen.settingsdetail
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.background
@@ -26,6 +28,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material.icons.rounded.CloudDownload
+import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -45,10 +49,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -79,6 +85,21 @@ fun SettingsDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isBangla = uiState.language == AppLanguage.BANGLA
+
+    val restoreFileLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        if (uri != null) {
+            viewModel.onRestoreFileSelected(uri)
+        }
+    }
+
+    LaunchedEffect(uiState.statusMessage) {
+        uiState.statusMessage?.let { msg ->
+            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+            viewModel.clearStatusMessage()
+        }
+    }
 
     val title = when (section) {
         SettingsSection.THEME -> if (isBangla) "অ্যাপ থিম" else "App Theme"
@@ -160,6 +181,18 @@ fun SettingsDetailScreen(
                         onIntensityChange = { v -> viewModel.setHapticFeedbackIntensity(v) }
                     )
                     Spacer(modifier = Modifier.height(16.dp))
+                    BackupRestoreCard(
+                        isBangla = isBangla,
+                        onBackup = {
+                            HapticHelper.vibrate(context)
+                            viewModel.backupData(context)
+                        },
+                        onRestore = {
+                            HapticHelper.vibrate(context)
+                            restoreFileLauncher.launch("application/json")
+                        }
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                     ResetAllCard(
                         isBangla = isBangla,
                         onClick = {
@@ -209,6 +242,55 @@ fun SettingsDetailScreen(
             }
         )
     }
+
+    // Warning Dialog for Restore Data — Restore stays disabled during the 15s countdown
+    if (uiState.showRestoreWarningDialog) {
+        val countdown = uiState.restoreCountdown
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                viewModel.dismissRestoreDialog()
+            },
+            title = { Text(if (isBangla) "ডাটা রিস্টোর করবেন?" else "Restore Data?") },
+            text = {
+                Text(
+                    if (isBangla) "পুরানো বা পূর্বের ডাটা রিস্টোর করলে আপনার বর্তমান ডাটা ওভাররাইট বা ক্ষতিগ্রস্ত হতে পারে।"
+                    else "Restoring outdated/old data might corrupt or overwrite your present data."
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        viewModel.confirmRestore(context)
+                    },
+                    enabled = countdown <= 0
+                ) {
+                    Text(
+                        text = if (countdown > 0) {
+                            val secs = if (isBangla) {
+                                BanglaDigitConverter.toBangla(countdown)
+                            } else {
+                                countdown.toString()
+                            }
+                            if (isBangla) "রিস্টোর করুন ($secs)" else "Restore ($secs)"
+                        } else {
+                            if (isBangla) "রিস্টোর করুন" else "Restore"
+                        },
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    viewModel.dismissRestoreDialog()
+                }) {
+                    Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -252,6 +334,82 @@ private fun ResetAllCard(isBangla: Boolean, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun BackupRestoreCard(
+    isBangla: Boolean,
+    onBackup: () -> Unit,
+    onRestore: () -> Unit
+) {
+    SettingsCard {
+        Text(
+            if (isBangla) "ব্যাকআপ ও রিস্টোর" else "Backup & Restore",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        BackupRestoreRow(
+            icon = Icons.Rounded.CloudUpload,
+            title = if (isBangla) "ব্যাকআপ ডাটা" else "Backup Data",
+            subtitle = if (isBangla) "ব্যাকআপ ফাইল সেভ করুন" else "Save backup file to Downloads",
+            onClick = onBackup
+        )
+        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+        BackupRestoreRow(
+            icon = Icons.Rounded.CloudDownload,
+            title = if (isBangla) "রিস্টোর ডাটা" else "Restore Data",
+            subtitle = if (isBangla) "ব্যাকআপ ফাইল রিস্টোর করুন" else "Restore from backup file",
+            onClick = onRestore
+        )
+    }
+}
+
+@Composable
+private fun BackupRestoreRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit
+) {
+    val context = LocalContext.current
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                HapticHelper.vibrate(context)
+                onClick()
+            }
+            .padding(vertical = 8.dp, horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f), shape = RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(22.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Column {
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
         }
     }
 }
