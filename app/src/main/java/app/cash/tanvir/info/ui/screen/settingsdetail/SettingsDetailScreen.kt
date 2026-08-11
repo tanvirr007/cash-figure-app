@@ -218,8 +218,9 @@ fun SettingsDetailScreen(
         }
     }
 
-    // Explicit Confirmation Dialog for Reset All Data
+    // Explicit Confirmation Dialog for Reset All Data — Reset stays disabled during the 10s countdown
     if (uiState.showResetConfirmationDialog) {
+        val resetCountdown = uiState.resetCountdown
         AlertDialog(
             onDismissRequest = {
                 HapticHelper.vibrate(context)
@@ -237,10 +238,20 @@ fun SettingsDetailScreen(
                     onClick = {
                         HapticHelper.vibrate(context)
                         viewModel.confirmResetAllData()
-                    }
+                    },
+                    enabled = resetCountdown <= 0
                 ) {
                     Text(
-                        if (isBangla) "রিসেট করুন" else "Reset",
+                        text = if (resetCountdown > 0) {
+                            val secs = if (isBangla) {
+                                BanglaDigitConverter.toBangla(resetCountdown)
+                            } else {
+                                resetCountdown.toString()
+                            }
+                            if (isBangla) "রিসেট করুন ($secs)" else "Reset ($secs)"
+                        } else {
+                            if (isBangla) "রিসেট করুন" else "Reset"
+                        },
                         fontWeight = FontWeight.Bold
                     )
                 }

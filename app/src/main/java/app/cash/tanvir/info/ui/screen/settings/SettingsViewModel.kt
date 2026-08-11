@@ -73,7 +73,8 @@ data class SettingsUiState(
     val updateErrorType: UpdateErrorType? = null,
     val updateErrorReason: String? = null,   // raw exception message (download failures)
     val isUpdateDialogVisible: Boolean = false,
-    val restoreCountdown: Int = 0            // seconds remaining before Restore enables (0 = enabled)
+    val restoreCountdown: Int = 0,           // seconds remaining before Restore enables (0 = enabled)
+    val resetCountdown: Int = 0              // seconds remaining before Reset enables (0 = enabled)
 )
 
 @HiltViewModel
@@ -88,6 +89,7 @@ class SettingsViewModel @Inject constructor(
 
     private var downloadJob: Job? = null
     private var restoreCountdownJob: Job? = null
+    private var resetCountdownJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -197,19 +199,32 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun openResetDialog() {
-        _uiState.update { it.copy(showResetConfirmationDialog = true) }
+        resetCountdownJob?.cancel()
+        _uiState.update { it.copy(showResetConfirmationDialog = true, resetCountdown = 10) }
+        resetCountdownJob = viewModelScope.launch {
+            while (_uiState.value.resetCountdown > 0) {
+                delay(1000)
+                _uiState.update { it.copy(resetCountdown = (it.resetCountdown - 1).coerceAtLeast(0)) }
+            }
+        }
     }
 
     fun dismissResetDialog() {
-        _uiState.update { it.copy(showResetConfirmationDialog = false) }
+        resetCountdownJob?.cancel()
+        resetCountdownJob = null
+        _uiState.update { it.copy(showResetConfirmationDialog = false, resetCountdown = 0) }
     }
 
     fun confirmResetAllData() {
+        if (_uiState.value.resetCountdown > 0) return
+        resetCountdownJob?.cancel()
+        resetCountdownJob = null
         viewModelScope.launch {
             settingsRepository.resetAllData()
             _uiState.update {
                 it.copy(
                     showResetConfirmationDialog = false,
+                    resetCountdown = 0,
                     statusMessage = "All data and settings have been reset."
                 )
             }
