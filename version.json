@@ -1,7 +1,7 @@
 {
-  "versionCode": 34,
-  "versionName": "v3.4.3",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.3/CashFigure.apk",
-  "changelog": "* **feat: streamline update flow screens** (d94be3b)\n  - Update available: title Update Available, structured info lines, remove Later button.\n  - Downloading: title Downloading, filled Cancel button pinned bottom-right.\n  - Download ready: drop trailing full stop, remove Later, pin Install bottom-right.\n  - Fix stuck Installing state: on resume after installer, converge to\n    UP_TO_DATE when installed or DOWNLOAD_READY when cancelled/failed.\n",
+  "versionCode": 35,
+  "versionName": "v3.4.4",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.4/CashFigure.apk",
+  "changelog": "* **style: show enable/disable app lock in biometric prompt** (1310667)\n  - Biometric prompt title and subtitle now reflect the toggle action.\n  - Enable: Enable App Lock; Disable: Disable App Lock (EN + Bangla).\n  - Direct disable without enrolled fingerprints stays unchanged.\n",
   "fileSize": 5141122
 }
