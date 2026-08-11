@@ -182,8 +182,14 @@ fun SettingsDetailScreen(
                         hapticIntensity = uiState.hapticFeedbackIntensity,
                         onBiometricToggle = onBiometricToggle,
                         onScreenshotToggle = { checked -> viewModel.setScreenshotBlockEnabled(checked) },
-                        onKeepScreenOnToggle = { checked -> viewModel.setKeepScreenOnEnabled(checked) },
-                        onDynamicColorToggle = { checked -> viewModel.setDynamicColorEnabled(checked) },
+                        onKeepScreenOnToggle = { checked ->
+                            HapticHelper.vibrate(context)
+                            viewModel.setKeepScreenOnEnabled(checked)
+                        },
+                        onDynamicColorToggle = { checked ->
+                            HapticHelper.vibrate(context)
+                            viewModel.setDynamicColorEnabled(checked)
+                        },
                         onHapticToggle = { checked -> viewModel.setHapticFeedbackEnabled(checked) },
                         onIntensityChange = { v -> viewModel.setHapticFeedbackIntensity(v) }
                     )
