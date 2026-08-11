@@ -138,6 +138,7 @@ fun SettingsScreen(
                     icon = Icons.Rounded.Translate,
                     title = if (isBangla) "ভাষা" else "Language",
                     subtitle = currentLangText,
+                    trailing = { LanguageRowBadge(uiState.language) },
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.LANGUAGE)
@@ -338,6 +339,23 @@ private fun ThemeSwatchDot(accent: Color) {
             .size(6.dp)
             .background(accent, RoundedCornerShape(2.dp))
     )
+}
+
+@Composable
+private fun LanguageRowBadge(lang: AppLanguage) {
+    Box(
+        modifier = Modifier
+            .size(30.dp)
+            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.14f), RoundedCornerShape(10.dp)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            if (lang == AppLanguage.ENGLISH) "EN" else "বাং",
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

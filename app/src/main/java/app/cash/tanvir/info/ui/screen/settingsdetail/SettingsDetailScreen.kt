@@ -52,9 +52,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
+import androidx.compose.material3.Scaffoldimport androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -109,23 +107,40 @@ fun SettingsDetailScreen(
 
     var pendingThemeName by rememberSaveable { mutableStateOf(uiState.theme.name) }
     val pendingTheme = AppTheme.valueOf(pendingThemeName)
-    var showDiscardThemeDialog by rememberSaveable { mutableStateOf(false) }
+    var pendingLangName by rememberSaveable { mutableStateOf(uiState.language.name) }
+    val pendingLang = AppLanguage.valueOf(pendingLangName)
+    var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
 
     val themeSelectionPending = section == SettingsSection.THEME && pendingTheme != uiState.theme
+    val langSelectionPending = section == SettingsSection.LANGUAGE && pendingLang != uiState.language
+    val selectionPending = when (section) {
+        SettingsSection.THEME -> themeSelectionPending
+        SettingsSection.LANGUAGE -> langSelectionPending
+        else -> false
+    }
     val requestLeave = {
-        if (themeSelectionPending) {
+        if (selectionPending) {
             HapticHelper.vibrate(context)
-            showDiscardThemeDialog = true
+            showDiscardDialog = true
         } else {
             onNavigateBack()
         }
     }
-    BackHandler(enabled = themeSelectionPending) { requestLeave() }
+    BackHandler(enabled = selectionPending) { requestLeave() }
 
-    val applyPendingTheme = {
+    val applyPendingSelection = {
         HapticHelper.vibrate(context)
-        viewModel.setTheme(pendingTheme)
-        Toast.makeText(context, if (isBangla) "থিম প্রয়োগ করা হয়েছে" else "Theme applied", Toast.LENGTH_SHORT).show()
+        when (section) {
+            SettingsSection.THEME -> {
+                viewModel.setTheme(pendingTheme)
+                Toast.makeText(context, if (isBangla) "থিম প্রয়োগ করা হয়েছে" else "Theme applied", Toast.LENGTH_SHORT).show()
+            }
+            SettingsSection.LANGUAGE -> {
+                viewModel.setLanguage(pendingLang)
+                Toast.makeText(context, if (isBangla) "ভাষা প্রয়োগ করা হয়েছে" else "Language applied", Toast.LENGTH_SHORT).show()
+            }
+            else -> Unit
+        }
         onNavigateBack()
     }
 
@@ -196,15 +211,15 @@ fun SettingsDetailScreen(
             )
         },
         bottomBar = {
-            if (section == SettingsSection.THEME) {
+            if (section == SettingsSection.THEME || section == SettingsSection.LANGUAGE) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.surface,
                     shadowElevation = 8.dp
                 ) {
                     Button(
-                        onClick = applyPendingTheme,
-                        enabled = themeSelectionPending,
+                        onClick = applyPendingSelection,
+                        enabled = selectionPending,
                         modifier = Modifier
                             .fillMaxWidth()
                             .navigationBarsPadding()
@@ -250,10 +265,18 @@ fun SettingsDetailScreen(
                 SettingsSection.LANGUAGE -> {
                     SectionHeader(
                         title = if (isBangla) "ভাষা" else "Language",
-                        subtitle = if (isBangla) "অ্যাপের ভাষা বেছে নিন" else "Choose the app language"
+                        subtitle = if (isBangla) "একটি ভাষা বেছে নিন, নমুনা দেখুন, তারপর প্রয়োগ করুন" else "Pick a language, preview it, then apply"
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    LanguageContent(isBangla, uiState.language, viewModel::setLanguage)
+                    LanguageContent(
+                        isBangla = isBangla,
+                        appliedLang = uiState.language,
+                        pendingLang = pendingLang,
+                        onSelect = { lang ->
+                            HapticHelper.vibrate(context)
+                            pendingLangName = lang.name
+                        }
+                    )
                 }
                 SettingsSection.CURRENCY -> {
                     SectionHeader(
@@ -420,25 +443,26 @@ fun SettingsDetailScreen(
         )
     }
 
-    // Discard dialog for the Theme picker — shown when leaving with an unapplied selection
-    if (showDiscardThemeDialog) {
+    // Discard dialog for the Theme/Language pickers — shown when leaving with an unapplied selection
+    if (showDiscardDialog) {
         AlertDialog(
             onDismissRequest = {
                 HapticHelper.vibrate(context)
-                showDiscardThemeDialog = false
+                showDiscardDialog = false
             },
-            title = { Text(if (isBangla) "থিম পরিবর্তন বাতিল করবেন?" else "Discard theme changes?") },
+            title = { Text(if (isBangla) "পরিবর্তন বাতিল করবেন?" else "Discard changes?") },
             text = {
                 Text(
-                    if (isBangla) "আপনার নির্বাচিত থিম এখনো প্রয়োগ করা হয়নি।"
-                    else "Your selected theme has not been applied yet."
+                    if (isBangla) "আপনার নির্বাচন এখনো প্রয়োগ করা হয়নি।"
+                    else "Your selection has not been applied yet."
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
                     HapticHelper.vibrate(context)
-                    showDiscardThemeDialog = false
+                    showDiscardDialog = false
                     pendingThemeName = uiState.theme.name
+                    pendingLangName = uiState.language.name
                     onNavigateBack()
                 }) {
                     Text(
@@ -451,7 +475,7 @@ fun SettingsDetailScreen(
             dismissButton = {
                 TextButton(onClick = {
                     HapticHelper.vibrate(context)
-                    showDiscardThemeDialog = false
+                    showDiscardDialog = false
                 }) {
                     Text(if (isBangla) "সম্পাদনা চালিয়ে যান" else "Keep editing")
                 }
@@ -832,37 +856,100 @@ private fun PreviewNoteRow(scheme: ColorScheme) {
 @Composable
 private fun LanguageContent(
     isBangla: Boolean,
-    current: AppLanguage,
+    appliedLang: AppLanguage,
+    pendingLang: AppLanguage,
     onSelect: (AppLanguage) -> Unit
 ) {
-    val context = LocalContext.current
-    SettingsCard {
-        AppLanguage.entries.forEach { lang ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        HapticHelper.vibrate(context)
-                        onSelect(lang)
-                    }
-                    .padding(vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(selected = current == lang, onClick = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (lang == AppLanguage.ENGLISH) "English" else "বাংলা",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        LanguageOptionCard(
+            isBangla = isBangla,
+            lang = AppLanguage.ENGLISH,
+            selected = pendingLang == AppLanguage.ENGLISH,
+            onClick = { onSelect(AppLanguage.ENGLISH) }
+        )
+        LanguageOptionCard(
+            isBangla = isBangla,
+            lang = AppLanguage.BANGLA,
+            selected = pendingLang == AppLanguage.BANGLA,
+            onClick = { onSelect(AppLanguage.BANGLA) }
+        )
+        LanguageSampleCard(isBangla = isBangla, appliedLang = appliedLang, previewLang = pendingLang)
     }
-    Spacer(modifier = Modifier.height(16.dp))
-    LanguageSampleCard(isBangla = isBangla)
 }
 
 @Composable
-private fun LanguageSampleCard(isBangla: Boolean) {
+private fun LanguageOptionCard(
+    isBangla: Boolean,
+    lang: AppLanguage,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val containerColor = if (selected) {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
+    val borderColor = if (selected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.outlineVariant
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(containerColor)
+            .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = if (lang == AppLanguage.ENGLISH) "English" else "বাংলা",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = when (lang) {
+                    AppLanguage.ENGLISH -> if (isBangla) "পুরো অ্যাপে ইংরেজি ব্যবহার করুন" else "Use English throughout the app"
+                    AppLanguage.BANGLA -> if (isBangla) "পুরো অ্যাপে বাংলা ব্যবহার করুন" else "Use Bangla throughout the app"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (selected) {
+            Spacer(modifier = Modifier.width(10.dp))
+            Icon(
+                imageVector = Icons.Rounded.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun LanguageSampleCard(
+    isBangla: Boolean,
+    appliedLang: AppLanguage,
+    previewLang: AppLanguage
+) {
+    val previewIsBangla = previewLang == AppLanguage.BANGLA
+    val amount = if (previewIsBangla) {
+        "মোট: ৳ " + CurrencyFormatter.formatNumber(12345L, useBengaliDigits = true)
+    } else {
+        "Total: ৳ " + CurrencyFormatter.formatNumber(12345L)
+    }
+    val words = if (previewIsBangla) {
+        NumberToWordsConverter.toBangla(12345L)
+    } else {
+        NumberToWordsConverter.toEnglish(12345L)
+    }
+    val currentLangText = if (appliedLang == AppLanguage.ENGLISH) "English" else "বাংলা"
     SettingsCard {
         Text(
             if (isBangla) "নমুনা" else "Sample",
@@ -871,18 +958,32 @@ private fun LanguageSampleCard(isBangla: Boolean) {
         )
         Spacer(modifier = Modifier.height(8.dp))
         LanguageSampleRow(
-            badge = "EN",
+            badge = if (previewIsBangla) "বাং" else "EN",
             badgeColor = MaterialTheme.colorScheme.primary,
-            amount = "Total: ৳ " + CurrencyFormatter.formatNumber(12345L),
-            words = NumberToWordsConverter.toEnglish(12345L)
+            amount = amount,
+            words = words
         )
-        HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-        LanguageSampleRow(
-            badge = "বাং",
-            badgeColor = MaterialTheme.colorScheme.secondary,
-            amount = "মোট: ৳ " + CurrencyFormatter.formatNumber(12345L, useBengaliDigits = true),
-            words = NumberToWordsConverter.toBangla(12345L)
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
         )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                if (isBangla) "বর্তমান ভাষা" else "Current language",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                currentLangText,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
     }
 }
 
