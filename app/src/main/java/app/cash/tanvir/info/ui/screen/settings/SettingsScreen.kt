@@ -7,6 +7,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -331,7 +332,7 @@ private fun ThemeRowSwatch(theme: AppTheme) {
 }
 
 @Composable
-private fun ThemeSwatchDot(accent: Color) {
+private fun BoxScope.ThemeSwatchDot(accent: Color) {
     Box(
         modifier = Modifier
             .align(Alignment.TopStart)
