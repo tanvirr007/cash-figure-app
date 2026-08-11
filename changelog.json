@@ -1,6 +1,23 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.11",
+      "publishedAt": "2026-08-11T22:01:45Z",
+      "items": [
+        {
+          "title": "feat: support device screen lock fallback for app lock",
+          "subItems": [
+            "Allow enabling app lock with fingerprint OR device screen lock",
+            "Drop the negative button from both prompts (required by the API when",
+            "Add a fail-closed canAuthenticate pre-check before showing the unlock",
+            "Reset isAppLocked in onStart when the app lock preference is disabled",
+            "Let the SettingsDetail toggle disable the lock even when no",
+            "Update README, docs/FILES.md, and AGENTS.md to describe the app lock"
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.10",
       "publishedAt": "2026-08-11T19:37:13Z",
       "items": [
