@@ -1,6 +1,55 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.6",
+      "publishedAt": "2026-08-11T09:47:08Z",
+      "items": [
+        {
+          "title": "fix: import rounded icons in settings detail",
+          "subItems": [
+            "Add Rounded imports for BrightnessHigh, Fingerprint, Palette,",
+            "Drop now-unused Filled imports for Fingerprint, Security, Vibration."
+          ]
+        },
+        {
+          "title": "style: group and unify miscellaneous settings icons",
+          "subItems": [
+            "Group App Lock and Screen Protection under Security label.",
+            "Group Keep Screen On, Dynamic Color, and Haptic Feedback under",
+            "Switch toggle icons to Rounded variants to match the rest of the screen."
+          ]
+        },
+        {
+          "title": "feat: add dynamic color toggle",
+          "subItems": [
+            "Store dynamicColorEnabled in DataStore, default true.",
+            "Expose flow and setter through repository and SettingsViewModel.",
+            "Add Dynamic Color row to Miscellaneous settings (EN + Bangla).",
+            "Use dynamic colors on Android 12+ regardless of theme when enabled."
+          ]
+        },
+        {
+          "title": "feat: add keep screen on toggle",
+          "subItems": [
+            "Store keepScreenOnEnabled in DataStore, default true.",
+            "Expose flow and setter through repository and SettingsViewModel.",
+            "Add Keep Screen On row to Miscellaneous settings (EN + Bangla).",
+            "Apply FLAG_KEEP_SCREEN_ON reactively in MainActivity instead of hardcoding."
+          ]
+        },
+        {
+          "title": "docs: improve README and add contributing guide",
+          "subItems": [
+            "Update README route count to 8 and correct the network-call claim.",
+            "Add screenshots section with placeholder slots and captions.",
+            "Add Download link, Windows build notes, and App Lock feature bullet.",
+            "Add settled-terms glossary to the Bangla translation section.",
+            "Add CONTRIBUTING.md, translation issue template, and PR template."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.5",
       "publishedAt": "2026-08-11T08:19:04Z",
       "items": [
