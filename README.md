@@ -37,6 +37,15 @@ optional in-app update check.
 
 [Download the latest APK](https://github.com/tanvirr007/cash-figure-app/releases/latest)
 
+> **Note:** Since Cash Figure is not distributed through the Google Play Store,
+> Google Play Protect may show a warning when you install or update the APK — it
+> blocks unverified apps from outside the Play Store to prevent security risks
+> like data theft or malware. This is a standard check for any app not published
+> on Play, and it does not mean the app is unsafe: Cash Figure is 100% open
+> source (MIT license), so anyone can audit the source code at any time. If you
+> see the prompt, you can safely tap **"Install anyway"** (or **"More details" →
+> "Install anyway"**).
+
 ## Screenshots
 
 <!-- TODO: replace placeholder images in assets/screenshots/ with real screenshots -->

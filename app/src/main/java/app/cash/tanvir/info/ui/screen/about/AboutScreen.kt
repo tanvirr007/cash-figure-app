@@ -165,6 +165,21 @@ fun AboutScreen(
                 textAlign = TextAlign.Center
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f))
+            ) {
+                Text(
+                    text = "Google Play Protect may flag this app as unverified since it's not on the Play Store. The app is safe and open source — tap \"Install anyway\" if warned.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
 
             Card(
