@@ -9,11 +9,13 @@ import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,6 +44,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
@@ -57,6 +60,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
@@ -69,8 +74,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
+import app.cash.tanvir.info.ui.theme.PrimaryDark
+import app.cash.tanvir.info.ui.theme.PrimaryLight
+import app.cash.tanvir.info.ui.theme.SurfaceDark
+import app.cash.tanvir.info.ui.theme.SurfaceLight
 import app.cash.tanvir.info.util.BanglaDigitConverter
+import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.HapticHelper
+import app.cash.tanvir.info.util.NumberToWordsConverter
 
 /**
  * Full-page detail view for the Theme / Language / Currency / Miscellaneous
@@ -164,13 +175,34 @@ fun SettingsDetailScreen(
                 .verticalScroll(rememberScrollState())
         ) {
             when (section) {
-                SettingsSection.THEME -> ThemeContent(isBangla, uiState.theme, viewModel::setTheme)
-                SettingsSection.LANGUAGE -> LanguageContent(isBangla, uiState.language, viewModel::setLanguage)
-                SettingsSection.CURRENCY -> CurrencyContent(
-                    isBangla = isBangla,
-                    disabledDenominations = uiState.disabledDenominations,
-                    onToggle = { value, checked -> viewModel.toggleDenomination(value, checked) }
-                )
+                SettingsSection.THEME -> {
+                    SectionHeader(
+                        title = if (isBangla) "অ্যাপ থিম" else "App Theme",
+                        subtitle = if (isBangla) "অ্যাপটি কেমন দেখাবে তা বেছে নিন" else "Choose how the app looks"
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    ThemeContent(isBangla, uiState.theme, viewModel::setTheme)
+                }
+                SettingsSection.LANGUAGE -> {
+                    SectionHeader(
+                        title = if (isBangla) "ভাষা" else "Language",
+                        subtitle = if (isBangla) "অ্যাপের ভাষা বেছে নিন" else "Choose the app language"
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    LanguageContent(isBangla, uiState.language, viewModel::setLanguage)
+                }
+                SettingsSection.CURRENCY -> {
+                    SectionHeader(
+                        title = if (isBangla) "নোটসমূহ" else "Currency",
+                        subtitle = if (isBangla) "ক্যালকুলেটরের হোমপেজে কোন নোট দেখাবে তা বেছে নিন" else "Pick which notes show on the calculator homepage"
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    CurrencyContent(
+                        isBangla = isBangla,
+                        disabledDenominations = uiState.disabledDenominations,
+                        onToggle = { value, checked -> viewModel.toggleDenomination(value, checked) }
+                    )
+                }
                 SettingsSection.MISCELLANEOUS -> {
                     MiscellaneousContent(
                         isBangla = isBangla,
@@ -463,7 +495,10 @@ private fun ThemeContent(
 ) {
     val context = LocalContext.current
     SettingsCard {
-        AppTheme.entries.forEach { theme ->
+        AppTheme.entries.forEachIndexed { index, theme ->
+            if (index > 0) {
+                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -476,6 +511,8 @@ private fun ThemeContent(
             ) {
                 RadioButton(selected = current == theme, onClick = null)
                 Spacer(modifier = Modifier.width(8.dp))
+                ThemeSwatch(theme)
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
                     text = when (theme) {
                         AppTheme.SYSTEM -> if (isBangla) "সিস্টেম থিম" else "Follow System"
@@ -485,6 +522,114 @@ private fun ThemeContent(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+        }
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+    ThemePreviewCard(isBangla = isBangla, current = current)
+}
+
+@Composable
+private fun ThemeSwatch(theme: AppTheme) {
+    val swatchShape = RoundedCornerShape(8.dp)
+    Box(
+        modifier = Modifier
+            .size(width = 44.dp, height = 28.dp)
+            .clip(swatchShape)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, swatchShape)
+    ) {
+        when (theme) {
+            AppTheme.SYSTEM -> Row(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(SurfaceLight)
+                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(SurfaceDark)
+                )
+            }
+            AppTheme.LIGHT -> Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceLight)
+            )
+            AppTheme.DARK -> Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceDark)
+            )
+        }
+    }
+}
+
+@Composable
+private fun ThemePreviewCard(isBangla: Boolean, current: AppTheme) {
+    val currentThemeText = when (current) {
+        AppTheme.SYSTEM -> if (isBangla) "সিস্টেম থিম" else "Follow System"
+        AppTheme.LIGHT -> if (isBangla) "লাইট থিম" else "Light Theme"
+        AppTheme.DARK -> if (isBangla) "ডার্ক থিম" else "Dark Theme"
+    }
+    SettingsCard {
+        Text(
+            if (isBangla) "প্রিভিউ" else "Preview",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    "৳",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    if (isBangla) "৫,০০০ টাকা" else "৳ 5,000",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    if (isBangla) "১০ × ৫০০ টাকার নোট" else "10 × 500 Tk notes",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+        ) {
+            Text(
+                if (isBangla) "বর্তমান থিম" else "Current theme",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                currentThemeText,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
     }
 }
@@ -515,6 +660,75 @@ private fun LanguageContent(
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
+        }
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+    LanguageSampleCard(isBangla = isBangla)
+}
+
+@Composable
+private fun LanguageSampleCard(isBangla: Boolean) {
+    SettingsCard {
+        Text(
+            if (isBangla) "নমুনা" else "Sample",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        LanguageSampleRow(
+            badge = "EN",
+            badgeColor = MaterialTheme.colorScheme.primary,
+            amount = "Total: ৳ " + CurrencyFormatter.formatNumber(12345L),
+            words = NumberToWordsConverter.toEnglish(12345L)
+        )
+        HorizontalDivider(modifier = Modifier.padding(vertical = 6.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+        LanguageSampleRow(
+            badge = "বাং",
+            badgeColor = MaterialTheme.colorScheme.secondary,
+            amount = "মোট: ৳ " + CurrencyFormatter.formatNumber(12345L, useBengaliDigits = true),
+            words = NumberToWordsConverter.toBangla(12345L)
+        )
+    }
+}
+
+@Composable
+private fun LanguageSampleRow(
+    badge: String,
+    badgeColor: Color,
+    amount: String,
+    words: String
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(color = badgeColor.copy(alpha = 0.14f), shape = RoundedCornerShape(10.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                badge,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Bold,
+                color = badgeColor
+            )
+        }
+        Spacer(modifier = Modifier.width(10.dp))
+        Column {
+            Text(
+                amount,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                words,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
@@ -573,6 +787,87 @@ private fun CurrencyContent(
                 Switch(checked = isEnabled, onCheckedChange = null)
             }
         }
+    }
+    Spacer(modifier = Modifier.height(16.dp))
+    CurrencySummaryCard(isBangla = isBangla, disabledDenominations = disabledDenominations)
+}
+
+@Composable
+private fun CurrencySummaryCard(isBangla: Boolean, disabledDenominations: Set<Int>) {
+    val togglableValues = listOf(1, 2, 5, 10, 20, 50)
+    val enabledCount = togglableValues.count { it !in disabledDenominations }
+    val enabledText = if (isBangla) {
+        "${BanglaDigitConverter.toBangla(enabledCount)} / ${BanglaDigitConverter.toBangla(6)} চালু"
+    } else {
+        "$enabledCount of 6 enabled"
+    }
+    SettingsCard {
+        Text(
+            if (isBangla) "সারসংক্ষেপ" else "Summary",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                if (isBangla) "ছোট নোট (১–৫০ টাকা)" else "Small notes (1–50 Tk)",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Text(
+                enabledText,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        LinearProgressIndicator(
+            progress = { enabledCount / 6f },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp)),
+            color = MaterialTheme.colorScheme.primary,
+            trackColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            if (isBangla) "১০০, ২০০, ৫০০ ও ১০০০ টাকার নোট সবসময় হোমপেজে থাকবে।"
+            else "100, 200, 500 and 1000 Tk notes always stay on the homepage.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        )
+        if (enabledCount == 0) {
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                if (isBangla) "এই নোটগুলো হোমপেজে দেখাবে না।" else "These notes won't show on the homepage.",
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(title: String, subtitle: String) {
+    Column(modifier = Modifier.padding(horizontal = 4.dp)) {
+        Text(
+            title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        Text(
+            subtitle,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        )
     }
 }
 
