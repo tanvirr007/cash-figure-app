@@ -575,8 +575,9 @@ private fun MiscellaneousContent(
 ) {
     val context = LocalContext.current
     SettingsCard {
+        GroupLabel(text = if (isBangla) "নিরাপত্তা" else "Security")
         ToggleRow(
-            icon = { Icon(Icons.Default.Fingerprint, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
+            icon = { Icon(Icons.Rounded.Fingerprint, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
             title = if (isBangla) "অ্যাপ লক" else "App Lock",
             subtitle = if (isBangla) "অ্যাপ লক চালু করুন" else "Enable app lock",
             checked = biometricEnabled,
@@ -584,7 +585,7 @@ private fun MiscellaneousContent(
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
         ToggleRow(
-            icon = { Icon(Icons.Default.Security, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
+            icon = { Icon(Icons.Rounded.Security, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
             title = if (isBangla) "স্ক্রিন সুরক্ষা" else "Screen Protection",
             subtitle = if (isBangla) "স্ক্রিন ক্যাপচার বন্ধ রাখুন" else "Prevent screen capture",
             checked = screenshotBlockEnabled,
@@ -594,8 +595,9 @@ private fun MiscellaneousContent(
             }
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+        GroupLabel(text = if (isBangla) "ডিসপ্লে ও ফিডব্যাক" else "Display & Feedback")
         ToggleRow(
-            icon = { Icon(Icons.Default.BrightnessHigh, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
+            icon = { Icon(Icons.Rounded.BrightnessHigh, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
             title = if (isBangla) "স্ক্রিন চালু রাখুন" else "Keep Screen On",
             subtitle = if (isBangla) "বেশি ব্যাটারি খরচ হয়" else "Uses more battery",
             checked = keepScreenOnEnabled,
@@ -603,7 +605,7 @@ private fun MiscellaneousContent(
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
         ToggleRow(
-            icon = { Icon(Icons.Default.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
+            icon = { Icon(Icons.Rounded.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
             title = if (isBangla) "ডায়নামিক কালার" else "Dynamic Color",
             subtitle = if (isBangla) "ম্যাটেরিয়াল ইউ কালার ব্যবহার করুন (Android 12+)" else "Use Material You colors (Android 12+)",
             checked = dynamicColorEnabled,
@@ -611,7 +613,7 @@ private fun MiscellaneousContent(
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
         ToggleRow(
-            icon = { Icon(Icons.Default.Vibration, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
+            icon = { Icon(Icons.Rounded.Vibration, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
             title = if (isBangla) "হ্যাপটিক ফিডব্যাক" else "Haptic Feedback",
             subtitle = if (isBangla) "বাটন ও টগলে কম্পন সক্রিয় করুন" else "Vibrate on interactions",
             checked = hapticEnabled,
@@ -654,6 +656,17 @@ private fun MiscellaneousContent(
             }
         }
     }
+}
+
+@Composable
+private fun GroupLabel(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodySmall,
+        fontWeight = FontWeight.SemiBold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+    )
 }
 
 @Composable
