@@ -1,7 +1,7 @@
 {
-  "versionCode": 39,
-  "versionName": "v3.4.7",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.7/CashFigure.apk",
-  "changelog": "* **fix: decide OTA updates by version name, not code alone** (99e4011)\n  - Add VersionUtil with semver compare and update-decision helper.\n  - Manifest version name now wins over a higher installed version code,\n    so workflow re-run builds can never hide a newer release.\n  - Equal or unparseable names fall back to the code comparison.\n  - Route SettingsViewModel and MainActivity checks through the helper.\n  - Cover bumps, v-prefix, multi-digit, downgrade guard, and re-run cases.\n",
+  "versionCode": 40,
+  "versionName": "v3.4.8",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.8/CashFigure.apk",
+  "changelog": "* **fix: haptic feedback on keep screen on and dynamic color toggles** (5235aba)\n  - Add HapticHelper.vibrate to keep screen on toggle.\n  - Add HapticHelper.vibrate to dynamic color toggle.\n  - Both toggles now match the screen protection feedback pattern.\n",
   "fileSize": 5141122
 }
