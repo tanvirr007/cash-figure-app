@@ -175,11 +175,13 @@ fun SettingsDetailScreen(
                         biometricEnabled = uiState.biometricEnabled,
                         screenshotBlockEnabled = uiState.screenshotBlockEnabled,
                         keepScreenOnEnabled = uiState.keepScreenOnEnabled,
+                        dynamicColorEnabled = uiState.dynamicColorEnabled,
                         hapticEnabled = uiState.hapticFeedbackEnabled,
                         hapticIntensity = uiState.hapticFeedbackIntensity,
                         onBiometricToggle = onBiometricToggle,
                         onScreenshotToggle = { checked -> viewModel.setScreenshotBlockEnabled(checked) },
                         onKeepScreenOnToggle = { checked -> viewModel.setKeepScreenOnEnabled(checked) },
+                        onDynamicColorToggle = { checked -> viewModel.setDynamicColorEnabled(checked) },
                         onHapticToggle = { checked -> viewModel.setHapticFeedbackEnabled(checked) },
                         onIntensityChange = { v -> viewModel.setHapticFeedbackIntensity(v) }
                     )
@@ -561,11 +563,13 @@ private fun MiscellaneousContent(
     biometricEnabled: Boolean,
     screenshotBlockEnabled: Boolean,
     keepScreenOnEnabled: Boolean,
+    dynamicColorEnabled: Boolean,
     hapticEnabled: Boolean,
     hapticIntensity: Float,
     onBiometricToggle: (Boolean) -> Unit,
     onScreenshotToggle: (Boolean) -> Unit,
     onKeepScreenOnToggle: (Boolean) -> Unit,
+    onDynamicColorToggle: (Boolean) -> Unit,
     onHapticToggle: (Boolean) -> Unit,
     onIntensityChange: (Float) -> Unit
 ) {
@@ -596,6 +600,14 @@ private fun MiscellaneousContent(
             subtitle = if (isBangla) "বেশি ব্যাটারি খরচ হয়" else "Uses more battery",
             checked = keepScreenOnEnabled,
             onToggle = onKeepScreenOnToggle
+        )
+        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+        ToggleRow(
+            icon = { Icon(Icons.Default.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
+            title = if (isBangla) "ডায়নামিক কালার" else "Dynamic Color",
+            subtitle = if (isBangla) "ম্যাটেরিয়াল ইউ কালার ব্যবহার করুন (Android 12+)" else "Use Material You colors (Android 12+)",
+            checked = dynamicColorEnabled,
+            onToggle = onDynamicColorToggle
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
         ToggleRow(

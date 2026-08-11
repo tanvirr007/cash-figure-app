@@ -61,6 +61,7 @@ data class SettingsUiState(
     val hapticFeedbackEnabled: Boolean = false,
     val hapticFeedbackIntensity: Float = 0.5f,
     val keepScreenOnEnabled: Boolean = true,
+    val dynamicColorEnabled: Boolean = true,
     val lastSuccessfulCheck: Long? = null,
     val updateStatus: UpdateStatus = UpdateStatus.IDLE,
     val updateManifest: UpdateManifest? = null,
@@ -129,6 +130,11 @@ class SettingsViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            settingsRepository.getDynamicColorEnabled().collect { enabled ->
+                _uiState.update { it.copy(dynamicColorEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
             settingsRepository.getLastSuccessfulCheck().collect { timestamp ->
                 _uiState.update { it.copy(lastSuccessfulCheck = timestamp) }
             }
@@ -180,6 +186,12 @@ class SettingsViewModel @Inject constructor(
     fun setKeepScreenOnEnabled(enabled: Boolean) {
         viewModelScope.launch {
             settingsRepository.setKeepScreenOnEnabled(enabled)
+        }
+    }
+
+    fun setDynamicColorEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setDynamicColorEnabled(enabled)
         }
     }
 

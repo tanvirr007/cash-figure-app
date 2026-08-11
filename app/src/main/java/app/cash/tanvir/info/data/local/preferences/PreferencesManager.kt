@@ -37,6 +37,7 @@ class PreferencesManager @Inject constructor(
         val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
         val HAPTIC_FEEDBACK_INTENSITY = floatPreferencesKey("haptic_feedback_intensity")
         val KEEP_SCREEN_ON_ENABLED = booleanPreferencesKey("keep_screen_on_enabled")
+        val DYNAMIC_COLOR_ENABLED = booleanPreferencesKey("dynamic_color_enabled")
         val LAST_KNOWN_VERSION = longPreferencesKey("last_known_version")
         val LAST_SUCCESSFUL_CHECK = longPreferencesKey("last_successful_check")
     }
@@ -78,6 +79,10 @@ class PreferencesManager @Inject constructor(
 
     val keepScreenOnEnabledFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
         prefs[Keys.KEEP_SCREEN_ON_ENABLED] ?: true
+    }
+
+    val dynamicColorEnabledFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.DYNAMIC_COLOR_ENABLED] ?: true
     }
 
     val lastKnownVersionFlow: Flow<Long?> = context.dataStore.data.map { prefs ->
@@ -145,6 +150,12 @@ class PreferencesManager @Inject constructor(
     suspend fun setKeepScreenOnEnabled(enabled: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[Keys.KEEP_SCREEN_ON_ENABLED] = enabled
+        }
+    }
+
+    suspend fun setDynamicColorEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.DYNAMIC_COLOR_ENABLED] = enabled
         }
     }
 

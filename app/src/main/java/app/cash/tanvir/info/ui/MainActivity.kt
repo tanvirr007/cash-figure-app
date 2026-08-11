@@ -1,5 +1,6 @@
 package app.cash.tanvir.info.ui
 
+import android.os.Build
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.Toast
@@ -78,6 +79,7 @@ class MainActivity : FragmentActivity() {
             val hapticEnabled by preferencesManager.hapticFeedbackEnabledFlow.collectAsState(initial = false)
             val hapticIntensity by preferencesManager.hapticFeedbackIntensityFlow.collectAsState(initial = 0.5f)
             val keepScreenOnEnabled by preferencesManager.keepScreenOnEnabledFlow.collectAsState(initial = true)
+            val dynamicColorEnabled by preferencesManager.dynamicColorEnabledFlow.collectAsState(initial = true)
 
             // Reactively apply/remove FLAG_KEEP_SCREEN_ON
             LaunchedEffect(keepScreenOnEnabled) {
@@ -93,7 +95,7 @@ class MainActivity : FragmentActivity() {
                 AppTheme.DARK -> true
                 AppTheme.SYSTEM -> isSystemInDarkTheme()
             }
-            val useDynamic = appTheme == AppTheme.SYSTEM
+            val useDynamic = dynamicColorEnabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             val isBangla = language == AppLanguage.BANGLA
 
             // Reactively apply/remove FLAG_SECURE
