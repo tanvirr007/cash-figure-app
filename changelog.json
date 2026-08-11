@@ -1,6 +1,45 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.9",
+      "publishedAt": "2026-08-11T18:15:59Z",
+      "items": [
+        {
+          "title": "feat: fill empty settings detail pages",
+          "subItems": [
+            "Add section headers with descriptions to theme, language and currency pages.",
+            "Add two-tone theme swatches and a preview card to the theme page.",
+            "Add a sample card showing English and Bangla examples to the language page.",
+            "Add a summary card with progress bar and warning to the currency page."
+          ]
+        },
+        {
+          "title": "docs: explain Google Play Protect warning for APK installs",
+          "subItems": [
+            "Add a note under README Download about Play Protect flagging",
+            "Clarify the app is safe and open source with \"Install anyway\" guidance.",
+            "Add a short bilingual-free warning note to the About screen."
+          ]
+        },
+        {
+          "title": "style: uniform icon badges in miscellaneous settings",
+          "subItems": [
+            "Wrap toggle row icons in a rounded background box like other rows.",
+            "Size all miscellaneous icons to 20dp to match settings icon badges."
+          ]
+        },
+        {
+          "title": "feat: 10s countdown on reset all data button",
+          "subItems": [
+            "Mirror the restore countdown pattern for the reset confirmation dialog.",
+            "Reset button stays disabled for 10 seconds after the dialog opens.",
+            "Button label shows remaining seconds (Bangla digits in Bangla mode).",
+            "Cancel dismisses the dialog and cancels the countdown job."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.8",
       "publishedAt": "2026-08-11T10:34:05Z",
       "items": [
