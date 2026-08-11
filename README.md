@@ -80,8 +80,8 @@ optional in-app update check.
 - **In-App OTA Updates** — silent update check on launch, in-app APK download with
   live progress, and a bilingual (EN/BN) changelog.
 - **Screen On Mode** — keeps the screen awake during active counting sessions.
-- **Biometric App Lock** — lock the app with your fingerprint; enable/disable
-  from settings (EN + Bangla).
+- **App Lock** — lock the app with your fingerprint or device screen lock
+  (PIN/pattern/password); enable/disable from settings (EN + Bangla).
 - **No Ads** — zero advertisements, zero in-app purchases, zero paywalls.
 - **Open Source** — full source under the MIT license; audit it, fork it, improve it.
 - **Privacy First** — 100% offline with no analytics and no tracking. The only
@@ -109,7 +109,7 @@ app/src/main/java/app/cash/tanvir/info/
 ├── data/              # Room DB, DataStore, repository implementations
 ├── di/                # Hilt modules (DatabaseModule, RepositoryModule)
 ├── ui/                # Single-activity Compose app
-│   ├── MainActivity.kt    # Splash, biometric lock, FLAG_SECURE, launch OTA check
+│   ├── MainActivity.kt    # Splash, app lock, FLAG_SECURE, launch OTA check
 │   ├── navigation/        # NavGraph — 8 routes
 │   │                      #   (Calculator, History, Report, Settings,
 │   │                      #    Changelog, Update, About, Settings Detail)

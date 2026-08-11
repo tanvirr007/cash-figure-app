@@ -20,7 +20,7 @@ app/src/main/java/app/cash/tanvir/info/
 │   └── repository/                       SheetRepositoryImpl, SettingsRepositoryImpl, UpdateRepositoryImpl
 ├── di/                                   DatabaseModule, RepositoryModule (Hilt)
 ├── ui/
-│   ├── MainActivity.kt                   Entry point: splash, biometric lock, FLAG_SECURE, launch OTA check
+│   ├── MainActivity.kt                   Entry point: splash, app lock, FLAG_SECURE, launch OTA check
 │   ├── navigation/NavGraph.kt            7 routes
 │   ├── theme/                            Color.kt, Theme.kt, Type.kt (Tiro Bangla font)
 │   └── screen/
@@ -99,7 +99,7 @@ app/src/test/java/app/cash/tanvir/info/util/  6 JUnit test classes
 ### ui/ — Activity, Navigation, Theme
 | File | Lines | Purpose |
 |---|---|---|
-| `ui/MainActivity.kt` | 333 | Single activity: splash, edge-to-edge, dark/dynamic theme, FLAG_SECURE (screenshot block), FLAG_KEEP_SCREEN_ON, biometric lock (40s background timeout), one-shot launch OTA check + tap/back-proof update dialog, update-complete toast, `LockScreen` composable |
+| `ui/MainActivity.kt` | 400 | Single activity: splash, edge-to-edge, dark/dynamic theme, FLAG_SECURE (screenshot block), FLAG_KEEP_SCREEN_ON, biometric lock (40s background timeout, fingerprint or device screen lock, fail-closed pre-check, auto-unlock when no auth method), one-shot launch OTA check + tap/back-proof update dialog, update-complete toast, `LockScreen` composable |
 | `ui/navigation/NavGraph.kt` | 130 | Sealed `Screen`: Calculator (start) / History / Report (`report/{sheetId}?fromSave=`) / Changelog / Update / About / SettingsDetail (`settings-detail?section=`) / Settings |
 | `ui/theme/Color.kt` | 51 | Teal/Amber M3 palettes, light/dark schemes |
 | `ui/theme/Theme.kt` | 97 | `CashFigureTheme`, dynamic color support |
@@ -118,7 +118,7 @@ app/src/test/java/app/cash/tanvir/info/util/  6 JUnit test classes
 | `changelog/ChangelogViewModel.kt` | 66 | Changelog state (`ChangelogStatus`), language flow, `loadChangelog()` fetch |
 | `update/UpdateScreen.kt` | — | Full-screen Pixel-style updater: checking / up-to-date (green check) / available (name, version, build, size, changelog) / downloading ("Getting file…" + bytes + cancel) / ready / error; shares `SettingsViewModel` via `activityViewModels()` |
 | `about/AboutScreen.kt` | — | Full-screen about: bundled GitHub avatar, author name, tagline + brief, links (website/github/telegram/email/source code), dynamic-year footer |
-| `settingsdetail/SettingsDetailScreen.kt` | — | Full-page Theme / Language / Currency / Miscellaneous detail view (shared `SettingsViewModel`, live updates, biometric toggle for App Lock) |
+| `settingsdetail/SettingsDetailScreen.kt` | 1392 | Full-page Theme / Language / Currency / Miscellaneous detail view (shared `SettingsViewModel`, live updates, biometric toggle for App Lock — fingerprint or device screen lock) |
 | `settingsdetail/SettingsSection.kt` | — | `SettingsSection` enum (THEME/LANGUAGE/CURRENCY/MISCELLANEOUS) with route params |
 | `report/ReportScreen.kt` | 425 | Report view: sheet summary, notes, export (PDF/CSV/TXT), print, share |
 | `report/ReportViewModel.kt` | 134 | Report state, export/print/share orchestration |

@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -269,6 +270,8 @@ class MainActivity : FragmentActivity() {
                 if (isFirstLaunch || (backgroundTimestamp != 0L && elapsed > 40000)) {
                     isAppLocked = true
                 }
+            } else {
+                isAppLocked = false
             }
             isFirstLaunch = false
         }
@@ -282,6 +285,32 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun showBiometricPrompt(isBangla: Boolean) {
+        val biometricManager = BiometricManager.from(this)
+        when (biometricManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        )) {
+            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED,
+            BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
+                val msg = if (isBangla)
+                    "এই ডিভাইসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ নেই।"
+                else
+                    "No fingerprint or screen lock set up on this device."
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+                isAppLocked = false
+                return
+            }
+            BiometricManager.BIOMETRIC_SUCCESS -> Unit
+            else -> {
+                val msg = if (isBangla)
+                    "বায়োমেট্রিক অথেন্টিকেশন এই মুহূর্তে অনুপলব্ধ।"
+                else
+                    "Biometric authentication is currently unavailable."
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+                return
+            }
+        }
+
         if (promptInProgress) return
         promptInProgress = true
         val executor = ContextCompat.getMainExecutor(this)
@@ -290,6 +319,15 @@ class MainActivity : FragmentActivity() {
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                     super.onAuthenticationError(errorCode, errString)
                     promptInProgress = false
+                    when (errorCode) {
+                        BiometricPrompt.ERROR_USER_CANCELED,
+                        BiometricPrompt.ERROR_CANCELED -> Unit
+                        BiometricPrompt.ERROR_LOCKOUT,
+                        BiometricPrompt.ERROR_LOCKOUT_PERMANENT,
+                        BiometricPrompt.ERROR_TIMEOUT,
+                        BiometricPrompt.ERROR_HW_UNAVAILABLE ->
+                            Toast.makeText(this@MainActivity, errString, Toast.LENGTH_LONG).show()
+                    }
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -306,7 +344,10 @@ class MainActivity : FragmentActivity() {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle(if (isBangla) "ক্যাশ ফিগার অ্যাপ আনলক করুন" else "Unlock Cash Figure App")
             .setSubtitle(if (isBangla) "আপনার পরিচয় যাচাই করুন" else "Verify it’s you")
-            .setNegativeButtonText(if (isBangla) "বাতিল" else "Cancel")
+            .setAllowedAuthenticators(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            )
             .build()
 
         biometricPrompt.authenticate(promptInfo)

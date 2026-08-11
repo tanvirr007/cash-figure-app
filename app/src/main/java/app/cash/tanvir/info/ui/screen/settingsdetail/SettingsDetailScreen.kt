@@ -173,7 +173,10 @@ fun SettingsDetailScreen(
     val onBiometricToggle: (Boolean) -> Unit = { checked ->
         HapticHelper.vibrate(context)
         val biometricManager = BiometricManager.from(context)
-        when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
+        when (biometricManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        )) {
             BiometricManager.BIOMETRIC_SUCCESS -> {
                 authenticateWithFingerprint(context, isBangla, enabling = checked) {
                     viewModel.setBiometricEnabled(checked)
@@ -181,15 +184,19 @@ fun SettingsDetailScreen(
             }
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                 if (checked) {
-                    val msg = if (isBangla) "অনুগ্রহ করে আপনার ডিভাইসের সেটিংসে ফিঙ্গারপ্রিন্ট সেটআপ করুন。" else "Please set up fingerprint/biometrics in your device settings."
+                    val msg = if (isBangla) "অনুগ্রহ করে আপনার ডিভাইসের সেটিংসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ করুন।" else "Please set up a screen lock (PIN/pattern/password) or fingerprint in your device settings."
                     Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                 } else {
                     viewModel.setBiometricEnabled(false)
                 }
             }
             else -> {
-                val msg = if (isBangla) "এই ডিভাইসে ফিঙ্গারপ্রিন্ট সেটআপ নেই।" else "No fingerprint set up on this device."
-                Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                if (checked) {
+                    val msg = if (isBangla) "এই ডিভাইসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ নেই।" else "No fingerprint or screen lock set up on this device."
+                    Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                } else {
+                    viewModel.setBiometricEnabled(false)
+                }
             }
         }
     }
@@ -1375,7 +1382,10 @@ private fun authenticateWithFingerprint(
                 if (isBangla) "অ্যাপ লক বন্ধ করতে নিশ্চিত করুন" else "Confirm to disable app lock"
             }
         )
-        .setNegativeButtonText(if (isBangla) "বাতিল" else "Cancel")
+        .setAllowedAuthenticators(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        )
         .build()
 
     biometricPrompt.authenticate(promptInfo)

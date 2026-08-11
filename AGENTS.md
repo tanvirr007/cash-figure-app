@@ -38,7 +38,7 @@ Rules: data flows one way (Screen → ViewModel → Repository → DB/DataStore)
 - `ui/screen/settings/SettingsScreen.kt` (~1800 lines) and `SettingsViewModel.kt` (~520)
 - `ui/screen/calculator/CalculatorScreen.kt` (~623 lines)
 - `util/report/PdfReportGenerator.kt` (~320 lines)
-- `ui/MainActivity.kt` — biometric lock, FLAG_SECURE, edge-to-edge, screen-on logic, launch OTA check
+- `ui/MainActivity.kt` — app lock (fingerprint or device screen lock), FLAG_SECURE, edge-to-edge, screen-on logic, launch OTA check
 
 ## Testing
 
