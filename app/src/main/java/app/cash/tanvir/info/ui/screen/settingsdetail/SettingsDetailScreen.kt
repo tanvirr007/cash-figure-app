@@ -38,6 +38,7 @@ import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -271,7 +272,11 @@ fun SettingsDetailScreen(
                         HapticHelper.vibrate(context)
                         viewModel.confirmResetAllData()
                     },
-                    enabled = resetCountdown <= 0
+                    enabled = resetCountdown <= 0,
+                    colors = ButtonDefaults.buttonColors(
+                        disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.35f),
+                        disabledContentColor = MaterialTheme.colorScheme.onError
+                    )
                 ) {
                     Text(
                         text = if (resetCountdown > 0) {
@@ -320,7 +325,11 @@ fun SettingsDetailScreen(
                         HapticHelper.vibrate(context)
                         viewModel.confirmRestore(context)
                     },
-                    enabled = countdown <= 0
+                    enabled = countdown <= 0,
+                    colors = ButtonDefaults.buttonColors(
+                        disabledContainerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.35f),
+                        disabledContentColor = MaterialTheme.colorScheme.onError
+                    )
                 ) {
                     Text(
                         text = if (countdown > 0) {
