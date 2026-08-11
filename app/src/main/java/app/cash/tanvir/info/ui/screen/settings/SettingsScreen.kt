@@ -3,6 +3,7 @@ package app.cash.tanvir.info.ui.screen.settings
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,6 +48,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -55,6 +58,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsSection
+import app.cash.tanvir.info.ui.theme.PrimaryDark
+import app.cash.tanvir.info.ui.theme.PrimaryLight
+import app.cash.tanvir.info.ui.theme.SurfaceDark
+import app.cash.tanvir.info.ui.theme.SurfaceLight
 import app.cash.tanvir.info.util.HapticHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,6 +127,7 @@ fun SettingsScreen(
                     icon = Icons.Rounded.AutoAwesome,
                     title = if (isBangla) "অ্যাপ থিম" else "App Theme",
                     subtitle = currentThemeText,
+                    trailing = { ThemeRowSwatch(uiState.theme) },
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.THEME)
@@ -247,6 +255,7 @@ private fun SettingsGroupRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
+    trailing: (@Composable () -> Unit)? = null,
     onClick: () -> Unit
 ) {
     Row(
@@ -258,7 +267,7 @@ private fun SettingsGroupRow(
     ) {
         SettingsIconBadge(icon)
         Spacer(modifier = Modifier.width(10.dp))
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 title,
                 style = MaterialTheme.typography.bodyMedium,
@@ -270,7 +279,65 @@ private fun SettingsGroupRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
+        trailing?.invoke()
     }
+}
+
+@Composable
+private fun ThemeRowSwatch(theme: AppTheme) {
+    val swatchShape = RoundedCornerShape(8.dp)
+    Box(
+        modifier = Modifier
+            .size(width = 40.dp, height = 26.dp)
+            .clip(swatchShape)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, swatchShape)
+    ) {
+        when (theme) {
+            AppTheme.SYSTEM -> Row(modifier = Modifier.fillMaxSize()) {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(SurfaceLight)
+                ) {
+                    ThemeSwatchDot(PrimaryLight)
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .background(SurfaceDark)
+                ) {
+                    ThemeSwatchDot(PrimaryDark)
+                }
+            }
+            AppTheme.LIGHT -> Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceLight)
+            ) {
+                ThemeSwatchDot(PrimaryLight)
+            }
+            AppTheme.DARK -> Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(SurfaceDark)
+            ) {
+                ThemeSwatchDot(PrimaryDark)
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThemeSwatchDot(accent: Color) {
+    Box(
+        modifier = Modifier
+            .align(Alignment.TopStart)
+            .padding(5.dp)
+            .size(6.dp)
+            .background(accent, RoundedCornerShape(2.dp))
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

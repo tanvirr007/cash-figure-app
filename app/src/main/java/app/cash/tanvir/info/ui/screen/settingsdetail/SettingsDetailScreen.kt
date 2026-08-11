@@ -3,6 +3,7 @@ package app.cash.tanvir.info.ui.screen.settingsdetail
 import android.content.Context
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
@@ -11,14 +12,16 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,6 +32,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.BrightnessHigh
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.DeleteSweep
@@ -51,14 +55,19 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -75,10 +84,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
-import app.cash.tanvir.info.ui.theme.PrimaryDark
-import app.cash.tanvir.info.ui.theme.PrimaryLight
-import app.cash.tanvir.info.ui.theme.SurfaceDark
-import app.cash.tanvir.info.ui.theme.SurfaceLight
+import app.cash.tanvir.info.ui.theme.cashFigureColorScheme
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.HapticHelper
@@ -100,6 +106,28 @@ fun SettingsDetailScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isBangla = uiState.language == AppLanguage.BANGLA
+
+    var pendingThemeName by rememberSaveable { mutableStateOf(uiState.theme.name) }
+    val pendingTheme = AppTheme.valueOf(pendingThemeName)
+    var showDiscardThemeDialog by rememberSaveable { mutableStateOf(false) }
+
+    val themeSelectionPending = section == SettingsSection.THEME && pendingTheme != uiState.theme
+    val requestLeave = {
+        if (themeSelectionPending) {
+            HapticHelper.vibrate(context)
+            showDiscardThemeDialog = true
+        } else {
+            onNavigateBack()
+        }
+    }
+    BackHandler(enabled = themeSelectionPending) { requestLeave() }
+
+    val applyPendingTheme = {
+        HapticHelper.vibrate(context)
+        viewModel.setTheme(pendingTheme)
+        Toast.makeText(context, if (isBangla) "থিম প্রয়োগ করা হয়েছে" else "Theme applied", Toast.LENGTH_SHORT).show()
+        onNavigateBack()
+    }
 
     val restoreFileLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -154,7 +182,7 @@ fun SettingsDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.vibrate(context)
-                        onNavigateBack()
+                        requestLeave()
                     }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
@@ -166,6 +194,32 @@ fun SettingsDetailScreen(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
             )
+        },
+        bottomBar = {
+            if (section == SettingsSection.THEME) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surface,
+                    shadowElevation = 8.dp
+                ) {
+                    Button(
+                        onClick = applyPendingTheme,
+                        enabled = themeSelectionPending,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                            .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .height(52.dp),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text(
+                            text = if (isBangla) "প্রয়োগ করুন" else "Apply",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
         }
     ) { padding ->
         Column(
@@ -179,10 +233,19 @@ fun SettingsDetailScreen(
                 SettingsSection.THEME -> {
                     SectionHeader(
                         title = if (isBangla) "অ্যাপ থিম" else "App Theme",
-                        subtitle = if (isBangla) "অ্যাপটি কেমন দেখাবে তা বেছে নিন" else "Choose how the app looks"
+                        subtitle = if (isBangla) "একটি থিম বেছে নিন, প্রিভিউ দেখুন, তারপর প্রয়োগ করুন" else "Pick a theme, preview it, then apply"
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    ThemeContent(isBangla, uiState.theme, viewModel::setTheme)
+                    ThemeContent(
+                        isBangla = isBangla,
+                        appliedTheme = uiState.theme,
+                        pendingTheme = pendingTheme,
+                        dynamicColorEnabled = uiState.dynamicColorEnabled,
+                        onSelect = { theme ->
+                            HapticHelper.vibrate(context)
+                            pendingThemeName = theme.name
+                        }
+                    )
                 }
                 SettingsSection.LANGUAGE -> {
                     SectionHeader(
@@ -356,6 +419,45 @@ fun SettingsDetailScreen(
             }
         )
     }
+
+    // Discard dialog for the Theme picker — shown when leaving with an unapplied selection
+    if (showDiscardThemeDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                showDiscardThemeDialog = false
+            },
+            title = { Text(if (isBangla) "থিম পরিবর্তন বাতিল করবেন?" else "Discard theme changes?") },
+            text = {
+                Text(
+                    if (isBangla) "আপনার নির্বাচিত থিম এখনো প্রয়োগ করা হয়নি।"
+                    else "Your selected theme has not been applied yet."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    showDiscardThemeDialog = false
+                    pendingThemeName = uiState.theme.name
+                    onNavigateBack()
+                }) {
+                    Text(
+                        if (isBangla) "পরিবর্তন বাতিল করুন" else "Discard",
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    showDiscardThemeDialog = false
+                }) {
+                    Text(if (isBangla) "সম্পাদনা চালিয়ে যান" else "Keep editing")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -499,85 +601,103 @@ private fun SettingsCard(content: @Composable () -> Unit) {
 @Composable
 private fun ThemeContent(
     isBangla: Boolean,
-    current: AppTheme,
+    appliedTheme: AppTheme,
+    pendingTheme: AppTheme,
+    dynamicColorEnabled: Boolean,
     onSelect: (AppTheme) -> Unit
 ) {
-    val context = LocalContext.current
-    SettingsCard {
-        AppTheme.entries.forEachIndexed { index, theme ->
-            if (index > 0) {
-                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-            }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        HapticHelper.vibrate(context)
-                        onSelect(theme)
-                    }
-                    .padding(vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(selected = current == theme, onClick = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                ThemeSwatch(theme)
-                Spacer(modifier = Modifier.width(10.dp))
-                Text(
-                    text = when (theme) {
-                        AppTheme.SYSTEM -> if (isBangla) "সিস্টেম থিম" else "Follow System"
-                        AppTheme.LIGHT -> if (isBangla) "লাইট থিম" else "Light Theme"
-                        AppTheme.DARK -> if (isBangla) "ডার্ক থিম" else "Dark Theme"
-                    },
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        AppTheme.entries.forEach { theme ->
+            ThemeOptionCard(
+                isBangla = isBangla,
+                theme = theme,
+                selected = theme == pendingTheme,
+                onClick = { onSelect(theme) }
+            )
         }
+        ThemePreviewCard(
+            isBangla = isBangla,
+            appliedTheme = appliedTheme,
+            previewTheme = pendingTheme,
+            dynamicColorEnabled = dynamicColorEnabled
+        )
     }
-    Spacer(modifier = Modifier.height(16.dp))
-    ThemePreviewCard(isBangla = isBangla, current = current)
 }
 
 @Composable
-private fun ThemeSwatch(theme: AppTheme) {
-    val swatchShape = RoundedCornerShape(8.dp)
-    Box(
+private fun ThemeOptionCard(
+    isBangla: Boolean,
+    theme: AppTheme,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val containerColor = if (selected) {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
+    val borderColor = if (selected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.outlineVariant
+    }
+    Row(
         modifier = Modifier
-            .size(width = 44.dp, height = 28.dp)
-            .clip(swatchShape)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, swatchShape)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(containerColor)
+            .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        when (theme) {
-            AppTheme.SYSTEM -> Row(modifier = Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .background(SurfaceLight)
-                )
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .background(SurfaceDark)
-                )
-            }
-            AppTheme.LIGHT -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(SurfaceLight)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = when (theme) {
+                    AppTheme.SYSTEM -> if (isBangla) "সিস্টেম থিম" else "Follow System"
+                    AppTheme.LIGHT -> if (isBangla) "লাইট থিম" else "Light Theme"
+                    AppTheme.DARK -> if (isBangla) "ডার্ক থিম" else "Dark Theme"
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
             )
-            AppTheme.DARK -> Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(SurfaceDark)
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = when (theme) {
+                    AppTheme.SYSTEM -> if (isBangla) "ডিভাইসের থিম অনুসরণ করুন" else "Match your device's theme"
+                    AppTheme.LIGHT -> if (isBangla) "সবসময় লাইট থিম ব্যবহার করুন" else "Always use the light theme"
+                    AppTheme.DARK -> if (isBangla) "সবসময় ডার্ক থিম ব্যবহার করুন" else "Always use the dark theme"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (selected) {
+            Spacer(modifier = Modifier.width(10.dp))
+            Icon(
+                imageVector = Icons.Rounded.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp)
             )
         }
     }
 }
 
 @Composable
-private fun ThemePreviewCard(isBangla: Boolean, current: AppTheme) {
-    val currentThemeText = when (current) {
+private fun ThemePreviewCard(
+    isBangla: Boolean,
+    appliedTheme: AppTheme,
+    previewTheme: AppTheme,
+    dynamicColorEnabled: Boolean
+) {
+    val previewIsDark = when (previewTheme) {
+        AppTheme.LIGHT -> false
+        AppTheme.DARK -> true
+        AppTheme.SYSTEM -> isSystemInDarkTheme()
+    }
+    val scheme = cashFigureColorScheme(isDark = previewIsDark, dynamicColor = dynamicColorEnabled)
+    val currentThemeText = when (appliedTheme) {
         AppTheme.SYSTEM -> if (isBangla) "সিস্টেম থিম" else "Follow System"
         AppTheme.LIGHT -> if (isBangla) "লাইট থিম" else "Light Theme"
         AppTheme.DARK -> if (isBangla) "ডার্ক থিম" else "Dark Theme"
@@ -589,44 +709,92 @@ private fun ThemePreviewCard(isBangla: Boolean, current: AppTheme) {
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .clip(RoundedCornerShape(14.dp))
+                .background(scheme.background)
+                .border(1.dp, scheme.outline.copy(alpha = 0.3f), RoundedCornerShape(14.dp))
+                .padding(12.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(36.dp)
-                    .background(color = MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .height(24.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(scheme.primary)
             ) {
-                Text(
-                    "৳",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(horizontal = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(scheme.onPrimary, RoundedCornerShape(4.dp))
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(6.dp)
+                            .background(scheme.onPrimary.copy(alpha = 0.6f), RoundedCornerShape(3.dp))
+                    )
+                }
             }
-            Spacer(modifier = Modifier.width(10.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    if (isBangla) "৫,০০০ টাকা" else "৳ 5,000",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    if (isBangla) "১০ × ৫০০ টাকার নোট" else "10 × 500 Tk notes",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(scheme.primaryContainer)
+                    .padding(10.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .background(scheme.primary, RoundedCornerShape(9.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "৳",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onPrimary
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            if (isBangla) "৫,০০০ টাকা" else "৳ 5,000",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = scheme.onPrimaryContainer
+                        )
+                        Text(
+                            if (isBangla) "১০ × ৫০০ টাকার নোট" else "10 × 500 Tk notes",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = scheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
+                }
             }
+            Spacer(modifier = Modifier.height(10.dp))
+            PreviewNoteRow(scheme)
+            Spacer(modifier = Modifier.height(6.dp))
+            PreviewNoteRow(scheme)
         }
-        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 10.dp),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
+        )
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
                 if (isBangla) "বর্তমান থিম" else "Current theme",
@@ -640,6 +808,24 @@ private fun ThemePreviewCard(isBangla: Boolean, current: AppTheme) {
                 color = MaterialTheme.colorScheme.primary
             )
         }
+    }
+}
+
+@Composable
+private fun PreviewNoteRow(scheme: ColorScheme) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .background(scheme.tertiary, RoundedCornerShape(5.dp))
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(10.dp)
+                .background(scheme.surfaceVariant, RoundedCornerShape(5.dp))
+        )
     }
 }
 

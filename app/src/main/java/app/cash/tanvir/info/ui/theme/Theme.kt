@@ -3,6 +3,7 @@ package app.cash.tanvir.info.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -14,7 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val LightColorScheme = lightColorScheme(
+internal val LightColorScheme = lightColorScheme(
     primary = PrimaryLight,
     onPrimary = OnPrimaryLight,
     primaryContainer = PrimaryContainerLight,
@@ -37,7 +38,7 @@ private val LightColorScheme = lightColorScheme(
     outline = OutlineLight
 )
 
-private val DarkColorScheme = darkColorScheme(
+internal val DarkColorScheme = darkColorScheme(
     primary = PrimaryDark,
     onPrimary = OnPrimaryDark,
     primaryContainer = PrimaryContainerDark,
@@ -60,21 +61,31 @@ private val DarkColorScheme = darkColorScheme(
     outline = OutlineDark
 )
 
+/**
+ * Resolves the app color scheme exactly like [CashFigureTheme] does:
+ * Material You dynamic palette on Android 12+ when [dynamicColor] is
+ * enabled, otherwise the static teal/amber brand palette. Shared with the
+ * Settings theme picker so its preview always matches the real result.
+ */
+@Composable
+internal fun cashFigureColorScheme(isDark: Boolean, dynamicColor: Boolean): ColorScheme {
+    return if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val context = LocalContext.current
+        if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+    } else if (isDark) {
+        DarkColorScheme
+    } else {
+        LightColorScheme
+    }
+}
+
 @Composable
 fun CashFigureTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        // Material You dynamic colors on Android 12+
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = cashFigureColorScheme(isDark = darkTheme, dynamicColor = dynamicColor)
 
     val view = LocalView.current
     if (!view.isInEditMode) {
