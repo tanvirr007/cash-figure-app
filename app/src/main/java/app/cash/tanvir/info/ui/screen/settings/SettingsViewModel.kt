@@ -502,4 +502,19 @@ class SettingsViewModel @Inject constructor(
     fun onInstallLaunched() {
         _uiState.update { it.copy(updateStatus = UpdateStatus.INSTALLING) }
     }
+
+    /**
+     * Called when the activity resumes after the system installer closes.
+     * Converges the stuck INSTALLING state: installed -> UP_TO_DATE,
+     * cancelled/failed -> DOWNLOAD_READY (APK is still downloaded).
+     */
+    fun onReturnedFromInstaller(installedCode: Long) {
+        if (_uiState.value.updateStatus != UpdateStatus.INSTALLING) return
+        val manifest = _uiState.value.updateManifest
+        if (manifest != null && installedCode >= manifest.versionCode) {
+            _uiState.update { it.copy(updateStatus = UpdateStatus.UP_TO_DATE) }
+        } else {
+            _uiState.update { it.copy(updateStatus = UpdateStatus.DOWNLOAD_READY) }
+        }
+    }
 }

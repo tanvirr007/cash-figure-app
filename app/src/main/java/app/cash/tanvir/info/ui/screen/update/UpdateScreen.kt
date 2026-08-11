@@ -39,10 +39,10 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -50,9 +50,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
 import app.cash.tanvir.info.domain.model.UpdateManifest
@@ -134,6 +137,19 @@ fun UpdateScreen(
         }
     }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME &&
+                viewModel.uiState.value.updateStatus == UpdateStatus.INSTALLING
+            ) {
+                viewModel.onReturnedFromInstaller(getInstalledVersion(context).second)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
         topBar = {
@@ -189,6 +205,31 @@ fun UpdateScreen(
                             )
                         }
 
+                        UpdateStatus.DOWNLOADING -> {
+                            DownloadingContent(
+                                isBangla = isBangla,
+                                downloadedBytes = uiState.downloadedBytes,
+                                totalBytes = uiState.totalBytes,
+                                progress = uiState.downloadProgress,
+                                onCancel = {
+                                    HapticHelper.vibrate(context)
+                                    viewModel.cancelDownload()
+                                    onNavigateBack()
+                                }
+                            )
+                        }
+
+                        UpdateStatus.DOWNLOAD_READY -> {
+                            DownloadReadyContent(
+                                isBangla = isBangla,
+                                versionName = uiState.updateManifest?.versionName.orEmpty(),
+                                onInstall = {
+                                    HapticHelper.vibrate(context)
+                                    uiState.downloadedUpdate?.let { requestInstall(it) }
+                                }
+                            )
+                        }
+
                         else -> {
                             Column(
                                 modifier = Modifier
@@ -208,44 +249,9 @@ fun UpdateScreen(
                                                 onDownload = {
                                                     HapticHelper.vibrate(context)
                                                     viewModel.downloadUpdate()
-                                                },
-                                                onLater = {
-                                                    HapticHelper.vibrate(context)
-                                                    viewModel.dismissUpdateDialog()
-                                                    onNavigateBack()
                                                 }
                                             )
                                         }
-                                    }
-
-                                    UpdateStatus.DOWNLOADING -> {
-                                        DownloadingContent(
-                                            isBangla = isBangla,
-                                            downloadedBytes = uiState.downloadedBytes,
-                                            totalBytes = uiState.totalBytes,
-                                            progress = uiState.downloadProgress,
-                                            onCancel = {
-                                                HapticHelper.vibrate(context)
-                                                viewModel.cancelDownload()
-                                                onNavigateBack()
-                                            }
-                                        )
-                                    }
-
-                                    UpdateStatus.DOWNLOAD_READY -> {
-                                        DownloadReadyContent(
-                                            isBangla = isBangla,
-                                            versionName = uiState.updateManifest?.versionName.orEmpty(),
-                                            onLater = {
-                                                HapticHelper.vibrate(context)
-                                                viewModel.dismissUpdateDialog()
-                                                onNavigateBack()
-                                            },
-                                            onInstall = {
-                                                HapticHelper.vibrate(context)
-                                                uiState.downloadedUpdate?.let { requestInstall(it) }
-                                            }
-                                        )
                                     }
 
                                     UpdateStatus.INSTALLING -> {
@@ -264,7 +270,7 @@ fun UpdateScreen(
                                         )
                                     }
 
-                                    UpdateStatus.UP_TO_DATE -> Unit
+                                    else -> Unit
                                 }
                             }
                         }
@@ -394,14 +400,13 @@ private fun UpToDateContent(
 private fun UpdateAvailableContent(
     isBangla: Boolean,
     manifest: UpdateManifest,
-    onDownload: () -> Unit,
-    onLater: () -> Unit
+    onDownload: () -> Unit
 ) {
     Spacer(modifier = Modifier.height(40.dp))
     UpdateIcon()
     Spacer(modifier = Modifier.height(28.dp))
     Text(
-        if (isBangla) "ক্যাশ ফিগার আপডেট উপলব্ধ" else "Cash Figure update available",
+        if (isBangla) "আপডেট উপলব্ধ" else "Update Available",
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Medium
     )
@@ -412,13 +417,19 @@ private fun UpdateAvailableContent(
     val sizeText = manifest.fileSize?.let { SizeFormatter.format(it) }
     Text(
         text = buildString {
-            append(if (isBangla) "ক্যাশ ফিগার v$versionDisplay" else "Cash Figure v$versionDisplay")
-            if (sizeText != null) append(" · $sizeText")
+            append(if (isBangla) "ক্যাশ ফিগার" else "Cash Figure")
+            if (sizeText != null) {
+                append("\n")
+                append(if (isBangla) "আকার: ${BanglaDigitConverter.toBangla(sizeText)}" else "Size: $sizeText")
+            }
+            append("\n")
+            append(if (isBangla) "উপলব্ধ ভার্সন: $versionDisplay" else "Available version: $versionDisplay")
+            append("\n\n")
             append(
                 if (isBangla) {
-                    " এখন উপলব্ধ। এই আপডেটে নতুন ফিচার ও উন্নতি যুক্ত হয়েছে। ডাউনলোড করে ইনস্টল করুন।"
+                    "নতুন ফিচার ও বাগ ফিক্সের জন্য এখনই আপডেট করুন"
                 } else {
-                    " is now available. This update brings new features and improvements. Download and install to get the latest version."
+                    "Update now for the latest features and bug fixes"
                 }
             )
         },
@@ -443,10 +454,6 @@ private fun UpdateAvailableContent(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextButton(onClick = onLater) {
-            Text(if (isBangla) "পরে" else "Later")
-        }
-        Spacer(modifier = Modifier.width(12.dp))
         Button(
             onClick = onDownload,
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
@@ -514,86 +521,96 @@ private fun DownloadingContent(
     progress: Float,
     onCancel: () -> Unit
 ) {
-    Spacer(modifier = Modifier.height(40.dp))
-    Text(
-        if (isBangla) "ফাইল পাওয়া যাচ্ছে…" else "Getting file…",
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Medium
-    )
-    Spacer(modifier = Modifier.height(12.dp))
-    Text(
-        text = if (downloadedBytes > 0) {
-            val total = if (totalBytes > 0) {
-                " / ${SizeFormatter.format(totalBytes)}"
-            } else {
-                ""
-            }
-            "${SizeFormatter.format(downloadedBytes)}$total"
-        } else {
-            if (isBangla) "অপেক্ষা করুন…" else "Please wait…"
-        },
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Spacer(modifier = Modifier.height(24.dp))
-    LinearProgressIndicator(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(4.dp),
-        progress = { progress.coerceIn(0f, 1f) }
-    )
-    Spacer(modifier = Modifier.height(24.dp))
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        TextButton(onClick = onCancel) {
-            Text(if (isBangla) "বাতিল" else "Cancel")
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 80.dp)
+        ) {
+            Spacer(modifier = Modifier.height(40.dp))
+            Text(
+                if (isBangla) "ডাউনলোড হচ্ছে…" else "Downloading…",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = if (downloadedBytes > 0) {
+                    val total = if (totalBytes > 0) {
+                        " / ${SizeFormatter.format(totalBytes)}"
+                    } else {
+                        ""
+                    }
+                    "${SizeFormatter.format(downloadedBytes)}$total"
+                } else {
+                    if (isBangla) "অপেক্ষা করুন…" else "Please wait…"
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp),
+                progress = { progress.coerceIn(0f, 1f) }
+            )
+        }
+        Button(
+            onClick = onCancel,
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 16.dp)
+        ) {
+            Text(
+                if (isBangla) "বাতিল" else "Cancel",
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
-    Spacer(modifier = Modifier.height(24.dp))
 }
 
 @Composable
 private fun DownloadReadyContent(
     isBangla: Boolean,
     versionName: String,
-    onLater: () -> Unit,
     onInstall: () -> Unit
 ) {
-    Spacer(modifier = Modifier.height(40.dp))
-    CheckIcon()
-    Spacer(modifier = Modifier.height(28.dp))
-    Text(
-        if (isBangla) "ডাউনলোড সম্পন্ন" else "Download complete",
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.Medium
-    )
-    Spacer(modifier = Modifier.height(12.dp))
-    val versionDisplay = if (isBangla) {
-        BanglaDigitConverter.toBangla(versionName.removePrefix("v"))
-    } else {
-        versionName.removePrefix("v")
-    }
-    Text(
-        if (isBangla) "ক্যাশ ফিগার v$versionDisplay ইনস্টলের জন্য প্রস্তুত।" else "Cash Figure v$versionDisplay is ready to install.",
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant
-    )
-    Spacer(modifier = Modifier.height(28.dp))
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        TextButton(onClick = onLater) {
-            Text(if (isBangla) "পরে" else "Later")
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 80.dp)
+        ) {
+            Spacer(modifier = Modifier.height(40.dp))
+            CheckIcon()
+            Spacer(modifier = Modifier.height(28.dp))
+            Text(
+                if (isBangla) "ডাউনলোড সম্পন্ন" else "Download complete",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            val versionDisplay = if (isBangla) {
+                BanglaDigitConverter.toBangla(versionName.removePrefix("v"))
+            } else {
+                versionName.removePrefix("v")
+            }
+            Text(
+                if (isBangla) "ক্যাশ ফিগার v$versionDisplay ইনস্টলের জন্য প্রস্তুত" else "Cash Figure v$versionDisplay is ready to install",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-        Spacer(modifier = Modifier.width(12.dp))
         Button(
             onClick = onInstall,
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = 16.dp)
         ) {
             Text(
                 if (isBangla) "ইনস্টল করুন" else "Install",
@@ -601,7 +618,6 @@ private fun DownloadReadyContent(
             )
         }
     }
-    Spacer(modifier = Modifier.height(24.dp))
 }
 
 @Composable
