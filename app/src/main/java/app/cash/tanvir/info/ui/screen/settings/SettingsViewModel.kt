@@ -60,6 +60,7 @@ data class SettingsUiState(
     val screenshotBlockEnabled: Boolean = false,
     val hapticFeedbackEnabled: Boolean = false,
     val hapticFeedbackIntensity: Float = 0.5f,
+    val keepScreenOnEnabled: Boolean = true,
     val lastSuccessfulCheck: Long? = null,
     val updateStatus: UpdateStatus = UpdateStatus.IDLE,
     val updateManifest: UpdateManifest? = null,
@@ -123,6 +124,11 @@ class SettingsViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
+            settingsRepository.getKeepScreenOnEnabled().collect { enabled ->
+                _uiState.update { it.copy(keepScreenOnEnabled = enabled) }
+            }
+        }
+        viewModelScope.launch {
             settingsRepository.getLastSuccessfulCheck().collect { timestamp ->
                 _uiState.update { it.copy(lastSuccessfulCheck = timestamp) }
             }
@@ -168,6 +174,12 @@ class SettingsViewModel @Inject constructor(
     fun setHapticFeedbackIntensity(intensity: Float) {
         viewModelScope.launch {
             settingsRepository.setHapticFeedbackIntensity(intensity)
+        }
+    }
+
+    fun setKeepScreenOnEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            settingsRepository.setKeepScreenOnEnabled(enabled)
         }
     }
 

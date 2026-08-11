@@ -32,6 +32,8 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override fun getHapticFeedbackIntensity(): Flow<Float> = preferencesManager.hapticFeedbackIntensityFlow
 
+    override fun getKeepScreenOnEnabled(): Flow<Boolean> = preferencesManager.keepScreenOnEnabledFlow
+
     override fun getLastSuccessfulCheck(): Flow<Long?> = preferencesManager.lastSuccessfulCheckFlow
 
     override suspend fun setTheme(theme: AppTheme) {
@@ -60,6 +62,10 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setHapticFeedbackIntensity(intensity: Float) {
         preferencesManager.setHapticFeedbackIntensity(intensity)
+    }
+
+    override suspend fun setKeepScreenOnEnabled(enabled: Boolean) {
+        preferencesManager.setKeepScreenOnEnabled(enabled)
     }
 
     override suspend fun setLastSuccessfulCheck(timestamp: Long) {

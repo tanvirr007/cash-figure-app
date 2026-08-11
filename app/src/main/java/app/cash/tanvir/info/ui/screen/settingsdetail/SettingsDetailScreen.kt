@@ -174,10 +174,12 @@ fun SettingsDetailScreen(
                         isBangla = isBangla,
                         biometricEnabled = uiState.biometricEnabled,
                         screenshotBlockEnabled = uiState.screenshotBlockEnabled,
+                        keepScreenOnEnabled = uiState.keepScreenOnEnabled,
                         hapticEnabled = uiState.hapticFeedbackEnabled,
                         hapticIntensity = uiState.hapticFeedbackIntensity,
                         onBiometricToggle = onBiometricToggle,
                         onScreenshotToggle = { checked -> viewModel.setScreenshotBlockEnabled(checked) },
+                        onKeepScreenOnToggle = { checked -> viewModel.setKeepScreenOnEnabled(checked) },
                         onHapticToggle = { checked -> viewModel.setHapticFeedbackEnabled(checked) },
                         onIntensityChange = { v -> viewModel.setHapticFeedbackIntensity(v) }
                     )
@@ -558,10 +560,12 @@ private fun MiscellaneousContent(
     isBangla: Boolean,
     biometricEnabled: Boolean,
     screenshotBlockEnabled: Boolean,
+    keepScreenOnEnabled: Boolean,
     hapticEnabled: Boolean,
     hapticIntensity: Float,
     onBiometricToggle: (Boolean) -> Unit,
     onScreenshotToggle: (Boolean) -> Unit,
+    onKeepScreenOnToggle: (Boolean) -> Unit,
     onHapticToggle: (Boolean) -> Unit,
     onIntensityChange: (Float) -> Unit
 ) {
@@ -584,6 +588,14 @@ private fun MiscellaneousContent(
                 HapticHelper.vibrate(context)
                 onScreenshotToggle(checked)
             }
+        )
+        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+        ToggleRow(
+            icon = { Icon(Icons.Default.BrightnessHigh, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
+            title = if (isBangla) "স্ক্রিন চালু রাখুন" else "Keep Screen On",
+            subtitle = if (isBangla) "বেশি ব্যাটারি খরচ হয়" else "Uses more battery",
+            checked = keepScreenOnEnabled,
+            onToggle = onKeepScreenOnToggle
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
         ToggleRow(

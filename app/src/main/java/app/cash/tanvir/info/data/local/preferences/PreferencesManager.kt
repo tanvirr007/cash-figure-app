@@ -36,6 +36,7 @@ class PreferencesManager @Inject constructor(
         val SCREENSHOT_BLOCK_ENABLED = booleanPreferencesKey("screenshot_block_enabled")
         val HAPTIC_FEEDBACK_ENABLED = booleanPreferencesKey("haptic_feedback_enabled")
         val HAPTIC_FEEDBACK_INTENSITY = floatPreferencesKey("haptic_feedback_intensity")
+        val KEEP_SCREEN_ON_ENABLED = booleanPreferencesKey("keep_screen_on_enabled")
         val LAST_KNOWN_VERSION = longPreferencesKey("last_known_version")
         val LAST_SUCCESSFUL_CHECK = longPreferencesKey("last_successful_check")
     }
@@ -73,6 +74,10 @@ class PreferencesManager @Inject constructor(
 
     val hapticFeedbackIntensityFlow: Flow<Float> = context.dataStore.data.map { prefs ->
         prefs[Keys.HAPTIC_FEEDBACK_INTENSITY] ?: 0.5f
+    }
+
+    val keepScreenOnEnabledFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.KEEP_SCREEN_ON_ENABLED] ?: true
     }
 
     val lastKnownVersionFlow: Flow<Long?> = context.dataStore.data.map { prefs ->
@@ -134,6 +139,12 @@ class PreferencesManager @Inject constructor(
     suspend fun setHapticFeedbackIntensity(intensity: Float) {
         context.dataStore.edit { prefs ->
             prefs[Keys.HAPTIC_FEEDBACK_INTENSITY] = intensity
+        }
+    }
+
+    suspend fun setKeepScreenOnEnabled(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.KEEP_SCREEN_ON_ENABLED] = enabled
         }
     }
 

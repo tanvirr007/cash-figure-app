@@ -71,15 +71,22 @@ class MainActivity : FragmentActivity() {
             backgroundTimestamp = savedInstanceState.getLong("background_timestamp", 0L)
         }
 
-        // Keep screen on while the calculator is active
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
         setContent {
             val appTheme by preferencesManager.themeFlow.collectAsState(initial = AppTheme.SYSTEM)
             val language by preferencesManager.languageFlow.collectAsState(initial = AppLanguage.ENGLISH)
             val screenshotBlockEnabled by preferencesManager.screenshotBlockEnabledFlow.collectAsState(initial = false)
             val hapticEnabled by preferencesManager.hapticFeedbackEnabledFlow.collectAsState(initial = false)
             val hapticIntensity by preferencesManager.hapticFeedbackIntensityFlow.collectAsState(initial = 0.5f)
+            val keepScreenOnEnabled by preferencesManager.keepScreenOnEnabledFlow.collectAsState(initial = true)
+
+            // Reactively apply/remove FLAG_KEEP_SCREEN_ON
+            LaunchedEffect(keepScreenOnEnabled) {
+                if (keepScreenOnEnabled) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                }
+            }
 
             val isDark = when (appTheme) {
                 AppTheme.LIGHT -> false
