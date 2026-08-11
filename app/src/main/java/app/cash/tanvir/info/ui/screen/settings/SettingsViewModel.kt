@@ -14,6 +14,7 @@ import app.cash.tanvir.info.domain.model.UpdateManifest
 import app.cash.tanvir.info.domain.repository.SettingsRepository
 import app.cash.tanvir.info.domain.repository.SheetRepository
 import app.cash.tanvir.info.domain.repository.UpdateRepository
+import app.cash.tanvir.info.util.isUpdateAvailable
 import app.cash.tanvir.info.util.report.StorageUtil
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
@@ -385,12 +386,14 @@ class SettingsViewModel @Inject constructor(
     }
 
     /**
-     * Fetches the remote manifest and compares against the installed version code.
+     * Fetches the remote manifest and compares against the installed version.
+     * @param installedName the installed versionName (computed in the screen,
+     *                      which already owns the version pair)
      * @param installedCode the installed versionCode (computed in the screen, which
      *                      already owns the version pair)
      * @param fromManualCheck false for the launch auto-check (silent failure/up-to-date)
      */
-    fun checkForUpdate(installedCode: Long, fromManualCheck: Boolean = true) {
+    fun checkForUpdate(installedName: String, installedCode: Long, fromManualCheck: Boolean = true) {
         if (_uiState.value.updateStatus == UpdateStatus.CHECKING) return
         viewModelScope.launch {
             _uiState.update {
@@ -412,7 +415,10 @@ class SettingsViewModel @Inject constructor(
                         updateErrorType = UpdateErrorType.CHECK_FAILED,
                         isUpdateDialogVisible = fromManualCheck
                     )
-                    manifest.versionCode <= installedCode -> state.copy(
+                    !isUpdateAvailable(
+                        manifest.versionName, manifest.versionCode,
+                        installedName, installedCode
+                    ) -> state.copy(
                         updateStatus = UpdateStatus.UP_TO_DATE,
                         isUpdateDialogVisible = false,
                         lastSuccessfulCheck = if (fromManualCheck) now else state.lastSuccessfulCheck

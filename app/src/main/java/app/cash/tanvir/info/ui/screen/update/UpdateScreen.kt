@@ -133,7 +133,7 @@ fun UpdateScreen(
         if (uiState.updateStatus == UpdateStatus.IDLE ||
             uiState.updateStatus == UpdateStatus.UP_TO_DATE
         ) {
-            viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
+            viewModel.checkForUpdate(installedName = installedName, installedCode = installedCode, fromManualCheck = true)
         }
     }
 
@@ -200,7 +200,7 @@ fun UpdateScreen(
                                 lastSuccessfulCheck = uiState.lastSuccessfulCheck,
                                 onCheckAgain = {
                                     HapticHelper.vibrate(context)
-                                    viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
+                                    viewModel.checkForUpdate(installedName = installedName, installedCode = installedCode, fromManualCheck = true)
                                 }
                             )
                         }
@@ -265,7 +265,7 @@ fun UpdateScreen(
                                             errorReason = uiState.updateErrorReason,
                                             onRetry = {
                                                 HapticHelper.vibrate(context)
-                                                viewModel.checkForUpdate(installedCode = installedCode, fromManualCheck = true)
+                                                viewModel.checkForUpdate(installedName = installedName, installedCode = installedCode, fromManualCheck = true)
                                             }
                                         )
                                     }

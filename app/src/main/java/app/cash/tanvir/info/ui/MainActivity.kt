@@ -37,6 +37,7 @@ import app.cash.tanvir.info.ui.theme.CashFigureTheme
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
 import app.cash.tanvir.info.util.getInstalledVersion
+import app.cash.tanvir.info.util.isUpdateAvailable
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -125,9 +126,13 @@ class MainActivity : FragmentActivity() {
             LaunchedEffect(isAppLocked) {
                 if (!isAppLocked && !updateCheckDone) {
                     updateCheckDone = true
-                    val installedCode = getInstalledVersion(this@MainActivity).second
+                    val (installedName, installedCode) = getInstalledVersion(this@MainActivity)
                     val manifest = updateRepository.fetchManifest()
-                    if (manifest != null && manifest.versionCode > installedCode) {
+                    if (manifest != null && isUpdateAvailable(
+                            manifest.versionName, manifest.versionCode,
+                            installedName, installedCode
+                        )
+                    ) {
                         isUpdateAvailable = manifest
                     }
                 }
