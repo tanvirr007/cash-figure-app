@@ -8,6 +8,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -1122,8 +1124,13 @@ private fun CurrencySummaryCard(isBangla: Boolean, disabledDenominations: Set<In
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
+        val animatedProgress by animateFloatAsState(
+            targetValue = enabledCount / 6f,
+            animationSpec = tween(durationMillis = 400),
+            label = "summaryProgress"
+        )
         LinearProgressIndicator(
-            progress = { enabledCount / 6f },
+            progress = { animatedProgress },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(6.dp)
@@ -1134,7 +1141,7 @@ private fun CurrencySummaryCard(isBangla: Boolean, disabledDenominations: Set<In
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             if (isBangla) "১০০, ২০০, ৫০০ ও ১০০০ টাকার নোট সবসময় হোমপেজে থাকবে।"
-            else "100, 200, 500 and 1000 Tk notes always stay on the homepage.",
+            else "100, 200, 500 and 1000 Tk notes always stay on the homepage",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
         )
