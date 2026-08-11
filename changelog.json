@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.7",
+      "publishedAt": "2026-08-11T10:09:10Z",
+      "items": [
+        {
+          "title": "fix: decide OTA updates by version name, not code alone",
+          "subItems": [
+            "Add VersionUtil with semver compare and update-decision helper.",
+            "Manifest version name now wins over a higher installed version code,",
+            "Equal or unparseable names fall back to the code comparison.",
+            "Route SettingsViewModel and MainActivity checks through the helper.",
+            "Cover bumps, v-prefix, multi-digit, downgrade guard, and re-run cases."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.6",
       "publishedAt": "2026-08-11T09:47:08Z",
       "items": [
