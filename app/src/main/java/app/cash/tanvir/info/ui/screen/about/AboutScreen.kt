@@ -146,24 +146,6 @@ fun AboutScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "The simple way to count money",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.Medium
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = if (isBangla) {
-                    "ক্যাশ ফিগার একটি সম্পূর্ণ অফলাইন, বিজ্ঞাপনমুক্ত এবং ওপেন সোর্স অ্যাপ — দোকানদার, সুপারশপ, মোবাইল ব্যাংকিং এজেন্ট, হিসাবরক্ষক এবং ব্যবসায়ীদের জন্য প্রতিদিনের নগদ হিসাবের সহজ সমাধান।"
-                } else {
-                    "Cash Figure is a fully offline, ad-free, and open source app — a simple daily cash-counting solution for shop owners, supermarkets, mobile banking agents, accountants, and businesses."
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
 
             Spacer(modifier = Modifier.height(16.dp))
             Card(
@@ -172,7 +154,7 @@ fun AboutScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f))
             ) {
                 Text(
-                    text = "Google Play Protect may flag this app as unverified since it's not on the Play Store. The app is safe and open source — tap \"Install anyway\" if warned.",
+                    text = "Google Play Protect may flag \"Cash Figure\" as unverified since it's not on the Play Store. The app is safe and open source — tap \"Install anyway\" if warned.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     textAlign = TextAlign.Center,
