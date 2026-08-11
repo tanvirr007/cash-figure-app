@@ -33,6 +33,26 @@ It is **100% free, ad-free, and open source** — no ads, no tracking, no analyt
 no accounts, and no data collection. It works entirely offline, except for the
 optional in-app update check.
 
+## Download
+
+[Download the latest APK](https://github.com/tanvirr007/cash-figure-app/releases/latest)
+
+## Screenshots
+
+<!-- TODO: replace placeholder images in assets/screenshots/ with real screenshots -->
+
+<p align="center">
+  <img src="assets/screenshots/calculator.png" alt="Calculator" width="180"/>
+  <img src="assets/screenshots/report.png" alt="Report" width="180"/>
+  <img src="assets/screenshots/history.png" alt="History" width="180"/>
+  <img src="assets/screenshots/update_available.png" alt="Update available" width="180"/>
+  <img src="assets/screenshots/update_up_to_date.png" alt="Update up to date" width="180"/>
+</p>
+
+<p align="center">
+  Calculator &nbsp;&nbsp;&nbsp; Report &nbsp;&nbsp;&nbsp; History &nbsp;&nbsp;&nbsp; Update available &nbsp;&nbsp;&nbsp; Up to date
+</p>
+
 ## Features
 
 - **Bangladeshi Denominations** — full support for 1000, 500, 200, 100, 50, 20, 10,
@@ -51,10 +71,13 @@ optional in-app update check.
 - **In-App OTA Updates** — silent update check on launch, in-app APK download with
   live progress, and a bilingual (EN/BN) changelog.
 - **Screen On Mode** — keeps the screen awake during active counting sessions.
+- **Biometric App Lock** — lock the app with your fingerprint; enable/disable
+  from settings (EN + Bangla).
 - **No Ads** — zero advertisements, zero in-app purchases, zero paywalls.
 - **Open Source** — full source under the MIT license; audit it, fork it, improve it.
 - **Privacy First** — 100% offline with no analytics and no tracking. The only
-  network calls are the OTA update endpoints (update manifest + release APK).
+  network calls are the OTA update endpoints (update manifest + changelog +
+  release APK).
 
 ## Tech Stack
 
@@ -78,15 +101,17 @@ app/src/main/java/app/cash/tanvir/info/
 ├── di/                # Hilt modules (DatabaseModule, RepositoryModule)
 ├── ui/                # Single-activity Compose app
 │   ├── MainActivity.kt    # Splash, biometric lock, FLAG_SECURE, launch OTA check
-│   ├── navigation/        # NavGraph — 4 routes (Calculator, History, Report, Settings)
+│   ├── navigation/        # NavGraph — 8 routes
+│   │                      #   (Calculator, History, Report, Settings,
+│   │                      #    Changelog, Update, About, Settings Detail)
 │   ├── theme/             # Material 3 theme with Tiro Bangla font
-│   └── screen/            # Calculator, History, Report, Settings (+ components)
+│   └── screen/            # Calculator, History, Report, Settings, Changelog, Update, About, Settings Detail (+ components)
 └── util/              # Pure helpers: formatters, converters, report generators
 ```
 
 Data flows one way: Screen -> ViewModel -> Repository -> Room DB / DataStore.
 ViewModels expose StateFlow; screens collect state. See [docs/FILES.md](docs/FILES.md)
-for a complete per-file reference.
+for a complete per-file reference, and [ota.md](ota.md) for the OTA updater design.
 
 ## Getting Started
 
@@ -98,10 +123,10 @@ git clone https://github.com/tanvirr007/cash-figure-app.git
 cd cash-figure-app
 
 # Build a debug APK
-./gradlew assembleDebug
+./gradlew assembleDebug        # on Windows: gradlew.bat assembleDebug
 
 # Run unit tests
-./gradlew test
+./gradlew test                 # on Windows: gradlew.bat test
 ```
 
 The APK lands in `app/build/outputs/apk/`. Prebuilt release APKs are published on
@@ -129,6 +154,36 @@ We are fixing these gradually, and it takes time to get every string right.
 If you are a native Bangla speaker and want to help, **you are very welcome** —
 contributions of any size help. You do not need to know Android; fixing a single
 string is a perfectly good contribution.
+
+### Settled terms
+
+These EN/BN pairs are already fixed in the app. New translations **must reuse
+them** — matching these keeps the wording consistent. When in doubt, check the
+table first, then grep for `isBangla` to see the exact context.
+
+| English | Bangla |
+|---------|--------|
+| Cash Figure | ক্যাশ ফিগার |
+| History | ইতিহাস |
+| Settings | সেটিংস |
+| Calculation History | হিসাবের ইতিহাস |
+| Saved Sheet | সেভ করা হিসাব |
+| Sheet Name | শিটের নাম |
+| Rename Sheet | শিটের নাম পরিবর্তন |
+| Sheet deleted | শিটটি মুছে ফেলা হয়েছে |
+| Undo | পূর্বাবস্থায় আনুন |
+| Cash Breakdown | ক্যাশ ব্রেকডাউন |
+| Subtotal | সাবটোটাল |
+| Grand Total | সর্বমোট |
+| Cash Calculation Report | ক্যাশ হিসাবের রিপোর্ট |
+| Save | সেভ করুন |
+| Delete | মুছে ফেলুন |
+| Clear All | সব মুছুন |
+| Search | খুঁজুন |
+| Update | আপডেট |
+
+If you believe a settled term itself is wrong, suggest the change in the PR —
+but keep every other string consistent with the table.
 
 ### How to contribute (step by step)
 
@@ -268,10 +323,9 @@ gratefully.
 screen, see [docs/FILES.md](docs/FILES.md).
 
 **No-code way to help:** if you spot a wrong translation but don't want to touch
-code, simply open a GitHub issue at
-`https://github.com/tanvirr007/cash-figure-app/issues` — name the screen, paste
-the wrong Bangla text, and suggest the correct one. That alone is a valuable
-contribution.
+code, simply open an issue on the [issues page](https://github.com/tanvirr007/cash-figure-app/issues)
+— name the screen, paste the wrong Bangla text, and suggest the correct one. That
+alone is a valuable contribution.
 
 **PR etiquette:** don't force-push to your PR branch (just add new commits),
 and keep your branch rebased on the latest `main` before opening the PR.
