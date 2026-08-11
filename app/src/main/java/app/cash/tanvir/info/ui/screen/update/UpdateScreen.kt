@@ -349,9 +349,9 @@ private fun UpToDateContent(
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = if (isBangla) {
-                    "এই ডিভাইসে ক্যাশ ফিগার v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)}) ইনস্টল করা আছে"
+                    "এই ডিভাইসে অ্যাপ v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)}) ইনস্টল করা আছে"
                 } else {
-                    "Cash Figure v$installedName (Build $installedCode) is installed on this device"
+                    "App v$installedName (Build $installedCode) is installed on this device"
                 },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -476,12 +476,8 @@ private fun ChangelogText(changelog: String) {
             when {
                 trimmed.startsWith("*") -> {
                     val clean = ChangelogParser.stripCommitHash(
-                        trimmed.removePrefix("*")
-                            .trim()
-                            .removePrefix("**")
-                            .removeSuffix("**")
-                            .trim()
-                    )
+                        trimmed.removePrefix("*").trim()
+                    ).removePrefix("**").removeSuffix("**").trim()
                     if (clean.isNotEmpty()) {
                         Text(
                             text = "• $clean",
