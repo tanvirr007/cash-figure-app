@@ -114,7 +114,7 @@ fun SettingsDetailScreen(
         val biometricManager = BiometricManager.from(context)
         when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
             BiometricManager.BIOMETRIC_SUCCESS -> {
-                authenticateWithFingerprint(context, isBangla) {
+                authenticateWithFingerprint(context, isBangla, enabling = checked) {
                     viewModel.setBiometricEnabled(checked)
                 }
             }
@@ -684,6 +684,7 @@ private fun ToggleRow(
 private fun authenticateWithFingerprint(
     context: Context,
     isBangla: Boolean,
+    enabling: Boolean,
     onSuccess: () -> Unit
 ) {
     val activity = context as? FragmentActivity ?: return
@@ -697,8 +698,20 @@ private fun authenticateWithFingerprint(
         })
 
     val promptInfo = BiometricPrompt.PromptInfo.Builder()
-        .setTitle(if (isBangla) "ক্যাশ ফিগার অ্যাপ আনলক করুন" else "Unlock Cash Figure App")
-        .setSubtitle(if (isBangla) "আপনার পরিচয় যাচাই করুন" else "Verify it’s you")
+        .setTitle(
+            if (enabling) {
+                if (isBangla) "অ্যাপ লক চালু করুন" else "Enable App Lock"
+            } else {
+                if (isBangla) "অ্যাপ লক বন্ধ করুন" else "Disable App Lock"
+            }
+        )
+        .setSubtitle(
+            if (enabling) {
+                if (isBangla) "অ্যাপ লক চালু করতে নিশ্চিত করুন" else "Confirm to enable app lock"
+            } else {
+                if (isBangla) "অ্যাপ লক বন্ধ করতে নিশ্চিত করুন" else "Confirm to disable app lock"
+            }
+        )
         .setNegativeButtonText(if (isBangla) "বাতিল" else "Cancel")
         .build()
 
