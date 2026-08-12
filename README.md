@@ -255,9 +255,6 @@ TEST:
 - Run ./gradlew assembleDebug and confirm the app compiles.
 - <what you verified manually>
 
-----------------------------------------
-Change-Id: I<40-char hex>
-
 Signed-off-by: Your Name <you@example.com>
 ```
 
@@ -313,14 +310,8 @@ TEST:
 
 **The footer:**
 
-Two required lines at the bottom, after a `----------------------------------------`
-separator:
-
-- `Change-Id: I<40-char hex>` — a unique ID for the commit. Pick any 40 hex
-  characters (0-9, a-f) not already used in the repo, or generate one with
-  `openssl rand -hex 20` and prefix it with `I`.
-- `Signed-off-by: Your Name <you@example.com>` — added automatically when you
-  commit with `git commit -s`.
+Every commit ends with a `Signed-off-by: Your Name <you@example.com>` line —
+`git commit -s` adds it automatically.
 
 That is all — one fixed string, one PR. Every PR gets reviewed and merged
 gratefully.
