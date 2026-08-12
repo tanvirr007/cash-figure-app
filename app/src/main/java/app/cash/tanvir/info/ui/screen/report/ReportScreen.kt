@@ -86,7 +86,7 @@ fun ReportScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isBangla) "রিপোর্ট এক্সপোর্ট ও প্রিন্ট" else "Export & Print Report") },
+                title = { Text(if (viewModel.fromDraft) (if (isBangla) "ড্রাফট" else "Draft") else (if (isBangla) "রিপোর্ট এক্সপোর্ট ও প্রিন্ট" else "Export & Print Report")) },
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.vibrate(context)
@@ -303,7 +303,7 @@ fun ReportScreen(
                     }
                 }
 
-                // Load into Calculator: draft reports only (back-exit was never reached)
+                // Load into Calculator: draft reports only (draft stays in the list until saved to History)
                 if (viewModel.fromDraft) {
                     Button(
                         onClick = {
@@ -322,77 +322,112 @@ fun ReportScreen(
                     }
                 }
 
-                Text(if (isBangla) "এক্সপোর্ট অপশন" else "Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            HapticHelper.vibrate(context)
-                            pendingExportFormat = ExportFormat.PDF
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
+                // Draft info card: explains the draft feature (drafts never export/print)
+                if (viewModel.fromDraft) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.10f)
+                        )
                     ) {
-                        Icon(Icons.Default.PictureAsPdf, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("PDF")
-                    }
-                    Button(
-                        onClick = {
-                            HapticHelper.vibrate(context)
-                            pendingExportFormat = ExportFormat.CSV
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(Icons.Default.TableChart, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("CSV")
-                    }
-                    Button(
-                        onClick = {
-                            HapticHelper.vibrate(context)
-                            pendingExportFormat = ExportFormat.TXT
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Icon(Icons.AutoMirrored.Filled.TextSnippet, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("TXT")
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(
+                                text = if (isBangla) "ড্রাফট সম্পর্কে" else "About Drafts",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = if (isBangla) {
+                                    "ড্রাফটে হিসাব সংরক্ষণ করে পরে আবার চালিয়ে যেতে পারেন। " +
+                                        "ক্যালকুলেটরে লোড করলে সংখ্যাগুলো ফিরে আসে — হিসাবটি ইতিহাসে সেভ না হওয়া পর্যন্ত ড্রাফট তালিকায় থাকে।"
+                                } else {
+                                    "Drafts let you pause a count and continue later. " +
+                                        "Loading a draft puts the amounts back on the calculator — it stays in the Draft list until you save it to History."
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    OutlinedButton(
-                        onClick = {
-                            HapticHelper.vibrate(context)
-                            viewModel.printReport(context)
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
+                // Export / Print / Share only apply to saved History reports, not drafts
+                if (!viewModel.fromDraft) {
+                    Text(if (isBangla) "এক্সপোর্ট অপশন" else "Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.Print, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(if (isBangla) "প্রিন্ট" else "Print")
+                        Button(
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                pendingExportFormat = ExportFormat.PDF
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.PictureAsPdf, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("PDF")
+                        }
+                        Button(
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                pendingExportFormat = ExportFormat.CSV
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.TableChart, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("CSV")
+                        }
+                        Button(
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                pendingExportFormat = ExportFormat.TXT
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.AutoMirrored.Filled.TextSnippet, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("TXT")
+                        }
                     }
-                    OutlinedButton(
-                        onClick = {
-                            HapticHelper.vibrate(context)
-                            viewModel.shareReport(context)
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp)
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(Icons.Default.Share, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(if (isBangla) "শেয়ার" else "Share")
+                        OutlinedButton(
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                viewModel.printReport(context)
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.Print, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(if (isBangla) "প্রিন্ট" else "Print")
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                viewModel.shareReport(context)
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Icon(Icons.Default.Share, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(if (isBangla) "শেয়ার" else "Share")
+                        }
                     }
                 }
             }

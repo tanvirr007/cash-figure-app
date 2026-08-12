@@ -59,7 +59,6 @@ import app.cash.tanvir.info.util.HapticHelper
 
 import app.cash.tanvir.info.ui.screen.calculator.components.DashboardCard
 import app.cash.tanvir.info.ui.screen.calculator.components.DenominationRowItem
-import app.cash.tanvir.info.ui.screen.calculator.components.IdleHintCard
 
 /**
  * Main calculator screen with denomination inputs, dashboard, breakdown, and navigation actions.
@@ -191,18 +190,6 @@ fun CalculatorScreen(
                 Spacer(modifier = Modifier.height(12.dp))
             }
 
-            // Draft status card: idle hint when nothing counted; draft management
-            // (saved drafts list, save/discard) lives in Settings.
-            item {
-                if (isIdle) {
-                    IdleHintCard(
-                        hint = if (isBangla) "কিছু হিসাব করা হয়নি" else "Nothing counted yet",
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                    )
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-
             // Denomination rows
             itemsIndexed(
                 items = uiState.rows,
@@ -295,7 +282,8 @@ fun CalculatorScreen(
         )
     }
 
-    // Exit dialog: back pressed while a count is in progress (minimal, 2 buttons)
+    // Draft dialog: back pressed while a count is in progress — save as draft and clear,
+    // or discard; the app stays open in both cases.
     if (showExitWithDraftDialog) {
         AlertDialog(
             onDismissRequest = {
@@ -308,9 +296,11 @@ fun CalculatorScreen(
                 Button(
                     onClick = {
                         HapticHelper.vibrate(context)
-                        viewModel.saveAsDraft()
+                        viewModel.saveAsDraftAndClear()
                         showExitWithDraftDialog = false
-                        (context as? android.app.Activity)?.finish()
+                        val msg = if (isBangla) "ড্রাফটে সেভ হয়েছে" else "Saved to draft"
+                        activeToast?.cancel()
+                        activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                     }
                 ) {
                     Text(if (isBangla) "ড্রাফটে সেভ করুন" else "Save to Draft")
@@ -322,7 +312,6 @@ fun CalculatorScreen(
                         HapticHelper.vibrate(context)
                         viewModel.discardDraft()
                         showExitWithDraftDialog = false
-                        (context as? android.app.Activity)?.finish()
                     },
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error

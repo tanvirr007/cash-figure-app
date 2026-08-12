@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import app.cash.tanvir.info.ui.screen.about.AboutScreen
 import app.cash.tanvir.info.ui.screen.calculator.CalculatorScreen
 import app.cash.tanvir.info.ui.screen.changelog.ChangelogScreen
+import app.cash.tanvir.info.ui.screen.draft.DraftScreen
 import app.cash.tanvir.info.ui.screen.history.HistoryScreen
 import app.cash.tanvir.info.ui.screen.report.ReportScreen
 import app.cash.tanvir.info.ui.screen.settings.SettingsScreen
@@ -38,6 +39,7 @@ sealed class Screen(val route: String) {
         fun createRoute(section: SettingsSection) = "settings-detail?section=${section.routeParam}"
     }
     object Settings : Screen("settings")
+    object Draft : Screen("draft")
 }
 
 @Composable
@@ -121,8 +123,23 @@ fun NavGraph(
                 onNavigateToSettingsDetail = { section ->
                     navController.navigate(Screen.SettingsDetail.createRoute(section))
                 },
-                onNavigateToDraftReport = { draftId ->
+                onNavigateToDraft = {
+                    navController.navigate(Screen.Draft.route)
+                }
+            )
+        }
+
+        composable(Screen.Draft.route) {
+            DraftScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onOpenDraft = { draftId ->
                     navController.navigate(Screen.Report.createRoute(draftId, fromDraft = true))
+                },
+                onLoadIntoCalculator = { draftId ->
+                    navController.navigate(Screen.Calculator.createRoute(loadDraftId = draftId)) {
+                        popUpTo(Screen.Calculator.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             )
         }

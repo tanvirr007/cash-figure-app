@@ -239,37 +239,6 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Convert a saved draft into a permanent history sheet, then remove the draft.
-     */
-    fun saveDraftToHistory(draft: Sheet) {
-        viewModelScope.launch {
-            try {
-                val now = System.currentTimeMillis()
-                val sheet = Sheet(
-                    name = "",
-                    rows = draft.rows,
-                    grandTotal = draft.grandTotal,
-                    totalPieces = draft.totalPieces,
-                    activeDenominations = draft.activeDenominations,
-                    createdAt = now,
-                    updatedAt = now,
-                    remark = ""
-                )
-                sheetRepository.saveSheet(sheet)
-                sheetRepository.deleteDraft(draft.id)
-                val msg = if (_uiState.value.language == AppLanguage.BANGLA) {
-                    "ড্রাফট ইতিহাসে সেভ হয়েছে"
-                } else {
-                    "Draft saved to History"
-                }
-                _uiState.update { it.copy(statusMessage = msg) }
-            } catch (e: Exception) {
-                _uiState.update { it.copy(statusMessage = "Failed to save draft: ${e.message}") }
-            }
-        }
-    }
-
     fun openDiscardDraftDialog(draftId: Long) {
         _uiState.update { it.copy(showDiscardDraftDialog = true, pendingDiscardDraftId = draftId) }
     }

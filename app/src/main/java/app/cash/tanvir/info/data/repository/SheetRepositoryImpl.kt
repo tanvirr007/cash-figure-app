@@ -167,6 +167,27 @@ class SheetRepositoryImpl @Inject constructor(
         return draftDao.insertDraft(entity)
     }
 
+    override suspend fun updateDraft(
+        id: Long,
+        quantities: Map<Int, String>,
+        grandTotal: Long,
+        totalPieces: Long,
+        activeDenominations: Int
+    ) {
+        val existing = draftDao.getDraftById(id) ?: return
+        val entity = DraftEntity(
+            id = existing.id,
+            name = existing.name,
+            grandTotal = grandTotal,
+            totalPieces = totalPieces,
+            activeDenominations = activeDenominations,
+            createdAt = existing.createdAt,
+            updatedAt = System.currentTimeMillis(),
+            quantitiesJson = quantities.toQuantitiesJson()
+        )
+        draftDao.insertDraft(entity)
+    }
+
     override suspend fun deleteDraft(id: Long) {
         draftDao.deleteDraft(id)
     }

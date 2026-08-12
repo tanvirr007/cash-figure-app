@@ -62,6 +62,9 @@ class CalculatorViewModel @Inject constructor(
     // One-shot: draft id to load into the calculator (from Report "Load into Calculator")
     private val loadDraftId: Long = savedStateHandle.get<Long>("loadDraftId") ?: -1L
 
+    // Draft currently loaded into the calculator; deleted only after a successful save to History
+    private var loadedDraftId: Long = -1L
+
     init {
         // Observe language settings
         viewModelScope.launch {
@@ -101,7 +104,8 @@ class CalculatorViewModel @Inject constructor(
             }
         }
 
-        // Load a saved draft into the calculator (navigated from Report with loadDraftId arg)
+        // Load a saved draft into the calculator (navigated from Report with loadDraftId arg).
+        // The draft entry is kept in the list; it is only deleted after a successful save to History.
         if (loadDraftId > 0L) {
             viewModelScope.launch {
                 val draft = sheetRepository.getDraftById(loadDraftId)
@@ -112,9 +116,9 @@ class CalculatorViewModel @Inject constructor(
                     _uiState.update { state ->
                         recalculate(state.copy(quantities = draftQuantities))
                     }
-                    // Persist as the working sheet so a later restart resumes it, then drop the draft
+                    // Persist as the working sheet so a later restart resumes it
                     flushDraft()
-                    sheetRepository.deleteDraft(draft.id)
+                    loadedDraftId = draft.id
                 }
             }
         }
@@ -159,21 +163,41 @@ class CalculatorViewModel @Inject constructor(
     }
 
     /**
-     * Save the current count as a new draft entry (back-exit "Save to Draft").
-     * The working sheet (id = -1) is left untouched so the count resumes on restart.
-     * Blocking is intentional: the write must complete before the app process dies.
+     * Save the current count as a draft entry (back-exit "Save to Draft").
+     * If a draft is currently loaded into the calculator, it is updated in
+     * place instead of creating a duplicate entry.
+     * Blocking is intentional: the write must complete before the process dies.
      */
     fun saveAsDraft() {
         val state = _uiState.value
         if (state.grandTotal <= 0L) return
         runBlocking {
-            sheetRepository.saveDraft(
-                quantities = state.quantities,
-                grandTotal = state.grandTotal,
-                totalPieces = state.totalPieces,
-                activeDenominations = state.activeDenominations
-            )
+            if (loadedDraftId > 0L) {
+                sheetRepository.updateDraft(
+                    id = loadedDraftId,
+                    quantities = state.quantities,
+                    grandTotal = state.grandTotal,
+                    totalPieces = state.totalPieces,
+                    activeDenominations = state.activeDenominations
+                )
+            } else {
+                sheetRepository.saveDraft(
+                    quantities = state.quantities,
+                    grandTotal = state.grandTotal,
+                    totalPieces = state.totalPieces,
+                    activeDenominations = state.activeDenominations
+                )
+            }
         }
+    }
+
+    /**
+     * Save the current count as a draft, then clear the calculator and persist
+     * the empty working sheet (back-exit "Save to Draft" — the app stays open).
+     */
+    fun saveAsDraftAndClear() {
+        saveAsDraft()
+        discardDraft()
     }
 
     /**
@@ -240,6 +264,11 @@ class CalculatorViewModel @Inject constructor(
                 remark = remark
             )
             val savedId = sheetRepository.saveSheetAndResetCurrent(newSheet)
+            // A draft loaded into the calculator is consumed only once saved to History successfully
+            if (loadedDraftId > 0L) {
+                sheetRepository.deleteDraft(loadedDraftId)
+                loadedDraftId = -1L
+            }
             onSuccess(savedId, savedAmountFormatted)
         }
         clearAll()
