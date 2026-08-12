@@ -39,7 +39,9 @@ data class CalculatorUiState(
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
     val disabledDenominations: Set<Int> = emptySet(),
     // Draft currently loaded into the calculator; -1 when none. Consumed only on Save to History.
-    val loadedDraftId: Long = -1L
+    val loadedDraftId: Long = -1L,
+    // Last time quantities changed (epoch millis); 0 when never edited/restored
+    val lastUpdated: Long = 0L
 )
 
 /**
@@ -57,6 +59,17 @@ class CalculatorViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(CalculatorUiState())
     val uiState: StateFlow<CalculatorUiState> = _uiState.asStateFlow()
+
+    companion object {
+        // Upper bound for a single denomination's quantity (picker stepper/custom)
+        const val MAX_QUANTITY = 99_999
+
+        // Quick-pick presets shown in the quantity picker sheet
+        val QUANTITY_PRESETS = intArrayOf(
+            10, 20, 30, 40, 50, 60, 70, 80, 90,
+            100, 200, 300, 400, 500, 600, 700, 800, 900, 1000
+        )
+    }
 
     // Upper bound: 999 Crore (9,99,99,99,999)
     private val maxGrandTotal = 9_99_99_99_999L
@@ -99,7 +112,8 @@ class CalculatorViewModel @Inject constructor(
                 _uiState.update { state ->
                     recalculate(
                         state.copy(
-                            quantities = restoredQuantities
+                            quantities = restoredQuantities,
+                            lastUpdated = sheet?.updatedAt ?: 0L
                         )
                     )
                 }
@@ -116,7 +130,12 @@ class CalculatorViewModel @Inject constructor(
                         it.denomination.value to if (it.quantity > 0) it.quantity.toString() else ""
                     }
                     _uiState.update { state ->
-                        recalculate(state.copy(quantities = draftQuantities))
+                        recalculate(
+                            state.copy(
+                                quantities = draftQuantities,
+                                lastUpdated = System.currentTimeMillis()
+                            )
+                        )
                     }
                     // Persist as the working sheet so a later restart resumes it
                     flushDraft()
@@ -201,7 +220,12 @@ class CalculatorViewModel @Inject constructor(
         _uiState.update { state ->
             val newQuantities = state.quantities.toMutableMap()
             newQuantities[denominationValue] = input
-            recalculate(state.copy(quantities = newQuantities))
+            recalculate(
+                state.copy(
+                    quantities = newQuantities,
+                    lastUpdated = System.currentTimeMillis()
+                )
+            )
         }
     }
 
@@ -218,7 +242,12 @@ class CalculatorViewModel @Inject constructor(
     fun clearAll() {
         _uiState.update { state ->
             val emptyQuantities = state.quantities.mapValues { "" }
-            recalculate(state.copy(quantities = emptyQuantities))
+            recalculate(
+                state.copy(
+                    quantities = emptyQuantities,
+                    lastUpdated = System.currentTimeMillis()
+                )
+            )
         }
     }
 

@@ -3,14 +3,20 @@ package app.cash.tanvir.info.ui.screen.calculator.components
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DeleteSweep
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,16 +24,19 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.cash.tanvir.info.util.CurrencyFormatter
+import app.cash.tanvir.info.util.HapticHelper
 
 /**
  * Dashboard card showing the grand total, amount in words,
  * total pieces, and active denominations count.
+ * Optional corner Clear All action.
  */
 @Composable
 fun DashboardCard(
@@ -36,8 +45,11 @@ fun DashboardCard(
     totalPieces: Long,
     activeDenominations: Int,
     isBangla: Boolean = false,
+    lastUpdatedText: String? = null,
+    onClearAll: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     // Count-up animation: 0 -> grandTotal over 600ms whenever the total changes
     val countUpProgress = remember { Animatable(1f) }
     LaunchedEffect(grandTotal) {
@@ -57,51 +69,86 @@ fun DashboardCard(
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Grand Total — largest, boldest element
-            Text(
-                text = grandTotalFormatted,
-                style = MaterialTheme.typography.displayLarge.copy(
-                    fontSize = 32.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                maxLines = 1,
-                softWrap = false,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            // Amount in words — only show when there's a non-zero amount
-            if (totalPieces > 0) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Grand Total — largest, boldest element
                 Text(
-                    text = amountInWords,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
-                    modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
-                    textAlign = TextAlign.Center
+                    text = grandTotalFormatted,
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = 32.sp,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    maxLines = 1,
+                    softWrap = false,
+                    overflow = TextOverflow.Ellipsis
                 )
-            }
 
-            // Stats row: pieces + denominations
-            if (totalPieces > 0) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    StatItem(
-                        value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(totalPieces) else totalPieces.toString(),
-                        label = if (isBangla) "টি নোট" else "pieces"
-                    )
-                    StatItem(
-                        value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(activeDenominations) else activeDenominations.toString(),
-                        label = if (isBangla) "ধরণের নোট" else "denominations"
+                // Amount in words — only show when there's a non-zero amount
+                if (totalPieces > 0) {
+                    Text(
+                        text = amountInWords,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
+                        modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
+                        textAlign = TextAlign.Center
                     )
                 }
+
+                // Stats row: pieces + denominations
+                if (totalPieces > 0) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        StatItem(
+                            value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(totalPieces) else totalPieces.toString(),
+                            label = if (isBangla) "টি নোট" else "pieces"
+                        )
+                        StatItem(
+                            value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(activeDenominations) else activeDenominations.toString(),
+                            label = if (isBangla) "ধরণের নোট" else "denominations"
+                        )
+                    }
+
+                    // Last updated caption
+                    if (lastUpdatedText != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = if (isBangla) "শেষ আপডেট: $lastUpdatedText" else "Last updated: $lastUpdatedText",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+            }
+
+            // Corner Clear All action
+            if (onClearAll != null) {
+                Icon(
+                    imageVector = Icons.Default.DeleteSweep,
+                    contentDescription = if (isBangla) "সব মুছুন" else "Clear All",
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                        .size(36.dp)
+                        .clickable {
+                            HapticHelper.vibrate(context)
+                            onClearAll()
+                        }
+                        .padding(8.dp),
+                    tint = if (totalPieces > 0) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.25f)
+                    }
+                )
             }
         }
     }

@@ -37,7 +37,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +52,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import app.cash.tanvir.info.R
 import app.cash.tanvir.info.util.HapticHelper
 import app.cash.tanvir.info.util.getInstalledVersion
@@ -62,6 +69,21 @@ fun AboutScreen(
 ) {
     val context = LocalContext.current
     val (installedName, installedCode) = remember(context) { getInstalledVersion(context) }
+
+    // Android-style hidden easter egg: tap the Version row 7 times quickly.
+    // Each reveal picks one random message from the pool.
+    val easterEggMessages = remember {
+        listOf(
+            "You looked. I respect that.",
+            "This seemed like a good place to hide something.",
+            "You can leave now. Nothing happens here.",
+            "Please pretend you never saw this.",
+            "You found the secret."
+        )
+    }
+    var versionTapCount by remember { mutableIntStateOf(0) }
+    var lastVersionTap by remember { mutableLongStateOf(0L) }
+    var easterEggMessage by remember { mutableStateOf<String?>(null) }
 
     fun openUrl(url: String) {
         HapticHelper.vibrate(context)
@@ -209,7 +231,19 @@ fun AboutScreen(
                         iconVector = Icons.Rounded.NewReleases,
                         title = "Version",
                         subtitle = "v$installedName (Build $installedCode)",
-                        onClick = {}
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            val now = System.currentTimeMillis()
+                            if (now - lastVersionTap > 3000) {
+                                versionTapCount = 0
+                            }
+                            lastVersionTap = now
+                            versionTapCount++
+                            if (versionTapCount >= 7) {
+                                versionTapCount = 0
+                                easterEggMessage = easterEggMessages.random()
+                            }
+                        }
                     )
                 }
             }
@@ -223,6 +257,28 @@ fun AboutScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    // Hidden easter egg — 7 quick taps on the Version row, one random message per reveal
+    easterEggMessage?.let { message ->
+        AlertDialog(
+            onDismissRequest = { easterEggMessage = null },
+            text = {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = TextAlign.Center
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    easterEggMessage = null
+                }) {
+                    Text("OK", fontWeight = FontWeight.Bold)
+                }
+            }
+        )
     }
 }
 

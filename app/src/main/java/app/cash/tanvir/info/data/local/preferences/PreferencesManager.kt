@@ -42,6 +42,7 @@ class PreferencesManager @Inject constructor(
         val DYNAMIC_COLOR_ENABLED = booleanPreferencesKey("dynamic_color_enabled")
         val LAST_KNOWN_VERSION = longPreferencesKey("last_known_version")
         val LAST_SUCCESSFUL_CHECK = longPreferencesKey("last_successful_check")
+        val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
     }
 
     val themeFlow: Flow<AppTheme> = context.dataStore.data.map { prefs ->
@@ -102,6 +103,10 @@ class PreferencesManager @Inject constructor(
 
     val lastSuccessfulCheckFlow: Flow<Long?> = context.dataStore.data.map { prefs ->
         prefs[Keys.LAST_SUCCESSFUL_CHECK]
+    }
+
+    val onboardingCompletedFlow: Flow<Boolean> = context.dataStore.data.map { prefs ->
+        prefs[Keys.ONBOARDING_COMPLETED] ?: false
     }
 
     suspend fun setTheme(theme: AppTheme) {
@@ -185,6 +190,12 @@ class PreferencesManager @Inject constructor(
     suspend fun setLastSuccessfulCheck(timestamp: Long) {
         context.dataStore.edit { prefs ->
             prefs[Keys.LAST_SUCCESSFUL_CHECK] = timestamp
+        }
+    }
+
+    suspend fun setOnboardingCompleted(completed: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.ONBOARDING_COMPLETED] = completed
         }
     }
 

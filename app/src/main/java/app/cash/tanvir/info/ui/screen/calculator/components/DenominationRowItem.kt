@@ -1,16 +1,18 @@
 package app.cash.tanvir.info.ui.screen.calculator.components
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -20,67 +22,69 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
 
 /**
- * A single denomination input row:
- * [Denomination Label] [Quantity Input] [Row Total] [Clear Button]
+ * A single denomination row inside the Cash Breakdown card:
+ * [Denomination Chip] [Read-only Quantity Field → Picker] [× qty + Subtotal] [Clear Button]
  */
 @Composable
 fun DenominationRowItem(
-    denominationValue: Int,
     denominationLabel: String,
     quantityText: String,
     rowTotal: Long,
-    isLastRow: Boolean,
-    onQuantityChange: (String) -> Unit,
+    onOpenPicker: () -> Unit,
     onClear: () -> Unit,
     isBangla: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val focusManager = LocalFocusManager.current
     val isCompact = LocalConfiguration.current.screenWidthDp < 360
+    // Quantity input comes from the picker sheet only; Bangla mode shows Bangla digits
+    val displayQuantity = if (isBangla) BanglaDigitConverter.toBengali(quantityText) else quantityText
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = if (isCompact) 8.dp else 16.dp, vertical = 4.dp),
+            .padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Denomination label
-        Text(
-            text = denominationLabel,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.width(if (isCompact) 64.dp else 80.dp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            softWrap = false
-        )
+        // Denomination chip
+        Box(
+            modifier = Modifier
+                .width(if (isCompact) 68.dp else 84.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    shape = RoundedCornerShape(12.dp)
+                )
+                .padding(horizontal = 4.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = denominationLabel,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                softWrap = false
+            )
+        }
 
-        // Quantity input
+        // Quantity field — read-only, opens the picker sheet on tap
         OutlinedTextField(
-            value = quantityText,
-            onValueChange = { newValue ->
-                // Only allow digits, no negatives, no decimals
-                val filtered = newValue.filter { it.isDigit() }
-                // Cap at a reasonable length (prevent overflow)
-                if (filtered.length <= 10) {
-                    onQuantityChange(filtered)
-                }
-            },
-            modifier = Modifier.weight(1f),
+            value = displayQuantity,
+            onValueChange = {},
+            readOnly = true,
+            modifier = Modifier
+                .weight(1f)
+                .clickable { onOpenPicker() },
             textStyle = MaterialTheme.typography.bodyLarge.copy(
                 textAlign = TextAlign.Center,
                 fontWeight = FontWeight.Medium
@@ -94,36 +98,50 @@ fun DenominationRowItem(
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
                 )
             },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = if (isLastRow) ImeAction.Done else ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = { focusManager.moveFocus(FocusDirection.Down) },
-                onDone = { focusManager.clearFocus() }
-            ),
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (isBangla) "সংখ্যা বেছে নিন" else "Pick a quantity",
+                    modifier = Modifier.size(22.dp),
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                )
+            },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface
             )
         )
 
-        // Row total
-        Text(
-            text = CurrencyFormatter.format(rowTotal, useBengaliDigits = isBangla),
-            style = MaterialTheme.typography.bodyLarge,
-            fontWeight = if (rowTotal > 0) FontWeight.SemiBold else FontWeight.Normal,
-            color = if (rowTotal > 0)
-                MaterialTheme.colorScheme.onSurface
-            else
-                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
-            modifier = Modifier.width(if (isCompact) 96.dp else 115.dp),
-            textAlign = TextAlign.End,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        // Subtotal with explicit × quantity relation
+        Column(
+            modifier = Modifier.width(if (isCompact) 88.dp else 108.dp),
+            horizontalAlignment = Alignment.End
+        ) {
+            Text(
+                text = CurrencyFormatter.format(rowTotal, useBengaliDigits = isBangla),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = if (rowTotal > 0) FontWeight.SemiBold else FontWeight.Normal,
+                color = if (rowTotal > 0)
+                    MaterialTheme.colorScheme.onSurface
+                else
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
+                textAlign = TextAlign.End,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (quantityText.isNotEmpty()) {
+                Text(
+                    text = if (isBangla) "× ${BanglaDigitConverter.toBengali(quantityText)}" else "× $quantityText",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                    textAlign = TextAlign.End
+                )
+            }
+        }
 
         // Clear button
         IconButton(

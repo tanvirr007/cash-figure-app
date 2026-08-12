@@ -35,8 +35,17 @@ internal val LightColorScheme = lightColorScheme(
     onSurface = OnSurfaceLight,
     surfaceVariant = SurfaceVariantLight,
     onSurfaceVariant = OnSurfaceVariantLight,
+    surfaceContainerLowest = SurfaceContainerLowestLight,
+    surfaceContainerLow = SurfaceContainerLowLight,
+    surfaceContainer = SurfaceContainerLight,
+    surfaceContainerHigh = SurfaceContainerHighLight,
+    surfaceContainerHighest = SurfaceContainerHighestLight,
+    surfaceDim = SurfaceDimLight,
+    surfaceBright = SurfaceBrightLight,
+    surfaceTint = PrimaryLight,
     error = ErrorLight,
-    outline = OutlineLight
+    outline = OutlineLight,
+    outlineVariant = OutlineVariantLight
 )
 
 internal val DarkColorScheme = darkColorScheme(
@@ -58,21 +67,75 @@ internal val DarkColorScheme = darkColorScheme(
     onSurface = OnSurfaceDark,
     surfaceVariant = SurfaceVariantDark,
     onSurfaceVariant = OnSurfaceVariantDark,
+    surfaceContainerLowest = SurfaceContainerLowestDark,
+    surfaceContainerLow = SurfaceContainerLowDark,
+    surfaceContainer = SurfaceContainerDark,
+    surfaceContainerHigh = SurfaceContainerHighDark,
+    surfaceContainerHighest = SurfaceContainerHighestDark,
+    surfaceDim = SurfaceDimDark,
+    surfaceBright = SurfaceBrightDark,
+    surfaceTint = PrimaryDark,
     error = ErrorDark,
-    outline = OutlineDark
+    outline = OutlineDark,
+    outlineVariant = OutlineVariantDark
 )
+
+/**
+ * Applies the fixed neutral ramp onto a scheme (used under Dynamic Color so
+ * surfaces, borders, and text hierarchy never shift with the wallpaper).
+ * Only the accent roles (primary/secondary/tertiary + containers) stay dynamic.
+ */
+private fun ColorScheme.withAppNeutrals(dark: Boolean): ColorScheme = if (dark) {
+    copy(
+        background = BackgroundDark,
+        onBackground = OnBackgroundDark,
+        surface = SurfaceDark,
+        onSurface = OnSurfaceDark,
+        surfaceVariant = SurfaceVariantDark,
+        onSurfaceVariant = OnSurfaceVariantDark,
+        surfaceContainerLowest = SurfaceContainerLowestDark,
+        surfaceContainerLow = SurfaceContainerLowDark,
+        surfaceContainer = SurfaceContainerDark,
+        surfaceContainerHigh = SurfaceContainerHighDark,
+        surfaceContainerHighest = SurfaceContainerHighestDark,
+        surfaceDim = SurfaceDimDark,
+        surfaceBright = SurfaceBrightDark,
+        outline = OutlineDark,
+        outlineVariant = OutlineVariantDark
+    )
+} else {
+    copy(
+        background = BackgroundLight,
+        onBackground = OnBackgroundLight,
+        surface = SurfaceLight,
+        onSurface = OnSurfaceLight,
+        surfaceVariant = SurfaceVariantLight,
+        onSurfaceVariant = OnSurfaceVariantLight,
+        surfaceContainerLowest = SurfaceContainerLowestLight,
+        surfaceContainerLow = SurfaceContainerLowLight,
+        surfaceContainer = SurfaceContainerLight,
+        surfaceContainerHigh = SurfaceContainerHighLight,
+        surfaceContainerHighest = SurfaceContainerHighestLight,
+        surfaceDim = SurfaceDimLight,
+        surfaceBright = SurfaceBrightLight,
+        outline = OutlineLight,
+        outlineVariant = OutlineVariantLight
+    )
+}
 
 /**
  * Resolves the app color scheme exactly like [CashFigureTheme] does:
  * Material You dynamic palette on Android 12+ when [dynamicColor] is
- * enabled, otherwise the static teal/amber brand palette. Shared with the
- * Settings theme picker so its preview always matches the real result.
+ * enabled (accent roles only, neutrals stay tuned), otherwise the static
+ * teal/amber brand palette. Shared with the Settings theme picker so its
+ * preview always matches the real result.
  */
 @Composable
 internal fun cashFigureColorScheme(isDark: Boolean, dynamicColor: Boolean): ColorScheme {
     return if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         val context = LocalContext.current
-        if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        val dynamic = if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+        dynamic.withAppNeutrals(isDark)
     } else if (isDark) {
         DarkColorScheme
     } else {

@@ -35,6 +35,7 @@ import app.cash.tanvir.info.domain.model.UpdateManifest
 import app.cash.tanvir.info.domain.repository.UpdateRepository
 import app.cash.tanvir.info.ui.navigation.NavGraph
 import app.cash.tanvir.info.ui.navigation.Screen
+import app.cash.tanvir.info.ui.screen.onboarding.OnboardingScreen
 import app.cash.tanvir.info.ui.theme.CashFigureTheme
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
@@ -84,6 +85,10 @@ class MainActivity : FragmentActivity() {
             val hapticIntensity by preferencesManager.hapticFeedbackIntensityFlow.collectAsState(initial = 0.5f)
             val keepScreenOnEnabled by preferencesManager.keepScreenOnEnabledFlow.collectAsState(initial = true)
             val dynamicColorEnabled by preferencesManager.dynamicColorEnabledFlow.collectAsState(initial = true)
+            val onboardingCompleted by preferencesManager.onboardingCompletedFlow.collectAsState(initial = false)
+            val lastKnownVersion by preferencesManager.lastKnownVersionFlow.collectAsState(initial = null)
+            // First-launch wizard only: fresh installs have no last-known version yet
+            val showOnboarding = !onboardingCompleted && lastKnownVersion == null
 
             // Reactively apply/remove FLAG_KEEP_SCREEN_ON
             LaunchedEffect(keepScreenOnEnabled) {
@@ -124,10 +129,10 @@ class MainActivity : FragmentActivity() {
                 }
             }
 
-            // One-shot silent OTA check (runs once per process, never while locked)
+            // One-shot silent OTA check (runs once per process, never while locked or onboarding)
             val navController = rememberNavController()
-            LaunchedEffect(isAppLocked) {
-                if (!isAppLocked && !updateCheckDone) {
+            LaunchedEffect(isAppLocked, showOnboarding) {
+                if (!isAppLocked && !showOnboarding && !updateCheckDone) {
                     updateCheckDone = true
                     val (installedName, installedCode) = getInstalledVersion(this@MainActivity)
                     val manifest = updateRepository.fetchManifest()
@@ -142,8 +147,8 @@ class MainActivity : FragmentActivity() {
             }
 
             // "Update complete" toast when the app was just updated via OTA
-            LaunchedEffect(isAppLocked) {
-                if (!isAppLocked) {
+            LaunchedEffect(isAppLocked, showOnboarding) {
+                if (!isAppLocked && !showOnboarding) {
                     val installedCode = getInstalledVersion(this@MainActivity).second
                     val lastKnown = preferencesManager.lastKnownVersionFlow.first()
                     if (lastKnown != null && installedCode > lastKnown) {
@@ -183,7 +188,10 @@ class MainActivity : FragmentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (isAppLocked) {
+                    if (!onboardingCompleted && showOnboarding) {
+                        // First-launch wizard — runs before the lock screen and the main app
+                        OnboardingScreen(onDone = {})
+                    } else if (isAppLocked) {
                         LockScreen(
                             isBangla = isBangla,
                             onUnlockClick = { showBiometricPrompt(isBangla) }
@@ -193,7 +201,7 @@ class MainActivity : FragmentActivity() {
                     }
 
                     // Lightweight launch update dialog — hands off to the Update screen for the full flow
-                    if (!isAppLocked && isUpdateAvailable != null) {
+                    if (!isAppLocked && onboardingCompleted && isUpdateAvailable != null) {
                         val availableManifest = isUpdateAvailable!!
                         Dialog(
                             onDismissRequest = {},

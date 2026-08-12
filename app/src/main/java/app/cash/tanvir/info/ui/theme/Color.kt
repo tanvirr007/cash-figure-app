@@ -24,6 +24,16 @@ val OnSurfaceVariantLight = Color(0xFF3F4946)
 val ErrorLight = Color(0xFFBA1A1A)
 val OutlineLight = Color(0xFF6F7975)
 
+// Neutral surface ramp (light): soft white-to-light-gray, never harsh
+val SurfaceContainerLowestLight = Color(0xFFFFFFFF)
+val SurfaceContainerLowLight = Color(0xFFF5F5F5)   // == surface
+val SurfaceContainerLight = Color(0xFFEFEFEF)
+val SurfaceContainerHighLight = Color(0xFFE9E9E9)
+val SurfaceContainerHighestLight = Color(0xFFE3E3E3)
+val SurfaceDimLight = Color(0xFFE0E0E0)
+val SurfaceBrightLight = Color(0xFFFBFBFB)
+val OutlineVariantLight = Color(0xFFDADADA)
+
 // ── Dark Theme ──
 val PrimaryDark = Color(0xFF4DB6AC)           // Teal
 val OnPrimaryDark = Color(0xFF003730)
@@ -45,6 +55,16 @@ val SurfaceVariantDark = Color(0xFF2C2C2C)
 val OnSurfaceVariantDark = Color(0xFFBEC9C5)
 val ErrorDark = Color(0xFFFFB4AB)
 val OutlineDark = Color(0xFF89938F)
+
+// Neutral surface ramp (dark): warm charcoal, deliberately not pure black
+val SurfaceContainerLowestDark = Color(0xFF121212)  // == background
+val SurfaceContainerLowDark = Color(0xFF1A1A1A)
+val SurfaceContainerDark = Color(0xFF232323)
+val SurfaceContainerHighDark = Color(0xFF2B2B2B)
+val SurfaceContainerHighestDark = Color(0xFF333333)
+val SurfaceDimDark = Color(0xFF121212)
+val SurfaceBrightDark = Color(0xFF3A3A3A)
+val OutlineVariantDark = Color(0xFF434343)
 
 // ── Specific Colors ──
 val GrandTotalColor = Color(0xFFFFB300)       // Amber for grand total emphasis

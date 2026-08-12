@@ -24,4 +24,5 @@ object SizeFormatter {
             else -> "$bytes B"
         }
     }
+    // "I have no idea why you're here, but welcome."
 }
