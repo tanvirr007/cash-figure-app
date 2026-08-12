@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -230,17 +231,11 @@ private fun DraftLinkCard(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Red dot badge: signals saved drafts without opening the page
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .background(
-                        color = if (hasDrafts) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(50)
-                    )
+            // Red dot badge on the icon corner: signals saved drafts without opening the page
+            SettingsIconBadge(
+                icon = Icons.Rounded.Bookmarks,
+                badge = hasDrafts
             )
-            Spacer(modifier = Modifier.width(10.dp))
-            SettingsIconBadge(Icons.Rounded.Bookmarks)
             Spacer(modifier = Modifier.width(10.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -265,7 +260,8 @@ private fun DraftLinkCard(
 @Composable
 private fun SettingsIconBadge(
     icon: ImageVector,
-    tint: Color = MaterialTheme.colorScheme.primary
+    tint: Color = MaterialTheme.colorScheme.primary,
+    badge: Boolean = false
 ) {
     Box(
         modifier = Modifier
@@ -279,6 +275,16 @@ private fun SettingsIconBadge(
             tint = tint,
             modifier = Modifier.size(20.dp)
         )
+        // Red dot badge on the top-right corner, shown only when something needs attention
+        if (badge) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset(x = 5.dp, y = (-5).dp)
+                    .size(10.dp)
+                    .background(MaterialTheme.colorScheme.error, RoundedCornerShape(50))
+            )
+        }
     }
 }
 

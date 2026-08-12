@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -209,12 +211,13 @@ fun AboutScreen(
                     AboutLinkRow(
                         iconRes = R.drawable.ic_code,
                         title = "Source Code",
-                        subtitle = "cash-figure-app",
+                        subtitle = "GitHub",
                         onClick = { openUrl("https://github.com/tanvirr007/cash-figure-app") }
                     )
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
                     AboutLinkRow(
                         iconRes = R.drawable.ic_code,
+                        iconVector = Icons.Rounded.NewReleases,
                         title = if (isBangla) "ভার্সন" else "Version",
                         subtitle = if (isBangla) {
                             "v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)})"
@@ -243,7 +246,8 @@ private fun AboutLinkRow(
     iconRes: Int,
     title: String,
     subtitle: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    iconVector: ImageVector? = null
 ) {
     Row(
         modifier = Modifier
@@ -261,12 +265,21 @@ private fun AboutLinkRow(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                painter = painterResource(id = iconRes),
-                contentDescription = title,
-                tint = MaterialTheme.colorScheme.secondary,
-                modifier = Modifier.size(20.dp)
-            )
+            if (iconVector != null) {
+                Icon(
+                    imageVector = iconVector,
+                    contentDescription = title,
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                Icon(
+                    painter = painterResource(id = iconRes),
+                    contentDescription = title,
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
         }
         Spacer(modifier = Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
