@@ -1233,7 +1233,7 @@ private fun MiscellaneousContent(
         ToggleRow(
             icon = { Icon(Icons.Rounded.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp)) },
             title = if (isBangla) "ডায়নামিক কালার" else "Dynamic Color",
-            subtitle = if (isBangla) "ম্যাটেরিয়াল ইউ কালার ব্যবহার করুন (Android 12+)" else "Use Material You colors (Android 12+)",
+            subtitle = if (isBangla) "ম্যাটেরিয়াল ইউ কালার ব্যবহার করুন" else "Use Material You colors",
             checked = dynamicColorEnabled,
             onToggle = onDynamicColorToggle
         )
