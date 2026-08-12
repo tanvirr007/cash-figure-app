@@ -173,7 +173,8 @@ class MainActivity : FragmentActivity() {
 
             CashFigureTheme(
                 darkTheme = isDark,
-                dynamicColor = useDynamic
+                dynamicColor = useDynamic,
+                isBangla = isBangla
             ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),

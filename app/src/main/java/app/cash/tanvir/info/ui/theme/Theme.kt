@@ -83,6 +83,7 @@ internal fun cashFigureColorScheme(isDark: Boolean, dynamicColor: Boolean): Colo
 fun CashFigureTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
+    isBangla: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = cashFigureColorScheme(isDark = darkTheme, dynamicColor = dynamicColor)
@@ -102,7 +103,7 @@ fun CashFigureTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = if (isBangla) BanglaTypography else EnglishTypography,
         content = content
     )
 }
