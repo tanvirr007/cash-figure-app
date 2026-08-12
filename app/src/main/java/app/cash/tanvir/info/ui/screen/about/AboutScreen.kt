@@ -37,8 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,11 +47,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.R
-import app.cash.tanvir.info.data.local.preferences.AppLanguage
-import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
-import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
 import app.cash.tanvir.info.util.getInstalledVersion
 import java.util.Calendar
@@ -64,12 +58,9 @@ import java.util.Calendar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AboutScreen(
-    onNavigateBack: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel()
+    onNavigateBack: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    val isBangla = uiState.language == AppLanguage.BANGLA
     val (installedName, installedCode) = remember(context) { getInstalledVersion(context) }
 
     fun openUrl(url: String) {
@@ -79,7 +70,7 @@ fun AboutScreen(
         } catch (_: Exception) {
             Toast.makeText(
                 context,
-                if (isBangla) "লিংকটি খোলা যায়নি" else "Couldn't open the link",
+                "Couldn't open the link",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -93,7 +84,7 @@ fun AboutScreen(
         } catch (_: Exception) {
             Toast.makeText(
                 context,
-                if (isBangla) "কোনো ইমেইল অ্যাপ পাওয়া যায়নি" else "No email app found",
+                "No email app found",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -102,7 +93,7 @@ fun AboutScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isBangla) "লেখক" else "Author") },
+                title = { Text("Author") },
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.vibrate(context)
@@ -110,7 +101,7 @@ fun AboutScreen(
                     }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = if (isBangla) "ফিরে যান" else "Back"
+                            contentDescription = "Back"
                         )
                     }
                 },
@@ -160,9 +151,7 @@ fun AboutScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f))
             ) {
                 Text(
-                    text = if (isBangla)
-                        "গুগল প্লে প্রোটেক্ট \"ক্যাশ ফিগার\" অ্যাপটিকে যাচাইকৃত নয় বলে সতর্ক করতে পারে, কারণ অ্যাপটি প্লে স্টোরে নেই। অ্যাপটি নিরাপদ ও ওপেন সোর্স — সতর্কতা দেখালে \"ইনস্টল করুন\" চাপুন।"
-                        else "Google Play Protect may flag \"Cash Figure\" as unverified since it's not on the Play Store. The app is safe and open source — tap \"Install anyway\" if warned.",
+                    text = "Google Play Protect may flag \"Cash Figure\" as unverified since it's not on the Play Store. The app is safe and open source — tap \"Install anyway\" if warned.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     textAlign = TextAlign.Center,
@@ -218,12 +207,8 @@ fun AboutScreen(
                     AboutLinkRow(
                         iconRes = R.drawable.ic_code,
                         iconVector = Icons.Rounded.NewReleases,
-                        title = if (isBangla) "সংস্করণ" else "Version",
-                        subtitle = if (isBangla) {
-                            "v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)})"
-                        } else {
-                            "v$installedName (Build $installedCode)"
-                        },
+                        title = "Version",
+                        subtitle = "v$installedName (Build $installedCode)",
                         onClick = {}
                     )
                 }
