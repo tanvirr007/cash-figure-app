@@ -1,6 +1,30 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.13",
+      "publishedAt": "2026-08-12T10:39:53Z",
+      "items": [
+        {
+          "title": "docs: drop Change-Id from commit format in AGENTS.md",
+          "subItems": [
+            "Align AGENTS.md Git section with README: no Change-Id footer or divider, only Signed-off-by."
+          ]
+        },
+        {
+          "title": "feat: add multi-draft support with Settings management",
+          "subItems": [
+            "Add drafts table (DraftEntity/DraftDao) with DB v3 migration keeping history intact.",
+            "Add draft CRUD to SheetRepository (save/load/delete/restore, auto-named Draft #N).",
+            "Move draft management to Settings: expandable Draft card listing drafts with Save-to-History and Discard actions.",
+            "Make Calculator back-exit dialog minimal (2 buttons, one line); save-as-draft writes synchronously before exit.",
+            "Open drafts in Report (fromDraft mode) with Load into Calculator button.",
+            "Include drafts in backup (v2) and restore; v1 backups still restorable.",
+            "Update docs/FILES.md per-file reference."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.12",
       "publishedAt": "2026-08-12T06:54:35Z",
       "items": [
