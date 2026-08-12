@@ -56,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
+import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsSection
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
@@ -113,7 +114,11 @@ fun SettingsScreen(
                 SettingsGroupRow(
                     icon = Icons.Rounded.AutoAwesome,
                     title = if (isBangla) "অ্যাপের থিম" else "App Theme",
-                    subtitle = if (isBangla) "থিম বেছে নিয়ে দেখুন" else "Pick a theme and preview it",
+                    subtitle = when (uiState.theme) {
+                        AppTheme.SYSTEM -> if (isBangla) "সিস্টেম থিম" else "Follow System"
+                        AppTheme.LIGHT -> if (isBangla) "লাইট থিম" else "Light Theme"
+                        AppTheme.DARK -> if (isBangla) "ডার্ক থিম" else "Dark Theme"
+                    },
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.THEME)
@@ -123,7 +128,7 @@ fun SettingsScreen(
                 SettingsGroupRow(
                     icon = Icons.Rounded.Translate,
                     title = if (isBangla) "ভাষা" else "Language",
-                    subtitle = if (isBangla) "ভাষা বেছে নিয়ে দেখুন" else "Pick a language and preview it",
+                    subtitle = if (uiState.language == AppLanguage.BANGLA) "বাংলা" else "English",
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.LANGUAGE)
