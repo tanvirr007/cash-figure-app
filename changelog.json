@@ -1,6 +1,24 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.14",
+      "publishedAt": "2026-08-12T11:19:29Z",
+      "items": [
+        {
+          "title": "feat: rework draft save/load flow",
+          "subItems": [
+            "Remove idle \"Nothing counted yet\" card from the calculator home screen.",
+            "Keep the app open on back-exit: Save as Draft now saves and clears the calculator instead of closing the app.",
+            "Add a dedicated Draft page reached from a Settings link card with a red-dot badge when drafts exist.",
+            "Draft list rows load the draft into the calculator; the draft stays listed until it is saved to History successfully.",
+            "Re-saving an open draft updates it in place (new updateDraft) instead of duplicating the entry.",
+            "Draft detail (Report fromDraft mode) hides export/print/share and shows an About Drafts explainer card.",
+            "Add an empty state with icon and hint text to the Draft page; drop saveDraftToHistory from SettingsViewModel."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.13",
       "publishedAt": "2026-08-12T10:39:53Z",
       "items": [

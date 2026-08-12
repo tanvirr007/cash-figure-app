@@ -1,7 +1,7 @@
 {
-  "versionCode": 49,
-  "versionName": "v3.4.13",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.13/CashFigure.apk",
-  "changelog": "* **docs: drop Change-Id from commit format in AGENTS.md** (1ec9184)\n  - Align AGENTS.md Git section with README: no Change-Id footer or divider, only Signed-off-by.\n* **feat: add multi-draft support with Settings management** (2bc79eb)\n  - Add drafts table (DraftEntity/DraftDao) with DB v3 migration keeping history intact.\n  - Add draft CRUD to SheetRepository (save/load/delete/restore, auto-named Draft #N).\n  - Move draft management to Settings: expandable Draft card listing drafts with Save-to-History and Discard actions.\n  - Make Calculator back-exit dialog minimal (2 buttons, one line); save-as-draft writes synchronously before exit.\n  - Open drafts in Report (fromDraft mode) with Load into Calculator button.\n  - Include drafts in backup (v2) and restore; v1 backups still restorable.\n  - Update docs/FILES.md per-file reference.\n",
+  "versionCode": 50,
+  "versionName": "v3.4.14",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.14/CashFigure.apk",
+  "changelog": "* **feat: rework draft save/load flow** (14555db)\n  - Remove idle \"Nothing counted yet\" card from the calculator home screen.\n  - Keep the app open on back-exit: Save as Draft now saves and clears the calculator instead of closing the app.\n  - Add a dedicated Draft page reached from a Settings link card with a red-dot badge when drafts exist.\n  - Draft list rows load the draft into the calculator; the draft stays listed until it is saved to History successfully.\n  - Re-saving an open draft updates it in place (new updateDraft) instead of duplicating the entry.\n  - Draft detail (Report fromDraft mode) hides export/print/share and shows an About Drafts explainer card.\n  - Add an empty state with icon and hint text to the Draft page; drop saveDraftToHistory from SettingsViewModel.\n",
   "fileSize": 5173894
 }
