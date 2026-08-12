@@ -470,11 +470,14 @@ private fun UpdateAvailableContent(
 @Composable
 private fun ChangelogText(changelog: String) {
     Column {
+        var pendingSubItem: String? = null
         changelog.split("\n").forEach { rawLine ->
             val isIndented = rawLine.startsWith(" ") || rawLine.startsWith("\t")
             val trimmed = rawLine.trim()
             when {
                 trimmed.startsWith("*") -> {
+                    pendingSubItem?.let { renderSubItem(it) }
+                    pendingSubItem = null
                     val clean = ChangelogParser.stripCommitHash(
                         trimmed.removePrefix("*").trim()
                     ).removePrefix("**").removeSuffix("**").trim()
@@ -487,25 +490,35 @@ private fun ChangelogText(changelog: String) {
                     }
                 }
                 isIndented && trimmed.startsWith("-") -> {
-                    val clean = trimmed.removePrefix("-").trim()
-                    if (clean.isNotEmpty()) {
+                    pendingSubItem?.let { renderSubItem(it) }
+                    pendingSubItem = trimmed.removePrefix("-").trim()
+                }
+                trimmed.isNotEmpty() -> {
+                    if (pendingSubItem != null) {
+                        pendingSubItem = "$pendingSubItem $trimmed"
+                    } else {
                         Text(
-                            text = "◦ $clean",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                            text = "• $trimmed",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = 8.dp)
                         )
                     }
                 }
-                trimmed.isNotEmpty() -> {
-                    Text(
-                        text = "• $trimmed",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
             }
         }
+        pendingSubItem?.let { renderSubItem(it) }
+    }
+}
+
+@Composable
+private fun renderSubItem(text: String) {
+    if (text.isNotEmpty()) {
+        Text(
+            text = "◦ $text",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+        )
     }
 }
 
