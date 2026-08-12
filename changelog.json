@@ -1,6 +1,38 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.15",
+      "publishedAt": "2026-08-12T13:22:50Z",
+      "items": [
+        {
+          "title": "feat: rename update row to OTA",
+          "subItems": [
+            "Rename the Update card's first row title from Check for updates to OTA.",
+            "Change its subtitle to Check for updates with matching Bangla strings."
+          ]
+        },
+        {
+          "title": "refactor: drop theme/language value pills from settings rows",
+          "subItems": [
+            "Remove current theme and language value pills from the General settings rows.",
+            "Drop the trailing param and pill rendering from SettingsGroupRow.",
+            "Remove now-unused AppTheme and clip imports.",
+            "Current theme and language stay highlighted inside their detail screens."
+          ]
+        },
+        {
+          "title": "feat: revamp draft page cards and author card",
+          "subItems": [
+            "Settings Draft card: red dot becomes a corner badge on the bookmark icon, hidden entirely when no drafts exist.",
+            "Draft page: rows converted to History-style cards with Draft #N titles (localized to Bangla).",
+            "Draft page: add Cash Breakdown heading with saved-draft count above the draft cards.",
+            "Draft card load action uses the Calculate icon instead of the save floppy icon.",
+            "About: Source Code subtitle now shows GitHub; Version row gets a distinct NewReleases icon."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.14",
       "publishedAt": "2026-08-12T11:19:29Z",
       "items": [

@@ -1,7 +1,7 @@
 {
-  "versionCode": 50,
-  "versionName": "v3.4.14",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.14/CashFigure.apk",
-  "changelog": "* **feat: rework draft save/load flow** (14555db)\n  - Remove idle \"Nothing counted yet\" card from the calculator home screen.\n  - Keep the app open on back-exit: Save as Draft now saves and clears the calculator instead of closing the app.\n  - Add a dedicated Draft page reached from a Settings link card with a red-dot badge when drafts exist.\n  - Draft list rows load the draft into the calculator; the draft stays listed until it is saved to History successfully.\n  - Re-saving an open draft updates it in place (new updateDraft) instead of duplicating the entry.\n  - Draft detail (Report fromDraft mode) hides export/print/share and shows an About Drafts explainer card.\n  - Add an empty state with icon and hint text to the Draft page; drop saveDraftToHistory from SettingsViewModel.\n",
-  "fileSize": 5173894
+  "versionCode": 51,
+  "versionName": "v3.4.15",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.15/CashFigure.apk",
+  "changelog": "* **feat: rename update row to OTA** (19332bb)\n  - Rename the Update card's first row title from Check for updates to OTA.\n  - Change its subtitle to Check for updates with matching Bangla strings.\n* **refactor: drop theme/language value pills from settings rows** (47dc380)\n  - Remove current theme and language value pills from the General settings rows.\n  - Drop the trailing param and pill rendering from SettingsGroupRow.\n  - Remove now-unused AppTheme and clip imports.\n  - Current theme and language stay highlighted inside their detail screens.\n* **feat: revamp draft page cards and author card** (1ecbd60)\n  - Settings Draft card: red dot becomes a corner badge on the bookmark icon, hidden entirely when no drafts exist.\n  - Draft page: rows converted to History-style cards with Draft #N titles (localized to Bangla).\n  - Draft page: add Cash Breakdown heading with saved-draft count above the draft cards.\n  - Draft card load action uses the Calculate icon instead of the save floppy icon.\n  - About: Source Code subtitle now shows GitHub; Version row gets a distinct NewReleases icon.\n",
+  "fileSize": 5173890
 }
