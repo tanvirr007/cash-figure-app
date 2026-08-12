@@ -234,7 +234,7 @@ class CalculatorViewModel @Inject constructor(
         val activeDenominations = rows.count { it.quantity > 0 }
         val useBengali = state.currentLanguage == AppLanguage.BANGLA
         val draftSavedLabel = state.draftUpdatedAt?.let {
-            DateTimeFormatter.format(it, useBengali = useBengali)
+            DateTimeFormatter.format(it, isBangla = useBengali)
         } ?: ""
 
         return state.copy(
