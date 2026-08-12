@@ -1,6 +1,49 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.17",
+      "publishedAt": "2026-08-12T16:19:27Z",
+      "items": [
+        {
+          "title": "refactor: fold draft card into the General settings group",
+          "subItems": [
+            "Draft link is now a SettingsGroupRow inside the General card after Currency",
+            "Keeps the red-dot badge when drafts exist and the draft-count subtitle",
+            "Removes the standalone DraftLinkCard composable",
+            "SettingsGroupRow gains an optional badge param"
+          ]
+        },
+        {
+          "title": "feat: separate English and Bangla fonts",
+          "subItems": [
+            "English UI now renders in the device system sans-serif (Roboto, Google Sans, etc.)",
+            "Bangla UI keeps Tiro Bangla with the exact same styles as before",
+            "CashFigureTheme gains an isBangla flag; MainActivity passes the existing language state",
+            "English PDF reports use the system default typeface; Bangla PDFs keep Tiro Bangla",
+            "typography styles are now built from one appTypography(fontFamily) helper"
+          ]
+        },
+        {
+          "title": "fix: naturalize Bangla translations across the app",
+          "subItems": [
+            "Rewrite all Bangla UI strings to read as natural, everyday Bangla.",
+            "Replace robotic loanwords: ডাটা→ডেটা, রিস্টোর→পুনরুদ্ধার, ভার্সন→সংস্করণ, প্রিভিউ→দেখুন.",
+            "Use মন্তব্য for the remarks field so it no longer collides with banknote নোট.",
+            "Unify variants (সব/সকল/সমস্ত) and sentence punctuation with the danda (।).",
+            "Revise Cash Breakdown to বিস্তারিত হিসাব and update the README settled-terms table.",
+            "Mark the README translation section as revised instead of work-in-progress."
+          ]
+        },
+        {
+          "title": "feat: show saved draft count as draft page header",
+          "subItems": [
+            "Replace the Cash Breakdown heading with a single count line: 1 draft saved for one, N drafts saved for more.",
+            "Match Bangla with N টি ড্রাফট সংরক্ষিত আছে for any count."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.16",
       "publishedAt": "2026-08-12T14:44:20Z",
       "items": [
