@@ -1,7 +1,7 @@
 {
-  "versionCode": 51,
-  "versionName": "v3.4.15",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.15/CashFigure.apk",
-  "changelog": "* **feat: rename update row to OTA** (19332bb)\n  - Rename the Update card's first row title from Check for updates to OTA.\n  - Change its subtitle to Check for updates with matching Bangla strings.\n* **refactor: drop theme/language value pills from settings rows** (47dc380)\n  - Remove current theme and language value pills from the General settings rows.\n  - Drop the trailing param and pill rendering from SettingsGroupRow.\n  - Remove now-unused AppTheme and clip imports.\n  - Current theme and language stay highlighted inside their detail screens.\n* **feat: revamp draft page cards and author card** (1ecbd60)\n  - Settings Draft card: red dot becomes a corner badge on the bookmark icon, hidden entirely when no drafts exist.\n  - Draft page: rows converted to History-style cards with Draft #N titles (localized to Bangla).\n  - Draft page: add Cash Breakdown heading with saved-draft count above the draft cards.\n  - Draft card load action uses the Calculate icon instead of the save floppy icon.\n  - About: Source Code subtitle now shows GitHub; Version row gets a distinct NewReleases icon.\n",
-  "fileSize": 5173890
+  "versionCode": 52,
+  "versionName": "v3.4.16",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v3.4.16/CashFigure.apk",
+  "changelog": "* **fix: every save to draft creates a new draft** (02c8691)\n  - Save to Draft always inserts a new draft instead of silently overwriting the loaded draft, so the draft list can grow without limit.\n  - Name drafts from the max existing Draft #N plus one, so numbers are never duplicated after deletions or restores.\n  - Remove the now-unused updateDraft repository method and the getDraftCount DAO query.\n  - Expose loadedDraftId in CalculatorUiState and show a dialog hint when a draft is loaded: a new draft will be created and the loaded one stays.\n  - Update the save toast to New draft saved in English and Bangla.\n",
+  "fileSize": 5173894
 }

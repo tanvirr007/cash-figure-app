@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.16",
+      "publishedAt": "2026-08-12T14:44:20Z",
+      "items": [
+        {
+          "title": "fix: every save to draft creates a new draft",
+          "subItems": [
+            "Save to Draft always inserts a new draft instead of silently overwriting the loaded draft, so the draft list can grow without limit.",
+            "Name drafts from the max existing Draft #N plus one, so numbers are never duplicated after deletions or restores.",
+            "Remove the now-unused updateDraft repository method and the getDraftCount DAO query.",
+            "Expose loadedDraftId in CalculatorUiState and show a dialog hint when a draft is loaded: a new draft will be created and the loaded one stays.",
+            "Update the save toast to New draft saved in English and Bangla."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.15",
       "publishedAt": "2026-08-12T13:22:50Z",
       "items": [
