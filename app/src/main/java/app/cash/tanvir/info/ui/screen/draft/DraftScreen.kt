@@ -229,14 +229,31 @@ private fun DraftRowItem(
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = draftTitle(draft.name, isBangla),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = draftTitle(draft.name, isBangla),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(
+                    onClick = onDiscard,
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.DeleteSweep,
+                        contentDescription = if (isBangla) "ড্রাফট বাতিল করুন" else "Discard draft",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -264,28 +281,13 @@ private fun DraftRowItem(
 
             Text(
                 text = if (isBangla) {
-                    NumberToWordsConverter.toBangla(draft.grandTotal)
+                    "কথায়: ${NumberToWordsConverter.toBangla(draft.grandTotal)}"
                 } else {
-                    NumberToWordsConverter.toEnglish(draft.grandTotal)
+                    "In Words: ${NumberToWordsConverter.toEnglish(draft.grandTotal)}"
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                IconButton(onClick = onDiscard) {
-                    Icon(
-                        imageVector = Icons.Rounded.DeleteSweep,
-                        contentDescription = if (isBangla) "ড্রাফট বাতিল করুন" else "Discard draft",
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
         }
     }
 }
