@@ -39,6 +39,7 @@ import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.Fingerprint
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Vibration
@@ -1047,6 +1048,7 @@ private fun CurrencyContent(
     onToggle: (Int, Boolean) -> Unit
 ) {
     val context = LocalContext.current
+    val togglableValues = listOf(1, 2, 5, 10, 20, 50)
     SettingsCard {
         Text(
             if (isBangla) "হোমপেজের নোটগুলো নিয়ন্ত্রণ করুন" else "Manage homepage notes",
@@ -1096,23 +1098,71 @@ private fun CurrencyContent(
         }
     }
     Spacer(modifier = Modifier.height(16.dp))
-    CurrencySummaryCard(isBangla = isBangla, disabledDenominations = disabledDenominations)
+    CurrencySummaryCard(
+        isBangla = isBangla,
+        disabledDenominations = disabledDenominations,
+        togglableValues = togglableValues
+    )
+    if (disabledDenominations.containsAll(togglableValues)) {
+        Spacer(modifier = Modifier.height(12.dp))
+        SettingsCard {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.error.copy(alpha = 0.14f),
+                            shape = RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = if (isBangla) "এই নোটগুলো হোমপেজে দেখাবে না।"
+                    else "These notes won't show on the homepage",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+        }
+    }
 }
 
 @Composable
-private fun CurrencySummaryCard(isBangla: Boolean, disabledDenominations: Set<Int>) {
-    val togglableValues = listOf(1, 2, 5, 10, 20, 50)
+private fun CurrencySummaryCard(
+    isBangla: Boolean,
+    disabledDenominations: Set<Int>,
+    togglableValues: List<Int>
+) {
     val enabledCount = togglableValues.count { it !in disabledDenominations }
     val enabledText = if (isBangla) {
-        "${BanglaDigitConverter.toBangla(enabledCount)} / ${BanglaDigitConverter.toBangla(6)} চালু"
+        "${BanglaDigitConverter.toBangla(enabledCount)} / ${BanglaDigitConverter.toBangla(togglableValues.size)} চালু"
     } else {
-        "$enabledCount of 6 enabled"
+        "$enabledCount of ${togglableValues.size} enabled"
     }
     SettingsCard {
         Text(
             if (isBangla) "সারসংক্ষেপ" else "Summary",
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            if (isBangla) "১০০, ২০০, ৫০০ ও ১০০০ টাকার নোট সবসময় হোমপেজে থাকবে।"
+            else "100, 200, 500 and 1000 Tk notes always stay on the homepage",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
         )
         Spacer(modifier = Modifier.height(10.dp))
         Row(
@@ -1134,7 +1184,7 @@ private fun CurrencySummaryCard(isBangla: Boolean, disabledDenominations: Set<In
         }
         Spacer(modifier = Modifier.height(8.dp))
         val animatedProgress by animateFloatAsState(
-            targetValue = enabledCount / 6f,
+            targetValue = enabledCount / togglableValues.size.toFloat(),
             animationSpec = tween(durationMillis = 400),
             label = "summaryProgress"
         )
@@ -1147,22 +1197,6 @@ private fun CurrencySummaryCard(isBangla: Boolean, disabledDenominations: Set<In
             color = MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant
         )
-        Spacer(modifier = Modifier.height(10.dp))
-        Text(
-            if (isBangla) "১০০, ২০০, ৫০০ ও ১০০০ টাকার নোট সবসময় হোমপেজে থাকবে।"
-            else "100, 200, 500 and 1000 Tk notes always stay on the homepage",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-        )
-        if (enabledCount == 0) {
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                if (isBangla) "এই নোটগুলো হোমপেজে দেখাবে না।" else "These notes won't show on the homepage.",
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
     }
 }
 
