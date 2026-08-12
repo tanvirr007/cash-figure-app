@@ -40,8 +40,9 @@ class ReportViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val sheetId: Long = savedStateHandle.get<Long>("sheetId") ?: -1L
+    val sheetId: Long = savedStateHandle.get<Long>("sheetId") ?: -1L
     val fromSave: Boolean = savedStateHandle.get<Boolean>("fromSave") ?: false
+    val fromDraft: Boolean = savedStateHandle.get<Boolean>("fromDraft") ?: false
 
     private val _uiState = MutableStateFlow(ReportUiState())
     val uiState: StateFlow<ReportUiState> = _uiState.asStateFlow()
@@ -54,7 +55,9 @@ class ReportViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            val loadedSheet = if (sheetId > 0) {
+            val loadedSheet = if (fromDraft && sheetId > 0) {
+                sheetRepository.getDraftById(sheetId)
+            } else if (sheetId > 0) {
                 sheetRepository.getSheetById(sheetId)
             } else {
                 // If no specific sheet ID passed, load current working sheet

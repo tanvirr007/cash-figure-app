@@ -23,10 +23,13 @@ import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsSection
 import app.cash.tanvir.info.ui.screen.update.UpdateScreen
 
 sealed class Screen(val route: String) {
-    object Calculator : Screen("calculator")
+    object Calculator : Screen("calculator?loadDraftId={loadDraftId}") {
+        fun createRoute(loadDraftId: Long = -1L) = "calculator?loadDraftId=$loadDraftId"
+    }
     object History : Screen("history")
-    object Report : Screen("report/{sheetId}?fromSave={fromSave}") {
-        fun createRoute(sheetId: Long, fromSave: Boolean = false) = "report/$sheetId?fromSave=$fromSave"
+    object Report : Screen("report/{sheetId}?fromSave={fromSave}&fromDraft={fromDraft}") {
+        fun createRoute(sheetId: Long, fromSave: Boolean = false, fromDraft: Boolean = false) =
+            "report/$sheetId?fromSave=$fromSave&fromDraft=$fromDraft"
     }
     object Changelog : Screen("changelog")
     object Update : Screen("update")
@@ -57,7 +60,15 @@ fun NavGraph(
             slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300)) + fadeOut(tween(200))
         }
     ) {
-        composable(Screen.Calculator.route) {
+        composable(
+            route = Screen.Calculator.route,
+            arguments = listOf(
+                navArgument("loadDraftId") {
+                    type = NavType.LongType
+                    defaultValue = -1L
+                }
+            )
+        ) {
             CalculatorScreen(
                 onNavigateToHistory = { navController.navigate(Screen.History.route) },
                 onNavigateToReport = { sheetId, fromSave -> navController.navigate(Screen.Report.createRoute(sheetId, fromSave)) },
@@ -81,11 +92,21 @@ fun NavGraph(
                 navArgument("fromSave") {
                     type = NavType.BoolType
                     defaultValue = false
+                },
+                navArgument("fromDraft") {
+                    type = NavType.BoolType
+                    defaultValue = false
                 }
             )
         ) {
             ReportScreen(
-                onNavigateBack = { navController.popBackStack() }
+                onNavigateBack = { navController.popBackStack() },
+                onLoadIntoCalculator = { draftId ->
+                    navController.navigate(Screen.Calculator.createRoute(loadDraftId = draftId)) {
+                        popUpTo(Screen.Calculator.route) { inclusive = true }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 
@@ -99,6 +120,9 @@ fun NavGraph(
                 onNavigateToAbout = { navController.navigate(Screen.About.route) },
                 onNavigateToSettingsDetail = { section ->
                     navController.navigate(Screen.SettingsDetail.createRoute(section))
+                },
+                onNavigateToDraftReport = { draftId ->
+                    navController.navigate(Screen.Report.createRoute(draftId, fromDraft = true))
                 }
             )
         }

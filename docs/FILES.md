@@ -15,7 +15,7 @@ app/src/main/java/app/cash/tanvir/info/
 │   ├── model/                            Sheet, Denomination, DenominationRow, BackupData, UpdateManifest (+ DownloadedUpdate), ReleaseChangelog
 │   └── repository/                       SheetRepository, SettingsRepository, UpdateRepository (interfaces)
 ├── data/
-│   ├── local/db/                         CashFigureDatabase, SheetDao, SheetEntity
+│   ├── local/db/                         CashFigureDatabase, SheetDao, DraftDao, SheetEntity, DraftEntity
 │   ├── local/preferences/                PreferencesManager (DataStore)
 │   └── repository/                       SheetRepositoryImpl, SettingsRepositoryImpl, UpdateRepositoryImpl
 ├── di/                                   DatabaseModule, RepositoryModule (Hilt)
@@ -72,35 +72,37 @@ app/src/test/java/app/cash/tanvir/info/util/  6 JUnit test classes
 | `domain/model/Sheet.kt` | 17 | Full calculation sheet: `id`, `name`, `rows`, computed `grandTotal`, `totalPieces`, `activeDenominations`, `createdAt`/`updatedAt`, `remark` |
 | `domain/model/Denomination.kt` | 26 | `Denomination.ALL` — 1000/500/200/100/50/20/10/5/2/1 Taka with labels (EN/BN) |
 | `domain/model/DenominationRow.kt` | 11 | One denomination entry: `quantity`, `total`, `isActive` |
-| `domain/model/BackupData.kt` | 20 | JSON backup payload (version + sheets) |
+| `domain/model/BackupData.kt` | 20 | JSON backup payload (version 2 = sheets + drafts) |
 | `domain/model/UpdateManifest.kt` | 31 | OTA manifest (`versionCode`/`versionName`/`downloadUrl`/`changelog`/`fileSize`) + `DownloadedUpdate` result (URI + legacy file) |
 | `domain/model/ReleaseChangelog.kt` | 22 | One release's changelog (`tagName`/`publishedAt`/`items`) + `ChangelogItem` (`title`/`subItems`) |
-| `domain/repository/SheetRepository.kt` | 23 | Sheet CRUD, search, pin/favorite, duplicate, restore-deleted, backup/restore |
+| `domain/repository/SheetRepository.kt` | 29 | Sheet CRUD, search, pin/favorite, duplicate, restore-deleted, backup/restore + draft CRUD (`getAllDrafts`/`getDraftById`/`saveDraft`/`deleteDraft`/`restoreDrafts`/`clearAllDrafts`) |
 | `domain/repository/SettingsRepository.kt` | 27 | Settings flows: theme, language, biometrics, haptics, screenshot block, visible denominations |
 | `domain/repository/UpdateRepository.kt` | 36 | OTA contract: `fetchManifest()` / `fetchReleaseChangelogs()` / `downloadApk(manifest, onProgress)` (network-IO only) |
 
 ### data/ — Room, DataStore, Repository Implementations
 | File | Lines | Purpose / Key APIs |
 |---|---|---|
-| `data/local/db/CashFigureDatabase.kt` | 22 | Room `@Database` (SheetEntity, version-safe) |
+| `data/local/db/CashFigureDatabase.kt` | 43 | Room `@Database` (SheetEntity + DraftEntity, version 3, `MIGRATION_2_3` creates `drafts`) |
 | `data/local/db/entity/SheetEntity.kt` | 25 | Room entity mirroring `Sheet` |
+| `data/local/db/entity/DraftEntity.kt` | 22 | Room entity for a saved draft snapshot |
 | `data/local/db/dao/SheetDao.kt` | 67 | Flow queries, upsert, delete, soft-delete/restore, search, backup export |
+| `data/local/db/dao/DraftDao.kt` | 33 | Draft flow queries, insert/delete, count, clear |
 | `data/local/preferences/PreferencesManager.kt` | 143 | DataStore keys + flows: `AppTheme`, `AppLanguage`, biometric, haptics (enabled/intensity), screenshot block, visible denominations, last known version (update-complete toast) |
-| `data/repository/SheetRepositoryImpl.kt` | 195 | Maps entity ↔ domain, applies computations, backup/restore logic |
+| `data/repository/SheetRepositoryImpl.kt` | 295 | Maps entity ↔ domain, applies computations, backup/restore logic, draft mapping (quantitiesJson helpers), auto-names history sheets "Sheet #N" |
 | `data/repository/SettingsRepositoryImpl.kt` | 75 | Settings flow plumbing |
 | `data/repository/UpdateRepositoryImpl.kt` | 127 | `HttpURLConnection` OTA: raw-CDN manifest + changelog fetches, streamed APK download to `Downloads/CashFigure/ota/` with progress + rollback |
 
 ### di/ — Hilt Modules
 | File | Lines | Purpose |
 |---|---|---|
-| `di/DatabaseModule.kt` | 32 | Provides Room DB + DAO |
+| `di/DatabaseModule.kt` | 38 | Provides Room DB (explicit migrations) + SheetDao + DraftDao |
 | `di/RepositoryModule.kt` | 36 | Binds repository interfaces to implementations (incl. `UpdateRepository`) |
 
 ### ui/ — Activity, Navigation, Theme
 | File | Lines | Purpose |
 |---|---|---|
 | `ui/MainActivity.kt` | 400 | Single activity: splash, edge-to-edge, dark/dynamic theme, FLAG_SECURE (screenshot block), FLAG_KEEP_SCREEN_ON, biometric lock (40s background timeout, fingerprint or device screen lock, fail-closed pre-check, auto-unlock when no auth method), one-shot launch OTA check + tap/back-proof update dialog, update-complete toast, `LockScreen` composable |
-| `ui/navigation/NavGraph.kt` | 130 | Sealed `Screen`: Calculator (start) / History / Report (`report/{sheetId}?fromSave=`) / Changelog / Update / About / SettingsDetail (`settings-detail?section=`) / Settings |
+| `ui/navigation/NavGraph.kt` | 163 | Sealed `Screen`: Calculator (start, `calculator?loadDraftId=`) / History / Report (`report/{sheetId}?fromSave=&fromDraft=`) / Changelog / Update / About / SettingsDetail (`settings-detail?section=`) / Settings |
 | `ui/theme/Color.kt` | 51 | Teal/Amber M3 palettes, light/dark schemes |
 | `ui/theme/Theme.kt` | 97 | `CashFigureTheme`, dynamic color support |
 | `ui/theme/Type.kt` | 101 | Typography with Tiro Bangla font |
@@ -108,10 +110,11 @@ app/src/test/java/app/cash/tanvir/info/util/  6 JUnit test classes
 ### ui/screen/ — Feature Screens + ViewModels
 | File | Lines | Purpose |
 |---|---|---|
-| `calculator/CalculatorScreen.kt` | 623 | Main counting UI: denomination rows, live totals, breakdown dialog, save flow |
-| `calculator/CalculatorViewModel.kt` | 212 | StateFlow of rows, live totals, save/update sheet |
+| `calculator/CalculatorScreen.kt` | 688 | Main counting UI: denomination rows, live totals, breakdown dialog, save flow, minimal back-exit "Save as Draft?" dialog (2 buttons) |
+| `calculator/CalculatorViewModel.kt` | 279 | StateFlow of rows, live totals, save/update sheet, `saveAsDraft()`/`loadDraft()` (draft load via `loadDraftId` nav arg) |
 | `calculator/components/DashboardCard.kt` | 110 | Summary cards (grand total, pieces, words) |
 | `calculator/components/DenominationRowItem.kt` | 140 | Single denomination row with quantity input |
+| `calculator/components/DraftStatusCards.kt` | 95 | `IdleHintCard` only (draft management moved to Settings) |
 | `history/HistoryScreen.kt` | 339 | History list: search, rename, duplicate, pin, favorite, restore deleted, stats |
 | `history/HistoryViewModel.kt` | 123 | History state, filters, actions |
 | `changelog/ChangelogScreen.kt` | 222 | Full-screen changelog: TopAppBar, release cards, Latest badge, loading/error/empty states |
@@ -120,10 +123,10 @@ app/src/test/java/app/cash/tanvir/info/util/  6 JUnit test classes
 | `about/AboutScreen.kt` | — | Full-screen about: bundled GitHub avatar, author name, tagline + brief, links (website/github/telegram/email/source code), dynamic-year footer |
 | `settingsdetail/SettingsDetailScreen.kt` | 1392 | Full-page Theme / Language / Currency / Miscellaneous detail view (shared `SettingsViewModel`, live updates, biometric toggle for App Lock — fingerprint or device screen lock) |
 | `settingsdetail/SettingsSection.kt` | — | `SettingsSection` enum (THEME/LANGUAGE/CURRENCY/MISCELLANEOUS) with route params |
-| `report/ReportScreen.kt` | 425 | Report view: sheet summary, notes, export (PDF/CSV/TXT), print, share |
-| `report/ReportViewModel.kt` | 134 | Report state, export/print/share orchestration |
-| `settings/SettingsScreen.kt` | 333 | Compact card list: Theme / Language / Currency / Miscellaneous (→ full-page), Backup & Restore, Updates (→ Update screen), Changelog (→ full-page), Reset All, About (→ full-page) — restore dialog with 15s countdown |
-| `settings/SettingsViewModel.kt` | 493 | All settings state + backup/restore/reset actions (15s restore countdown) + OTA state machine (`UpdateStatus`, check/download/cancel/dismiss) |
+| `report/ReportScreen.kt` | 439 | Report view: sheet summary, notes, export (PDF/CSV/TXT), print, share; draft mode shows "Load into Calculator" |
+| `report/ReportViewModel.kt` | 137 | Report state, export/print/share orchestration; `fromDraft` loads via `getDraftById` |
+| `settings/SettingsScreen.kt` | 534 | Compact card list: Theme / Language / Currency / Miscellaneous (→ full-page), Backup & Restore, Updates (→ Update screen), Changelog (→ full-page), Reset All, About (→ full-page) — restore dialog with 15s countdown; Draft group card (expand-inline draft list with Save-to-History/Discard, tap → report) |
+| `settings/SettingsViewModel.kt` | 697 | All settings state + backup/restore/reset actions (15s restore countdown) + OTA state machine (`UpdateStatus`, check/download/cancel/dismiss) + draft state (`getAllDrafts` collect, `saveDraftToHistory`, discard dialog) + drafts in backup (v2) / restore |
 
 ### util/ — Pure Helpers
 | File | Lines | Purpose / Key APIs |

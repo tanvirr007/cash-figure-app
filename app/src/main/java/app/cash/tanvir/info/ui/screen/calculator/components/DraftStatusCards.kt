@@ -3,7 +3,6 @@ package app.cash.tanvir.info.ui.screen.calculator.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -13,26 +12,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material.icons.rounded.EditNote
-import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
 /**
- * Draft status cards for the calculator, styled like the Settings rows.
- * Mutually exclusive: idle hint (nothing counted) vs draft info (a saved draft exists).
+ * Status cards for the calculator, styled like the Settings rows.
+ * Draft management (saved drafts list, save/discard) lives in Settings.
  */
 
 /**
@@ -53,46 +48,6 @@ fun IdleHintCard(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-    }
-}
-
-/**
- * Card showing that a draft is saved, with a discard action.
- */
-@Composable
-fun DraftSavedCard(
-    title: String,
-    subtitle: String,
-    discardContentDescription: String,
-    onDiscard: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    StatusCardShell(modifier = modifier) {
-        StatusIconBadge(Icons.Rounded.Save)
-        Spacer(modifier = Modifier.width(10.dp))
-        androidx.compose.foundation.layout.        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-        IconButton(onClick = onDiscard) {
-            Icon(
-                imageVector = Icons.Rounded.DeleteSweep,
-                contentDescription = discardContentDescription,
-                tint = MaterialTheme.colorScheme.error
-            )
-        }
     }
 }
 

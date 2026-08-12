@@ -20,4 +20,10 @@ interface SheetRepository {
     suspend fun hardDeleteSheet(id: Long)
     suspend fun clearAllHistory()
     suspend fun restoreSheets(sheets: List<Sheet>)
+    fun getAllDrafts(): Flow<List<Sheet>>
+    suspend fun getDraftById(id: Long): Sheet?
+    suspend fun saveDraft(quantities: Map<Int, String>, grandTotal: Long, totalPieces: Long, activeDenominations: Int): Long
+    suspend fun deleteDraft(id: Long)
+    suspend fun restoreDrafts(drafts: List<Sheet>)
+    suspend fun clearAllDrafts()
 }

@@ -74,7 +74,10 @@ data class SettingsUiState(
     val updateErrorReason: String? = null,   // raw exception message (download failures)
     val isUpdateDialogVisible: Boolean = false,
     val restoreCountdown: Int = 0,           // seconds remaining before Restore enables (0 = enabled)
-    val resetCountdown: Int = 0              // seconds remaining before Reset enables (0 = enabled)
+    val resetCountdown: Int = 0,             // seconds remaining before Reset enables (0 = enabled)
+    val drafts: List<Sheet> = emptyList(),
+    val showDiscardDraftDialog: Boolean = false,
+    val pendingDiscardDraftId: Long? = null
 )
 
 @HiltViewModel
@@ -140,6 +143,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsRepository.getLastSuccessfulCheck().collect { timestamp ->
                 _uiState.update { it.copy(lastSuccessfulCheck = timestamp) }
+            }
+        }
+        viewModelScope.launch {
+            sheetRepository.getAllDrafts().collect { drafts ->
+                _uiState.update { it.copy(drafts = drafts) }
             }
         }
     }
@@ -231,6 +239,60 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Convert a saved draft into a permanent history sheet, then remove the draft.
+     */
+    fun saveDraftToHistory(draft: Sheet) {
+        viewModelScope.launch {
+            try {
+                val now = System.currentTimeMillis()
+                val sheet = Sheet(
+                    name = "",
+                    rows = draft.rows,
+                    grandTotal = draft.grandTotal,
+                    totalPieces = draft.totalPieces,
+                    activeDenominations = draft.activeDenominations,
+                    createdAt = now,
+                    updatedAt = now,
+                    remark = ""
+                )
+                sheetRepository.saveSheet(sheet)
+                sheetRepository.deleteDraft(draft.id)
+                val msg = if (_uiState.value.language == AppLanguage.BANGLA) {
+                    "ড্রাফট ইতিহাসে সেভ হয়েছে"
+                } else {
+                    "Draft saved to History"
+                }
+                _uiState.update { it.copy(statusMessage = msg) }
+            } catch (e: Exception) {
+                _uiState.update { it.copy(statusMessage = "Failed to save draft: ${e.message}") }
+            }
+        }
+    }
+
+    fun openDiscardDraftDialog(draftId: Long) {
+        _uiState.update { it.copy(showDiscardDraftDialog = true, pendingDiscardDraftId = draftId) }
+    }
+
+    fun dismissDiscardDraftDialog() {
+        _uiState.update { it.copy(showDiscardDraftDialog = false, pendingDiscardDraftId = null) }
+    }
+
+    fun confirmDiscardDraft() {
+        val draftId = _uiState.value.pendingDiscardDraftId
+        _uiState.update { it.copy(showDiscardDraftDialog = false, pendingDiscardDraftId = null) }
+        if (draftId == null) return
+        viewModelScope.launch {
+            sheetRepository.deleteDraft(draftId)
+            val msg = if (_uiState.value.language == AppLanguage.BANGLA) {
+                "ড্রাফট বাতিল করা হয়েছে"
+            } else {
+                "Draft discarded"
+            }
+            _uiState.update { it.copy(statusMessage = msg) }
+        }
+    }
+
     fun onRestoreFileSelected(uri: Uri) {
         restoreCountdownJob?.cancel()
         _uiState.update { it.copy(pendingRestoreUri = uri, showRestoreWarningDialog = true, restoreCountdown = 15) }
@@ -263,8 +325,9 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val sheets = sheetRepository.getAllSheets().first()
+                val drafts = sheetRepository.getAllDrafts().first()
                 val backupObj = JSONObject()
-                backupObj.put("version", 1)
+                backupObj.put("version", 2)
                 backupObj.put("timestamp", System.currentTimeMillis())
 
                 // Backup App Settings
@@ -299,6 +362,27 @@ class SettingsViewModel @Inject constructor(
                 }
 
                 backupObj.put("sheets", sheetsArray)
+
+                // Backup Drafts
+                val draftsArray = JSONArray()
+                drafts.forEach { draft ->
+                    val draftObj = JSONObject()
+                    draftObj.put("name", draft.name)
+                    draftObj.put("grandTotal", draft.grandTotal)
+                    draftObj.put("totalPieces", draft.totalPieces)
+                    draftObj.put("activeDenominations", draft.activeDenominations)
+                    draftObj.put("createdAt", draft.createdAt)
+                    draftObj.put("updatedAt", draft.updatedAt)
+
+                    val quantitiesObj = JSONObject()
+                    draft.rows.forEach { row ->
+                        quantitiesObj.put(row.denomination.value.toString(), row.quantity.toString())
+                    }
+                    draftObj.put("quantities", quantitiesObj)
+                    draftsArray.put(draftObj)
+                }
+                backupObj.put("drafts", draftsArray)
+
                 val jsonBytes = backupObj.toString(2).toByteArray(Charsets.UTF_8)
 
                 val fileName = "CashFigure_Backup_${System.currentTimeMillis()}.json"
@@ -389,6 +473,54 @@ class SettingsViewModel @Inject constructor(
                 }
 
                 sheetRepository.restoreSheets(restoredSheets)
+
+                // Restore Drafts
+                val draftsArray = backupObj.optJSONArray("drafts") ?: JSONArray()
+                val restoredDrafts = mutableListOf<Sheet>()
+                for (i in 0 until draftsArray.length()) {
+                    val draftObj = draftsArray.getJSONObject(i)
+                    val name = draftObj.optString("name", "Draft")
+                    val grandTotal = draftObj.optLong("grandTotal", 0L)
+                    val totalPieces = draftObj.optLong("totalPieces", 0L)
+                    val activeDenom = draftObj.optInt("activeDenominations", 0)
+                    val createdAt = draftObj.optLong("createdAt", System.currentTimeMillis())
+                    val updatedAt = draftObj.optLong("updatedAt", System.currentTimeMillis())
+
+                    val quantitiesObj = draftObj.optJSONObject("quantities") ?: JSONObject()
+                    val quantitiesMap = mutableMapOf<Int, Long>()
+                    quantitiesObj.keys().forEach { k ->
+                        val v = k.toIntOrNull()
+                        if (v != null) {
+                            val q = quantitiesObj.optString(k, "0").toLongOrNull() ?: 0L
+                            quantitiesMap[v] = q
+                        }
+                    }
+
+                    val rows = Denomination.ALL.map { denom ->
+                        val q = quantitiesMap[denom.value] ?: 0L
+                        DenominationRow(
+                            denomination = denom,
+                            quantity = q,
+                            total = denom.value.toLong() * q
+                        )
+                    }
+
+                    restoredDrafts.add(
+                        Sheet(
+                            id = 0L,
+                            name = name,
+                            rows = rows,
+                            grandTotal = grandTotal,
+                            totalPieces = totalPieces,
+                            activeDenominations = activeDenom,
+                            createdAt = createdAt,
+                            updatedAt = updatedAt,
+                            remark = ""
+                        )
+                    )
+                }
+                sheetRepository.restoreDrafts(restoredDrafts)
+
                 _uiState.update { it.copy(statusMessage = "Successfully restored ${restoredSheets.size} item(s) from backup (v$version)") }
             } catch (e: Exception) {
                 _uiState.update { it.copy(statusMessage = "Failed to restore backup: ${e.message}") }

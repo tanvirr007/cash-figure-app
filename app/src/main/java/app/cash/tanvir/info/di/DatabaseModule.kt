@@ -3,6 +3,7 @@ package app.cash.tanvir.info.di
 import android.content.Context
 import androidx.room.Room
 import app.cash.tanvir.info.data.local.db.CashFigureDatabase
+import app.cash.tanvir.info.data.local.db.dao.DraftDao
 import app.cash.tanvir.info.data.local.db.dao.SheetDao
 import dagger.Module
 import dagger.Provides
@@ -22,11 +23,16 @@ object DatabaseModule {
             context,
             CashFigureDatabase::class.java,
             CashFigureDatabase.DATABASE_NAME
-        ).fallbackToDestructiveMigration().build()
+        ).addMigrations(CashFigureDatabase.MIGRATION_2_3).build()
     }
 
     @Provides
     fun provideSheetDao(database: CashFigureDatabase): SheetDao {
         return database.sheetDao()
+    }
+
+    @Provides
+    fun provideDraftDao(database: CashFigureDatabase): DraftDao {
+        return database.draftDao()
     }
 }

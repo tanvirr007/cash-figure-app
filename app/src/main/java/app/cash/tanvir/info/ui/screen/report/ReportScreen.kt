@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Print
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material.icons.automirrored.filled.TextSnippet
+import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -64,6 +65,7 @@ import app.cash.tanvir.info.util.HapticHelper
 @Composable
 fun ReportScreen(
     onNavigateBack: () -> Unit,
+    onLoadIntoCalculator: (Long) -> Unit = { _ -> },
     viewModel: ReportViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -297,6 +299,25 @@ fun ReportScreen(
                                 }
                             },
                             style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+
+                // Load into Calculator: draft reports only (back-exit was never reached)
+                if (viewModel.fromDraft) {
+                    Button(
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            onLoadIntoCalculator(viewModel.sheetId)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(Icons.Rounded.Calculate, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = if (isBangla) "ক্যালকুলেটরে লোড করুন" else "Load into Calculator",
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }

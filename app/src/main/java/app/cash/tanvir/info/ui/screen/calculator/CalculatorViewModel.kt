@@ -2,6 +2,7 @@ package app.cash.tanvir.info.ui.screen.calculator
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
@@ -11,7 +12,6 @@ import app.cash.tanvir.info.domain.model.Sheet
 import app.cash.tanvir.info.domain.repository.SettingsRepository
 import app.cash.tanvir.info.domain.repository.SheetRepository
 import app.cash.tanvir.info.util.CurrencyFormatter
-import app.cash.tanvir.info.util.DateTimeFormatter
 import app.cash.tanvir.info.util.NumberToWordsConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,12 +37,7 @@ data class CalculatorUiState(
 
     val quantities: Map<Int, String> = Denomination.ALL.associate { it.value to "" },
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
-    val disabledDenominations: Set<Int> = emptySet(),
-
-    // Draft row as last persisted in the DB (drives the draft card)
-    val savedDraftTotal: Long = 0L,
-    val draftUpdatedAt: Long? = null,
-    val draftSavedLabel: String = ""
+    val disabledDenominations: Set<Int> = emptySet()
 )
 
 /**
@@ -54,7 +49,8 @@ data class CalculatorUiState(
 @HiltViewModel
 class CalculatorViewModel @Inject constructor(
     private val sheetRepository: SheetRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CalculatorUiState())
@@ -62,6 +58,9 @@ class CalculatorViewModel @Inject constructor(
 
     // Upper bound: 999 Crore (9,99,99,99,999)
     private val maxGrandTotal = 9_99_99_99_999L
+
+    // One-shot: draft id to load into the calculator (from Report "Load into Calculator")
+    private val loadDraftId: Long = savedStateHandle.get<Long>("loadDraftId") ?: -1L
 
     init {
         // Observe language settings
@@ -95,11 +94,27 @@ class CalculatorViewModel @Inject constructor(
                 _uiState.update { state ->
                     recalculate(
                         state.copy(
-                            quantities = restoredQuantities,
-                            savedDraftTotal = sheet?.grandTotal ?: 0L,
-                            draftUpdatedAt = sheet?.updatedAt
+                            quantities = restoredQuantities
                         )
                     )
+                }
+            }
+        }
+
+        // Load a saved draft into the calculator (navigated from Report with loadDraftId arg)
+        if (loadDraftId > 0L) {
+            viewModelScope.launch {
+                val draft = sheetRepository.getDraftById(loadDraftId)
+                if (draft != null) {
+                    val draftQuantities = draft.rows.associate {
+                        it.denomination.value to if (it.quantity > 0) it.quantity.toString() else ""
+                    }
+                    _uiState.update { state ->
+                        recalculate(state.copy(quantities = draftQuantities))
+                    }
+                    // Persist as the working sheet so a later restart resumes it, then drop the draft
+                    flushDraft()
+                    sheetRepository.deleteDraft(draft.id)
                 }
             }
         }
@@ -141,6 +156,24 @@ class CalculatorViewModel @Inject constructor(
     fun discardDraft() {
         clearAll()
         flushDraft()
+    }
+
+    /**
+     * Save the current count as a new draft entry (back-exit "Save to Draft").
+     * The working sheet (id = -1) is left untouched so the count resumes on restart.
+     * Blocking is intentional: the write must complete before the app process dies.
+     */
+    fun saveAsDraft() {
+        val state = _uiState.value
+        if (state.grandTotal <= 0L) return
+        runBlocking {
+            sheetRepository.saveDraft(
+                quantities = state.quantities,
+                grandTotal = state.grandTotal,
+                totalPieces = state.totalPieces,
+                activeDenominations = state.activeDenominations
+            )
+        }
     }
 
     /**
@@ -233,9 +266,6 @@ class CalculatorViewModel @Inject constructor(
         val totalPieces = rows.sumOf { it.quantity }
         val activeDenominations = rows.count { it.quantity > 0 }
         val useBengali = state.currentLanguage == AppLanguage.BANGLA
-        val draftSavedLabel = state.draftUpdatedAt?.let {
-            DateTimeFormatter.format(it, isBangla = useBengali)
-        } ?: ""
 
         return state.copy(
             rows = rows,
@@ -244,8 +274,7 @@ class CalculatorViewModel @Inject constructor(
             totalPieces = totalPieces,
             activeDenominations = activeDenominations,
             amountInWordsEn = NumberToWordsConverter.toEnglish(grandTotal),
-            amountInWordsBn = NumberToWordsConverter.toBangla(grandTotal),
-            draftSavedLabel = draftSavedLabel
+            amountInWordsBn = NumberToWordsConverter.toBangla(grandTotal)
         )
     }
 }
