@@ -106,7 +106,7 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // General group: App Theme / Language / Currency
+            // General group: App Theme / Language / Currency / Draft
             SettingsGroupCard(title = if (isBangla) "সাধারণ" else "General") {
                 SettingsGroupRow(
                     icon = Icons.Rounded.AutoAwesome,
@@ -137,18 +137,22 @@ fun SettingsScreen(
                         onNavigateToSettingsDetail(SettingsSection.CURRENCY)
                     }
                 )
+                SettingsGroupDivider()
+                SettingsGroupRow(
+                    icon = Icons.Rounded.Bookmarks,
+                    badge = uiState.drafts.isNotEmpty(),
+                    title = if (isBangla) "ড্রাফট" else "Draft",
+                    subtitle = when {
+                        uiState.drafts.isEmpty() -> if (isBangla) "কোনো ড্রাফট নেই" else "No drafts"
+                        isBangla -> "${BanglaDigitConverter.toBangla(uiState.drafts.size.toLong())}টি ড্রাফট"
+                        else -> "${uiState.drafts.size} drafts"
+                    },
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateToDraft()
+                    }
+                )
             }
-
-            // Draft link card: opens the dedicated Draft page (red dot when drafts exist)
-            DraftLinkCard(
-                isBangla = isBangla,
-                hasDrafts = uiState.drafts.isNotEmpty(),
-                draftsCount = uiState.drafts.size,
-                onClick = {
-                    HapticHelper.vibrate(context)
-                    onNavigateToDraft()
-                }
-            )
 
             // Update group: check for updates / changelog
             SettingsGroupCard(title = if (isBangla) "আপডেট" else "Update") {
@@ -192,53 +196,6 @@ fun SettingsScreen(
                     onNavigateToAbout()
                 }
             )
-        }
-    }
-}
-
-@Composable
-private fun DraftLinkCard(
-    isBangla: Boolean,
-    hasDrafts: Boolean,
-    draftsCount: Int,
-    onClick: () -> Unit
-) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Red dot badge on the icon corner: signals saved drafts without opening the page
-            SettingsIconBadge(
-                icon = Icons.Rounded.Bookmarks,
-                badge = hasDrafts
-            )
-            Spacer(modifier = Modifier.width(10.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = if (isBangla) "ড্রাফট" else "Draft",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = when {
-                        draftsCount == 0 -> if (isBangla) "কোনো ড্রাফট নেই" else "No drafts"
-                        isBangla -> "${BanglaDigitConverter.toBangla(draftsCount.toLong())}টি ড্রাফট"
-                        else -> "$draftsCount drafts"
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
-            }
         }
     }
 }
@@ -306,6 +263,7 @@ private fun SettingsGroupDivider() {
 @Composable
 private fun SettingsGroupRow(
     icon: ImageVector,
+    badge: Boolean = false,
     title: String,
     subtitle: String,
     onClick: () -> Unit
@@ -317,7 +275,7 @@ private fun SettingsGroupRow(
             .padding(vertical = 6.dp, horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        SettingsIconBadge(icon)
+        SettingsIconBadge(icon, badge = badge)
         Spacer(modifier = Modifier.width(10.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
