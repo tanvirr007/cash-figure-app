@@ -119,7 +119,8 @@ fun SettingsScreen(
                 SettingsGroupRow(
                     icon = Icons.Rounded.AutoAwesome,
                     title = if (isBangla) "অ্যাপ থিম" else "App Theme",
-                    subtitle = currentThemeText,
+                    subtitle = if (isBangla) "থিম বেছে নিন ও প্রিভিউ দেখুন" else "Pick a theme and preview it",
+                    trailing = currentThemeText,
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.THEME)
@@ -129,7 +130,8 @@ fun SettingsScreen(
                 SettingsGroupRow(
                     icon = Icons.Rounded.Translate,
                     title = if (isBangla) "ভাষা" else "Language",
-                    subtitle = currentLangText,
+                    subtitle = if (isBangla) "ভাষা বেছে নিন ও নমুনা দেখুন" else "Pick a language and preview it",
+                    trailing = currentLangText,
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.LANGUAGE)
@@ -247,7 +249,8 @@ private fun SettingsGroupRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    trailing: String? = null
 ) {
     Row(
         modifier = Modifier
@@ -269,6 +272,22 @@ private fun SettingsGroupRow(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
+        }
+        if (trailing != null) {
+            Spacer(modifier = Modifier.width(10.dp))
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    trailing,
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
         }
     }
 }
