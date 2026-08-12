@@ -148,19 +148,16 @@ fun DraftScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item {
-                    Text(
-                        text = if (isBangla) "ক্যাশ ব্রেকডাউন" else "Cash Breakdown",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                    val savedCount = uiState.drafts.size
                     Text(
                         text = if (isBangla) {
-                            "${BanglaDigitConverter.toBangla(uiState.drafts.size.toLong())} টি ড্রাফট সংরক্ষিত আছে"
+                            "${BanglaDigitConverter.toBangla(savedCount.toLong())} টি ড্রাফট সংরক্ষিত আছে"
                         } else {
-                            "${uiState.drafts.size} drafts saved"
+                            if (savedCount == 1) "1 draft saved" else "$savedCount drafts saved"
                         },
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                 }
