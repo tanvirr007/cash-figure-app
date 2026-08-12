@@ -1,5 +1,7 @@
 package app.cash.tanvir.info.ui.screen.calculator
 
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
@@ -9,18 +11,16 @@ import app.cash.tanvir.info.domain.model.Sheet
 import app.cash.tanvir.info.domain.repository.SettingsRepository
 import app.cash.tanvir.info.domain.repository.SheetRepository
 import app.cash.tanvir.info.util.CurrencyFormatter
+import app.cash.tanvir.info.util.DateTimeFormatter
 import app.cash.tanvir.info.util.NumberToWordsConverter
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 /**
@@ -37,15 +37,20 @@ data class CalculatorUiState(
 
     val quantities: Map<Int, String> = Denomination.ALL.associate { it.value to "" },
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
-    val disabledDenominations: Set<Int> = emptySet()
+    val disabledDenominations: Set<Int> = emptySet(),
+
+    // Draft row as last persisted in the DB (drives the draft card)
+    val savedDraftTotal: Long = 0L,
+    val draftUpdatedAt: Long? = null,
+    val draftSavedLabel: String = ""
 )
 
 /**
  * ViewModel for the calculator screen.
- * Manages denomination quantities, computes derived values instantly,
- * and auto-saves the current sheet to Room DB in the background.
+ * Manages denomination quantities and computes derived values instantly.
+ * The draft (current working sheet) is only persisted when leaving the app
+ * (back-exit dialog, direct close via ON_STOP) or when explicitly discarded.
  */
-@OptIn(FlowPreview::class)
 @HiltViewModel
 class CalculatorViewModel @Inject constructor(
     private val sheetRepository: SheetRepository,
@@ -88,24 +93,54 @@ class CalculatorViewModel @Inject constructor(
                     Denomination.ALL.associate { it.value to "" }
                 }
                 _uiState.update { state ->
-                    recalculate(state.copy(quantities = restoredQuantities))
+                    recalculate(
+                        state.copy(
+                            quantities = restoredQuantities,
+                            savedDraftTotal = sheet?.grandTotal ?: 0L,
+                            draftUpdatedAt = sheet?.updatedAt
+                        )
+                    )
                 }
             }
         }
 
-        // Debounced auto-save to Room DB (waits 500ms after last edit)
-        _uiState
-            .distinctUntilChanged { old, new -> old.quantities == new.quantities }
-            .debounce(500L)
-            .onEach { state ->
-                sheetRepository.saveCurrentSheet(
-                    quantities = state.quantities,
-                    grandTotal = state.grandTotal,
-                    totalPieces = state.totalPieces,
-                    activeDenominations = state.activeDenominations
-                )
-            }
-            .launchIn(viewModelScope)
+        // Direct close (recents-swipe, home, screen-off): auto-save the draft silently.
+        // drop(1) ignores the initial lifecycle snapshot so a cold start never triggers a flush.
+        viewModelScope.launch {
+            ProcessLifecycleOwner.get().lifecycle.currentStateFlow
+                .drop(1)
+                .collect { state ->
+                    if (state == Lifecycle.State.CREATED) {
+                        flushDraft()
+                    }
+                }
+        }
+    }
+
+    /**
+     * Persist the current state to the draft row immediately (synchronous).
+     * Used only on exit paths (back-exit dialog, ON_STOP) and discard.
+     * Blocking is intentional: the write must complete before the app process dies.
+     */
+    fun flushDraft() {
+        val state = _uiState.value
+        runBlocking {
+            sheetRepository.saveCurrentSheet(
+                quantities = state.quantities,
+                grandTotal = state.grandTotal,
+                totalPieces = state.totalPieces,
+                activeDenominations = state.activeDenominations
+            )
+        }
+    }
+
+    /**
+     * Clear the current count and persist the empty draft immediately,
+     * so a later force-kill can never resurrect the discarded draft.
+     */
+    fun discardDraft() {
+        clearAll()
+        flushDraft()
     }
 
     /**
@@ -198,6 +233,9 @@ class CalculatorViewModel @Inject constructor(
         val totalPieces = rows.sumOf { it.quantity }
         val activeDenominations = rows.count { it.quantity > 0 }
         val useBengali = state.currentLanguage == AppLanguage.BANGLA
+        val draftSavedLabel = state.draftUpdatedAt?.let {
+            DateTimeFormatter.format(it, useBengali = useBengali)
+        } ?: ""
 
         return state.copy(
             rows = rows,
@@ -206,7 +244,8 @@ class CalculatorViewModel @Inject constructor(
             totalPieces = totalPieces,
             activeDenominations = activeDenominations,
             amountInWordsEn = NumberToWordsConverter.toEnglish(grandTotal),
-            amountInWordsBn = NumberToWordsConverter.toBangla(grandTotal)
+            amountInWordsBn = NumberToWordsConverter.toBangla(grandTotal),
+            draftSavedLabel = draftSavedLabel
         )
     }
 }

@@ -58,6 +58,8 @@ import app.cash.tanvir.info.util.HapticHelper
 
 import app.cash.tanvir.info.ui.screen.calculator.components.DashboardCard
 import app.cash.tanvir.info.ui.screen.calculator.components.DenominationRowItem
+import app.cash.tanvir.info.ui.screen.calculator.components.DraftSavedCard
+import app.cash.tanvir.info.ui.screen.calculator.components.IdleHintCard
 
 /**
  * Main calculator screen with denomination inputs, dashboard, breakdown, and navigation actions.
@@ -78,6 +80,8 @@ fun CalculatorScreen(
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     var showBreakdownDialog by remember { mutableStateOf(false) }
     var showAddNotesDialog by remember { mutableStateOf(false) }
+    var showExitWithDraftDialog by remember { mutableStateOf(false) }
+    var showDiscardDraftConfirmation by remember { mutableStateOf(false) }
     var notesInputText by remember { mutableStateOf("") }
     val fullPlaceholder = "BRAC BANK PLC"
 
@@ -89,17 +93,21 @@ fun CalculatorScreen(
     // Debounce save clicks: ignore rapid repeated taps within 500ms
     var lastSaveClick by remember { mutableLongStateOf(0L) }
 
-    // Back-to-exit: require two presses within 2 seconds
+    // Back-to-exit: with a live count, ask to save as draft; otherwise two presses within 2 seconds
     var lastBackPress by remember { mutableLongStateOf(0L) }
     BackHandler {
-        val now = System.currentTimeMillis()
-        if (now - lastBackPress < 2000) {
-            (context as? android.app.Activity)?.finish()
+        if (uiState.grandTotal > 0L) {
+            showExitWithDraftDialog = true
         } else {
-            lastBackPress = now
-            val msg = if (isBangla) "বের হতে আবার ব্যাক চাপুন" else "Press back again to exit"
-            activeToast?.cancel()
-            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+            val now = System.currentTimeMillis()
+            if (now - lastBackPress < 2000) {
+                (context as? android.app.Activity)?.finish()
+            } else {
+                lastBackPress = now
+                val msg = if (isBangla) "বের হতে আবার ব্যাক চাপুন" else "Press back again to exit"
+                activeToast?.cancel()
+                activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+            }
         }
     }
 
@@ -181,6 +189,40 @@ fun CalculatorScreen(
                     isBangla = isBangla,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+
+            // Draft status card: draft info when a draft row with content exists in the DB,
+            // idle hint when nothing counted, nothing during a fresh count never saved
+            item {
+                val hasDraft = uiState.savedDraftTotal > 0L && uiState.grandTotal > 0L
+                when {
+                    hasDraft -> {
+                        val subtitle = if (isBangla) {
+                            "${uiState.grandTotalFormatted} • " +
+                                "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(uiState.totalPieces)} টি নোট • " +
+                                uiState.draftSavedLabel
+                        } else {
+                            "${uiState.grandTotalFormatted} • ${uiState.totalPieces} pieces • ${uiState.draftSavedLabel}"
+                        }
+                        DraftSavedCard(
+                            title = if (isBangla) "ড্রাফট সংরক্ষিত" else "Draft Saved",
+                            subtitle = subtitle,
+                            discardContentDescription = if (isBangla) "ড্রাফট বাতিল করুন" else "Discard draft",
+                            onDiscard = {
+                                HapticHelper.vibrate(context)
+                                showDiscardDraftConfirmation = true
+                            },
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                    isIdle -> {
+                        IdleHintCard(
+                            hint = if (isBangla) "কিছু হিসাব করা হয়নি" else "Nothing counted yet",
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(12.dp))
             }
 
@@ -271,6 +313,98 @@ fun CalculatorScreen(
                     showClearAllConfirmation = false
                 }) {
                     Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            }
+        )
+    }
+
+    // Confirmation dialog for discarding the saved draft (X on the draft card)
+    if (showDiscardDraftConfirmation) {
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                showDiscardDraftConfirmation = false
+            },
+            title = { Text(if (isBangla) "ড্রাফট বাতিল করবেন?" else "Discard Draft?") },
+            text = {
+                Text(
+                    if (isBangla) "আপনার সংরক্ষণ না করা হিসাব মুছে যাবে। এটি ফেরানো যাবে না।"
+                    else "Your unsaved count will be cleared. This cannot be undone."
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        viewModel.discardDraft()
+                        showDiscardDraftConfirmation = false
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                ) {
+                    Text(if (isBangla) "মুছে ফেলুন" else "Discard")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    showDiscardDraftConfirmation = false
+                }) {
+                    Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            }
+        )
+    }
+
+    // Exit dialog: back pressed while a count is in progress
+    if (showExitWithDraftDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                showExitWithDraftDialog = false
+            },
+            title = { Text(if (isBangla) "ড্রাফট হিসেবে সেভ করবেন?" else "Save as Draft?") },
+            text = {
+                Text(
+                    if (isBangla) "আপনার সংরক্ষণ না করা হিসাব ${uiState.grandTotalFormatted}। ড্রাফট হিসেবে সংরক্ষণ করবেন?"
+                    else "You have an unsaved count of ${uiState.grandTotalFormatted}. Save it as a draft?"
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        viewModel.flushDraft()
+                        showExitWithDraftDialog = false
+                        (context as? android.app.Activity)?.finish()
+                    }
+                ) {
+                    Text(if (isBangla) "ড্রাফটে সেভ করুন" else "Save to Draft")
+                }
+            },
+            dismissButton = {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedButton(
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            viewModel.discardDraft()
+                            showExitWithDraftDialog = false
+                            (context as? android.app.Activity)?.finish()
+                        },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text(if (isBangla) "মুছে ফেলুন" else "Discard")
+                    }
+                    TextButton(onClick = {
+                        HapticHelper.vibrate(context)
+                        showExitWithDraftDialog = false
+                    }) {
+                        Text(if (isBangla) "বাতিল" else "Cancel")
+                    }
                 }
             }
         )
