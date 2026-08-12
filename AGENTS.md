@@ -48,7 +48,7 @@ Rules: data flows one way (Screen → ViewModel → Repository → DB/DataStore)
 
 ## Git
 
-Commit messages follow the repo pattern: title + bullet description + TEST section with a Change-Id footer, always signed off with `-s`; keep staging clean; never force push; always ask before committing or pushing.
+Commit messages follow the repo pattern (see README "Commit Structure"): type-prefixed title + bullet description + TEST section, always signed off with `-s`; keep staging clean; never force push; always ask before committing or pushing.
 
 ## References
 
