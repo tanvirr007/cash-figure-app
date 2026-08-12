@@ -19,6 +19,9 @@
   <img src="https://img.shields.io/badge/Ads-None-brightgreen" alt="No ads"/>
   <img src="https://img.shields.io/badge/Open%20Source-Yes-brightgreen" alt="Open source"/>
   <img src="https://img.shields.io/github/license/tanvirr007/cash-figure-app" alt="License"/>
+  <a href="https://github.com/tanvirr007/cash-figure-app/issues/new/choose">
+    <img src="https://img.shields.io/github/issues/tanvirr007/cash-figure-app" alt="Issues"/>
+  </a>
 </p>
 
 ---
@@ -36,6 +39,8 @@ optional in-app update check.
 ## Download
 
 [Download the latest APK](https://github.com/tanvirr007/cash-figure-app/releases/latest)
+
+[Report an Issue](https://github.com/tanvirr007/cash-figure-app/issues/new/choose)
 
 > **Note:** Since Cash Figure is not distributed through the Google Play Store,
 > Google Play Protect may show a warning when you install or update the APK — it
