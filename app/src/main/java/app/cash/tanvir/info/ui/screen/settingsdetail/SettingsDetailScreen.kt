@@ -265,7 +265,6 @@ fun SettingsDetailScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     ThemeContent(
                         isBangla = isBangla,
-                        appliedTheme = uiState.theme,
                         pendingTheme = pendingTheme,
                         dynamicColorEnabled = uiState.dynamicColorEnabled,
                         onSelect = { theme ->
@@ -282,7 +281,6 @@ fun SettingsDetailScreen(
                     Spacer(modifier = Modifier.height(12.dp))
                     LanguageContent(
                         isBangla = isBangla,
-                        appliedLang = uiState.language,
                         pendingLang = pendingLang,
                         onSelect = { lang ->
                             HapticHelper.vibrate(context)
@@ -637,7 +635,6 @@ private fun SettingsCard(content: @Composable () -> Unit) {
 @Composable
 private fun ThemeContent(
     isBangla: Boolean,
-    appliedTheme: AppTheme,
     pendingTheme: AppTheme,
     dynamicColorEnabled: Boolean,
     onSelect: (AppTheme) -> Unit
@@ -653,7 +650,6 @@ private fun ThemeContent(
         }
         ThemePreviewCard(
             isBangla = isBangla,
-            appliedTheme = appliedTheme,
             previewTheme = pendingTheme,
             dynamicColorEnabled = dynamicColorEnabled
         )
@@ -723,7 +719,6 @@ private fun ThemeOptionCard(
 @Composable
 private fun ThemePreviewCard(
     isBangla: Boolean,
-    appliedTheme: AppTheme,
     previewTheme: AppTheme,
     dynamicColorEnabled: Boolean
 ) {
@@ -733,11 +728,6 @@ private fun ThemePreviewCard(
         AppTheme.SYSTEM -> isSystemInDarkTheme()
     }
     val scheme = cashFigureColorScheme(isDark = previewIsDark, dynamicColor = dynamicColorEnabled)
-    val currentThemeText = when (appliedTheme) {
-        AppTheme.SYSTEM -> if (isBangla) "সিস্টেম থিম" else "Follow System"
-        AppTheme.LIGHT -> if (isBangla) "লাইট থিম" else "Light Theme"
-        AppTheme.DARK -> if (isBangla) "ডার্ক থিম" else "Dark Theme"
-    }
     SettingsCard {
         Text(
             if (isBangla) "প্রিভিউ" else "Preview",
@@ -823,27 +813,6 @@ private fun ThemePreviewCard(
             Spacer(modifier = Modifier.height(6.dp))
             PreviewNoteRow(scheme)
         }
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 10.dp),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                if (isBangla) "বর্তমান থিম" else "Current theme",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                currentThemeText,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
     }
 }
 
@@ -868,7 +837,6 @@ private fun PreviewNoteRow(scheme: ColorScheme) {
 @Composable
 private fun LanguageContent(
     isBangla: Boolean,
-    appliedLang: AppLanguage,
     pendingLang: AppLanguage,
     onSelect: (AppLanguage) -> Unit
 ) {
@@ -885,7 +853,7 @@ private fun LanguageContent(
             selected = pendingLang == AppLanguage.BANGLA,
             onClick = { onSelect(AppLanguage.BANGLA) }
         )
-        LanguageSampleCard(isBangla = isBangla, appliedLang = appliedLang, previewLang = pendingLang)
+        LanguageSampleCard(isBangla = isBangla, previewLang = pendingLang)
     }
 }
 
@@ -947,7 +915,6 @@ private fun LanguageOptionCard(
 @Composable
 private fun LanguageSampleCard(
     isBangla: Boolean,
-    appliedLang: AppLanguage,
     previewLang: AppLanguage
 ) {
     val previewIsBangla = previewLang == AppLanguage.BANGLA
@@ -961,7 +928,6 @@ private fun LanguageSampleCard(
     } else {
         NumberToWordsConverter.toEnglish(12345L)
     }
-    val currentLangText = if (appliedLang == AppLanguage.ENGLISH) "English" else "বাংলা"
     SettingsCard {
         Text(
             if (isBangla) "নমুনা" else "Sample",
@@ -975,27 +941,6 @@ private fun LanguageSampleCard(
             amount = amount,
             words = words
         )
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 8.dp),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                if (isBangla) "বর্তমান ভাষা" else "Current language",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                currentLangText,
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
     }
 }
 
