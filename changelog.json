@@ -1,6 +1,39 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.18",
+      "publishedAt": "2026-08-12T17:26:42Z",
+      "items": [
+        {
+          "title": "fix: build font fallback families from font lists",
+          "subItems": [
+            "FontFamily does not expose its fonts as a List in this Compose",
+            "Build the Bangla fallback chain from the source List<Font> entries"
+          ]
+        },
+        {
+          "title": "feat: add app font picker with live preview and apply",
+          "subItems": [
+            "Add Font row to the General settings group (shows current font)",
+            "New SettingsSection.FONT full-page: font option cards, live preview",
+            "Preview mirrors the App Theme flow: pending selection, Apply bottom",
+            "Persist AppFont in DataStore (app_font key); thread fontFlow through",
+            "Ship Google Sans Rounded, Google Sans Flex and Volte Round in",
+            "Remove the three TTF sources from the root assets folder"
+          ]
+        },
+        {
+          "title": "feat: restyle draft cards with words and drop calculator action",
+          "subItems": [
+            "Remove the load-into-calculator icon from draft cards and its nav wiring",
+            "Move the grand total amount below the draft title as a bold primary line",
+            "Add the amount in words below the meta line (Taka Only / টাকা মাত্র)",
+            "Convert the Bangla draft title number to Bangla digits (ড্রাফট #৩)"
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.17",
       "publishedAt": "2026-08-12T16:19:27Z",
       "items": [
