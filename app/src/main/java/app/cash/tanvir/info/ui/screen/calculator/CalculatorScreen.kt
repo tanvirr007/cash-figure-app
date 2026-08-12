@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -663,38 +665,57 @@ fun CalculatorScreen(
                     )
 
                     val isLimitReached = notesInputText.length == 30
-                    OutlinedTextField(
-                        value = notesInputText,
-                        onValueChange = { input ->
-                            val sanitized = input.replace("\n", " ").replace("\r", " ")
-                            if (sanitized.length <= 30) {
-                                notesInputText = sanitized
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        label = { Text(if (isBangla) "নোট" else "Notes") },
-                        placeholder = { Text(fullPlaceholder) },
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        supportingText = {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.End
-                            ) {
-                                val remaining = 30 - notesInputText.length
-                                val counterText = if (isBangla) {
-                                    "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(remaining)} অবশিষ্ট"
-                                } else {
-                                    "$remaining remaining"
+                    val interactionSource = remember { MutableInteractionSource() }
+                    val isNotesFocused by interactionSource.collectIsFocusedAsState()
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        OutlinedTextField(
+                            value = notesInputText,
+                            onValueChange = { input ->
+                                val sanitized = input.replace("\n", " ").replace("\r", " ")
+                                if (sanitized.length <= 30) {
+                                    notesInputText = sanitized
                                 }
-                                Text(
-                                    text = counterText,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = if (isLimitReached) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            label = {
+                                if (notesInputText.isNotEmpty() || isNotesFocused) {
+                                    Text(if (isBangla) "নোট" else "Notes")
+                                }
+                            },
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp),
+                            interactionSource = interactionSource,
+                            supportingText = {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.End
+                                ) {
+                                    val remaining = 30 - notesInputText.length
+                                    val counterText = if (isBangla) {
+                                        "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(remaining)} অবশিষ্ট"
+                                    } else {
+                                        "$remaining remaining"
+                                    }
+                                    Text(
+                                        text = counterText,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (isLimitReached) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
+                        )
+                        // Always-visible live preview: ghost hint while the box is empty
+                        if (notesInputText.isEmpty()) {
+                            Text(
+                                text = fullPlaceholder,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                modifier = Modifier
+                                    .align(Alignment.CenterStart)
+                                    .padding(start = 16.dp)
+                            )
                         }
-                    )
+                    }
                 }
             },
             dismissButton = {
