@@ -1413,7 +1413,6 @@ private fun FontContent(
             )
         }
         FontPreviewCard(isBangla = isBangla, pendingFont = pendingFont)
-        FontInfoCard(isBangla = isBangla)
     }
 }
 
@@ -1573,48 +1572,3 @@ private fun FontPreviewCard(
     }
 }
 
-@Composable
-private fun FontInfoCard(isBangla: Boolean) {
-    SettingsCard {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .background(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f), shape = RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Info,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(10.dp))
-            Column {
-                Text(
-                    if (isBangla) "কীভাবে ফন্ট কাজ করে" else "How the font option works",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    if (isBangla) "নির্বাচিত ফন্টটি অ্যাপের ইংরেজি (ল্যাটিন) লেখায় প্রযোজ্য হয়। বাংলা লেখা সবসময় টিরো বাংলা ফন্টে দেখানো হয়, কারণ এই ফন্টগুলোতে বাংলা হরফ নেই।"
-                    else "The selected font applies to English (Latin) text in the app. Bangla text always renders in Tiro Bangla, because these fonts don't include Bengali glyphs.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    if (isBangla) "ডিফল্ট মানে আপনার ডিভাইসের সিস্টেম ফন্ট। ফন্ট পছন্দ হলে নিচের \"প্রয়োগ করুন\" বাটনে চাপুন।"
-                    else "Default means your device's system font. Tap Apply when you like a font.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                )
-            }
-        }
-    }
-}
