@@ -154,8 +154,8 @@ fun SettingsScreen(
             SettingsGroupCard(title = if (isBangla) "আপডেট" else "Update") {
                 SettingsGroupRow(
                     icon = Icons.Rounded.SystemUpdateAlt,
-                    title = if (isBangla) "আপডেট চেক করুন" else "Check for updates",
-                    subtitle = if (isBangla) "নতুন ভার্সন খুঁজে ইনস্টল করুন" else "Find and install the latest version",
+                    title = if (isBangla) "ওটিএ" else "OTA",
+                    subtitle = if (isBangla) "আপডেট চেক করুন" else "Check for updates",
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToUpdate()
