@@ -47,7 +47,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -55,7 +54,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
-import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsSection
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
@@ -108,23 +106,12 @@ fun SettingsScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            val currentThemeText = when (uiState.theme) {
-                AppTheme.SYSTEM -> if (isBangla) "সিস্টেম থিম" else "Follow System"
-                AppTheme.LIGHT -> if (isBangla) "লাইট থিম" else "Light Theme"
-                AppTheme.DARK -> if (isBangla) "ডার্ক থিম" else "Dark Theme"
-            }
-            val currentLangText = when (uiState.language) {
-                AppLanguage.ENGLISH -> if (isBangla) "ইংরেজি" else "English"
-                AppLanguage.BANGLA -> if (isBangla) "বাংলা" else "Bangla"
-            }
-
             // General group: App Theme / Language / Currency
             SettingsGroupCard(title = if (isBangla) "সাধারণ" else "General") {
                 SettingsGroupRow(
                     icon = Icons.Rounded.AutoAwesome,
                     title = if (isBangla) "অ্যাপ থিম" else "App Theme",
                     subtitle = if (isBangla) "থিম বেছে নিন ও প্রিভিউ দেখুন" else "Pick a theme and preview it",
-                    trailing = currentThemeText,
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.THEME)
@@ -135,7 +122,6 @@ fun SettingsScreen(
                     icon = Icons.Rounded.Translate,
                     title = if (isBangla) "ভাষা" else "Language",
                     subtitle = if (isBangla) "ভাষা বেছে নিন ও নমুনা দেখুন" else "Pick a language and preview it",
-                    trailing = currentLangText,
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.LANGUAGE)
@@ -322,8 +308,7 @@ private fun SettingsGroupRow(
     icon: ImageVector,
     title: String,
     subtitle: String,
-    onClick: () -> Unit,
-    trailing: String? = null
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -345,22 +330,6 @@ private fun SettingsGroupRow(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
-        }
-        if (trailing != null) {
-            Spacer(modifier = Modifier.width(10.dp))
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f))
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Text(
-                    trailing,
-                    style = MaterialTheme.typography.bodySmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
         }
     }
 }
