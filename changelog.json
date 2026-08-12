@@ -1,6 +1,50 @@
 {
   "releases": [
     {
+      "tagName": "v3.4.19",
+      "publishedAt": "2026-08-12T18:11:16Z",
+      "items": [
+        {
+          "title": "docs: refresh FILES.md line counts and add draft screen",
+          "subItems": [
+            "Update line counts for SettingsDetailScreen, SettingsScreen, AboutScreen.",
+            "Add missing draft/DraftScreen row.",
+            "Note English-only About content and selection subtitles in Settings."
+          ]
+        },
+        {
+          "title": "refactor: make About screen English-only",
+          "subItems": [
+            "About content now stays in English regardless of app language.",
+            "Drop the now-unused language state and its imports."
+          ]
+        },
+        {
+          "title": "refactor: polish draft cards with top-right delete and words label",
+          "subItems": [
+            "Move the discard icon to the top-right corner of each draft card.",
+            "Drop the full-width bottom button row and its spacer.",
+            "Prefix the amount in words with In Words/Kothay like the reports."
+          ]
+        },
+        {
+          "title": "feat: show selected theme and language as settings subtitles",
+          "subItems": [
+            "App Theme row now shows the active theme (Follow System/Light/Dark).",
+            "Language row now shows English or Bangla.",
+            "Reuses the labels from the detail screens so they always match."
+          ]
+        },
+        {
+          "title": "refactor: drop font info card",
+          "subItems": [
+            "Remove FontInfoCard call and composable from the font detail screen.",
+            "The card's explainer text was redundant with the live font preview."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.18",
       "publishedAt": "2026-08-12T17:26:42Z",
       "items": [
