@@ -120,12 +120,13 @@ app/src/test/java/app/cash/tanvir/info/util/  6 JUnit test classes
 | `changelog/ChangelogScreen.kt` | 222 | Full-screen changelog: TopAppBar, release cards, Latest badge, loading/error/empty states |
 | `changelog/ChangelogViewModel.kt` | 66 | Changelog state (`ChangelogStatus`), language flow, `loadChangelog()` fetch |
 | `update/UpdateScreen.kt` | — | Full-screen Pixel-style updater: checking / up-to-date (green check) / available (name, version, build, size, changelog) / downloading ("Getting file…" + bytes + cancel) / ready / error; shares `SettingsViewModel` via `activityViewModels()` |
-| `about/AboutScreen.kt` | — | Full-screen about: bundled GitHub avatar, author name, tagline + brief, links (website/github/telegram/email/source code), dynamic-year footer |
-| `settingsdetail/SettingsDetailScreen.kt` | 1392 | Full-page Theme / Language / Currency / Miscellaneous detail view (shared `SettingsViewModel`, live updates, biometric toggle for App Lock — fingerprint or device screen lock) |
+| `about/AboutScreen.kt` | 284 | Full-screen about (English-only content): bundled GitHub avatar, author name, tagline + brief, links (website/github/telegram/email/source code), dynamic-year footer |
+| `settingsdetail/SettingsDetailScreen.kt` | 1574 | Full-page Theme / Language / Currency / Miscellaneous detail view (shared `SettingsViewModel`, live updates, biometric toggle for App Lock — fingerprint or device screen lock) |
 | `settingsdetail/SettingsSection.kt` | — | `SettingsSection` enum (THEME/LANGUAGE/CURRENCY/MISCELLANEOUS) with route params |
 | `report/ReportScreen.kt` | 439 | Report view: sheet summary, notes, export (PDF/CSV/TXT), print, share; draft mode shows "Load into Calculator" |
 | `report/ReportViewModel.kt` | 137 | Report state, export/print/share orchestration; `fromDraft` loads via `getDraftById` |
-| `settings/SettingsScreen.kt` | 534 | Compact card list: Theme / Language / Currency / Miscellaneous (→ full-page), Backup & Restore, Updates (→ Update screen), Changelog (→ full-page), Reset All, About (→ full-page) — restore dialog with 15s countdown; Draft group card (expand-inline draft list with Save-to-History/Discard, tap → report) |
+| `draft/DraftScreen.kt` | 304 | Saved-draft list (top-right discard per card, "In Words" line), discard-confirmation dialog, tap card → report |
+| `settings/SettingsScreen.kt` | 355 | Compact card list: Theme / Language / Currency / Miscellaneous (→ full-page, rows show current selection), Backup & Restore, Updates (→ Update screen), Changelog (→ full-page), Reset All, About (→ full-page) — restore dialog with 15s countdown; Draft row (→ draft page) |
 | `settings/SettingsViewModel.kt` | 697 | All settings state + backup/restore/reset actions (15s restore countdown) + OTA state machine (`UpdateStatus`, check/download/cancel/dismiss) + draft state (`getAllDrafts` collect, `saveDraftToHistory`, discard dialog) + drafts in backup (v2) / restore |
 
 ### util/ — Pure Helpers
