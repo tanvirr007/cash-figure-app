@@ -61,7 +61,7 @@ fun ChangelogScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isBangla) "পরিবর্তন লগ" else "Changelog") },
+                title = { Text(if (isBangla) "আপডেটের ইতিহাস" else "Changelog") },
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.vibrate(context)
@@ -92,7 +92,7 @@ fun ChangelogScreen(
                     CircularProgressIndicator(modifier = Modifier.size(32.dp), strokeWidth = 3.dp)
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        if (isBangla) "পরিবর্তন লগ লোড হচ্ছে..." else "Loading changelog...",
+                        if (isBangla) "আপডেটের ইতিহাস লোড হচ্ছে..." else "Loading changelog...",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -107,7 +107,7 @@ fun ChangelogScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        if (isBangla) "পরিবর্তন লগ লোড করা যায়নি।" else "Couldn't load the changelog.",
+                        if (isBangla) "আপডেটের ইতিহাস লোড করা যায়নি।" else "Couldn't load the changelog.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

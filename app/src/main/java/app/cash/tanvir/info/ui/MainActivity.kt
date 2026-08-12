@@ -147,7 +147,7 @@ class MainActivity : FragmentActivity() {
                     if (lastKnown != null && installedCode > lastKnown) {
                         Toast.makeText(
                             this@MainActivity,
-                            if (isBangla) "আপডেট সম্পন্ন" else "Update complete",
+                            if (isBangla) "আপডেট সম্পন্ন হয়েছে" else "Update complete",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
@@ -213,7 +213,7 @@ class MainActivity : FragmentActivity() {
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
                                         if (isBangla) {
-                                            "নতুন ভার্সন ${BanglaDigitConverter.toBangla(availableManifest.versionName)} পাওয়া গেছে"
+                                            "নতুন সংস্করণ ${BanglaDigitConverter.toBangla(availableManifest.versionName)} পাওয়া গেছে"
                                         } else {
                                             "New version ${availableManifest.versionName} is available"
                                         },
@@ -293,7 +293,7 @@ class MainActivity : FragmentActivity() {
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED,
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
                 val msg = if (isBangla)
-                    "এই ডিভাইসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ নেই।"
+                    "এই ডিভাইসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ করা নেই।"
                 else
                     "No fingerprint or screen lock set up on this device."
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
@@ -303,7 +303,7 @@ class MainActivity : FragmentActivity() {
             BiometricManager.BIOMETRIC_SUCCESS -> Unit
             else -> {
                 val msg = if (isBangla)
-                    "বায়োমেট্রিক অথেন্টিকেশন এই মুহূর্তে অনুপলব্ধ।"
+                    "বায়োমেট্রিক প্রমাণীকরণ এই মুহূর্তে ব্যবহার করা যাচ্ছে না।"
                 else
                     "Biometric authentication is currently unavailable."
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show()

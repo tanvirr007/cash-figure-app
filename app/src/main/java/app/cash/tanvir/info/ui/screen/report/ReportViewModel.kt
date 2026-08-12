@@ -85,9 +85,9 @@ class ReportViewModel @Inject constructor(
         val savedUri = StorageUtil.saveReportFile(context, fileName, mime, data, subFolder = ext)
 
         val message = if (savedUri != null) {
-            if (isBangla) "ডাউনলোড/CashFigure/$ext/$fileName এ এক্সপোর্ট করা হয়েছে" else "Exported to Downloads/CashFigure/$ext/$fileName"
+            if (isBangla) "ডাউনলোড/CashFigure/$ext/$fileName এ সেভ করা হয়েছে" else "Exported to Downloads/CashFigure/$ext/$fileName"
         } else {
-            if (isBangla) "রিপোর্ট এক্সপোর্ট করতে ব্যর্থ হয়েছে" else "Failed to export report"
+            if (isBangla) "রিপোর্ট সেভ করা যায়নি" else "Failed to export report"
         }
         _uiState.update { it.copy(exportStatusMessage = message) }
     }

@@ -110,8 +110,8 @@ fun SettingsScreen(
             SettingsGroupCard(title = if (isBangla) "সাধারণ" else "General") {
                 SettingsGroupRow(
                     icon = Icons.Rounded.AutoAwesome,
-                    title = if (isBangla) "অ্যাপ থিম" else "App Theme",
-                    subtitle = if (isBangla) "থিম বেছে নিন ও প্রিভিউ দেখুন" else "Pick a theme and preview it",
+                    title = if (isBangla) "অ্যাপের থিম" else "App Theme",
+                    subtitle = if (isBangla) "থিম বেছে নিয়ে দেখুন" else "Pick a theme and preview it",
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.THEME)
@@ -121,7 +121,7 @@ fun SettingsScreen(
                 SettingsGroupRow(
                     icon = Icons.Rounded.Translate,
                     title = if (isBangla) "ভাষা" else "Language",
-                    subtitle = if (isBangla) "ভাষা বেছে নিন ও নমুনা দেখুন" else "Pick a language and preview it",
+                    subtitle = if (isBangla) "ভাষা বেছে নিয়ে দেখুন" else "Pick a language and preview it",
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.LANGUAGE)
@@ -130,8 +130,8 @@ fun SettingsScreen(
                 SettingsGroupDivider()
                 SettingsGroupRow(
                     icon = Icons.Rounded.AccountBalanceWallet,
-                    title = if (isBangla) "নোটসমূহ" else "Currency",
-                    subtitle = if (isBangla) "হোমপেজের নোটগুলো নিয়ন্ত্রণ করুন" else "Manage homepage notes",
+                    title = if (isBangla) "নোট" else "Currency",
+                    subtitle = if (isBangla) "হোম পেজে কোন নোটগুলো থাকবে তা নিয়ন্ত্রণ করুন" else "Manage homepage notes",
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.CURRENCY)
@@ -164,8 +164,8 @@ fun SettingsScreen(
                 SettingsGroupDivider()
                 SettingsGroupRow(
                     icon = Icons.Rounded.HistoryToggleOff,
-                    title = if (isBangla) "পরিবর্তন লগ" else "Changelog",
-                    subtitle = if (isBangla) "সব ভার্সনের পরিবর্তন দেখুন" else "See what's new in each version",
+                    title = if (isBangla) "আপডেটের ইতিহাস" else "Changelog",
+                    subtitle = if (isBangla) "প্রতিটি সংস্করণের পরিবর্তন দেখুন" else "See what's new in each version",
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToChangelog()
@@ -176,7 +176,7 @@ fun SettingsScreen(
             SettingsLinkCard(
                 icon = { SettingsIconBadge(Icons.Rounded.SettingsSuggest) },
                 title = if (isBangla) "টুলস" else "Miscellaneous",
-                subtitle = if (isBangla) "অতিরিক্ত ফিচার ও ডাটা টুলস" else "Extra features & data tools",
+                subtitle = if (isBangla) "অতিরিক্ত ফিচার ও ডেটা টুল" else "Extra features & data tools",
                 onClick = {
                     HapticHelper.vibrate(context)
                     onNavigateToSettingsDetail(SettingsSection.MISCELLANEOUS)
@@ -232,7 +232,7 @@ private fun DraftLinkCard(
                 Text(
                     text = when {
                         draftsCount == 0 -> if (isBangla) "কোনো ড্রাফট নেই" else "No drafts"
-                        isBangla -> "${BanglaDigitConverter.toBangla(draftsCount.toLong())} টি ড্রাফট"
+                        isBangla -> "${BanglaDigitConverter.toBangla(draftsCount.toLong())}টি ড্রাফট"
                         else -> "$draftsCount drafts"
                     },
                     style = MaterialTheme.typography.bodySmall,

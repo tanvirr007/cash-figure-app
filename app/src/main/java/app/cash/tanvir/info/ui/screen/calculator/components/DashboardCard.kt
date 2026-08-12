@@ -99,7 +99,7 @@ fun DashboardCard(
                     )
                     StatItem(
                         value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(activeDenominations) else activeDenominations.toString(),
-                        label = if (isBangla) "টি নোটের ধরণ" else "denominations"
+                        label = if (isBangla) "ধরণের নোট" else "denominations"
                     )
                 }
             }

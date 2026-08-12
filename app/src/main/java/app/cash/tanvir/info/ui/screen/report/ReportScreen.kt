@@ -86,7 +86,7 @@ fun ReportScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (viewModel.fromDraft) (if (isBangla) "ড্রাফট" else "Draft") else (if (isBangla) "রিপোর্ট এক্সপোর্ট ও প্রিন্ট" else "Export & Print Report")) },
+                title = { Text(if (viewModel.fromDraft) (if (isBangla) "ড্রাফট" else "Draft") else (if (isBangla) "রিপোর্ট সেভ ও প্রিন্ট" else "Export & Print Report")) },
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.vibrate(context)
@@ -109,7 +109,7 @@ fun ReportScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(if (isBangla) "রিপোর্টের জন্য কোনো শিট লোড করা হয়নি" else "No sheet loaded for reporting")
+                Text(if (isBangla) "রিপোর্ট করার জন্য কোনো শিট লোড করা হয়নি" else "No sheet loaded for reporting")
             }
         } else {
             Column(
@@ -287,7 +287,7 @@ fun ReportScreen(
                         Text(
                             text = buildAnnotatedString {
                                 withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                                    append(if (isBangla) "নোট: " else "Notes: ")
+                                    append(if (isBangla) "মন্তব্য: " else "Notes: ")
                                 }
                                 withStyle(
                                     style = SpanStyle(
@@ -356,7 +356,7 @@ fun ReportScreen(
 
                 // Export / Print / Share only apply to saved History reports, not drafts
                 if (!viewModel.fromDraft) {
-                    Text(if (isBangla) "এক্সপোর্ট অপশন" else "Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Text(if (isBangla) "রিপোর্ট সেভের অপশন" else "Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -437,9 +437,9 @@ fun ReportScreen(
     // Export Confirmation Dialog
     pendingExportFormat?.let { format ->
         val formatName = format.name
-        val titleText = if (isBangla) "এক্সপোর্ট নিশ্চিত করুন" else "Confirm Export"
+        val titleText = if (isBangla) "সেভ নিশ্চিত করুন" else "Confirm Export"
         val messageText = if (isBangla) {
-            "আপনি কি নিশ্চিত যে আপনি হিসাবটি $formatName ফাইল হিসেবে এক্সপোর্ট করতে চান?"
+            "আপনি কি হিসাবটি $formatName ফাইল হিসেবে সেভ করতে চান?"
         } else {
             "Are you sure you want to export the calculation as a $formatName file?"
         }

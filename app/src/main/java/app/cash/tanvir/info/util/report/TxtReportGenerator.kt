@@ -22,9 +22,9 @@ object TxtReportGenerator {
         sb.append(if (isBangla) "মোট নোট: $totalPiecesStr\n" else "Total Pieces: $totalPiecesStr\n")
         sb.append(if (isBangla) "নোটের ধরণ: $activeDenomStr\n" else "Active Denominations: $activeDenomStr\n")
         val notesText = if (sheet.remark.isNotBlank()) sheet.remark else "N/A"
-        sb.append(if (isBangla) "নোট: $notesText\n" else "Notes: $notesText\n")
+        sb.append(if (isBangla) "মন্তব্য: $notesText\n" else "Notes: $notesText\n")
         sb.append("-----------------------------------------\n")
-        sb.append(if (isBangla) "নোটের বিস্তারিত হিসাব:\n" else "CASH BREAKDOWN:\n")
+        sb.append(if (isBangla) "বিস্তারিত হিসাব:\n" else "CASH BREAKDOWN:\n")
 
         val activeRows = sheet.rows.filter { it.quantity > 0 }
         if (activeRows.isEmpty()) {

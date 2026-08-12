@@ -113,7 +113,7 @@ fun UpdateScreen(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             !context.packageManager.canRequestPackageInstalls()
         ) {
-            val msg = if (isBangla) "আপডেটের জন্য সেটিংসে এই অ্যাপ থেকে ইনস্টল অনুমতি দিন"
+            val msg = if (isBangla) "ক্যাশ ফিগার আপডেট করতে সেটিংসে গিয়ে \"এই অ্যাপ থেকে ইনস্টল\" অনুমতি দিন"
             else "Allow installs from this app in Settings to update Cash Figure"
             Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
             installSettingsLauncher.launch(
@@ -342,14 +342,14 @@ private fun UpToDateContent(
             CheckIcon()
             Spacer(modifier = Modifier.height(28.dp))
             Text(
-                if (isBangla) "আপনি ইতিমধ্যে সর্বশেষ ভার্সনে আছেন" else "You're already up to date",
+                if (isBangla) "আপনার অ্যাপটি এখন সর্বশেষ সংস্করণে আছে" else "You're already up to date",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = if (isBangla) {
-                    "এই ডিভাইসে অ্যাপ v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)}) ইনস্টল করা আছে"
+                    "আপনার ডিভাইসে অ্যাপ v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)}) ইনস্টল করা আছে"
                 } else {
                     "App v$installedName (Build $installedCode) is installed on this device"
                 },
@@ -423,7 +423,7 @@ private fun UpdateAvailableContent(
                 append(if (isBangla) "আকার: ${BanglaDigitConverter.toBangla(sizeText)}" else "Size: $sizeText")
             }
             append("\n")
-            append(if (isBangla) "উপলব্ধ ভার্সন: $versionDisplay" else "Available version: $versionDisplay")
+            append(if (isBangla) "উপলব্ধ সংস্করণ: $versionDisplay" else "Available version: $versionDisplay")
             append("\n\n")
             append(
                 if (isBangla) {
@@ -609,7 +609,7 @@ private fun DownloadReadyContent(
                 versionName.removePrefix("v")
             }
             Text(
-                if (isBangla) "ক্যাশ ফিগার v$versionDisplay ইনস্টলের জন্য প্রস্তুত" else "Cash Figure v$versionDisplay is ready to install",
+                if (isBangla) "ক্যাশ ফিগার v$versionDisplay ইনস্টল করার জন্য প্রস্তুত" else "Cash Figure v$versionDisplay is ready to install",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -729,7 +729,7 @@ private fun openInBrowserFallback(context: Context, url: String, isBangla: Boole
     } catch (_: Exception) {
         Toast.makeText(
             context,
-            if (isBangla) "ডাউনলোড লিংক খোলা যায়নি" else "Couldn't open the download link",
+            if (isBangla) "ডাউনলোড লিংকটি খোলা যায়নি" else "Couldn't open the download link",
             Toast.LENGTH_SHORT
         ).show()
     }

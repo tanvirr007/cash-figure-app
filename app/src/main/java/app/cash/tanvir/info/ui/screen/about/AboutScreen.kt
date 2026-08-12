@@ -79,7 +79,7 @@ fun AboutScreen(
         } catch (_: Exception) {
             Toast.makeText(
                 context,
-                if (isBangla) "লিংক খোলা যায়নি" else "Couldn't open the link",
+                if (isBangla) "লিংকটি খোলা যায়নি" else "Couldn't open the link",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -93,7 +93,7 @@ fun AboutScreen(
         } catch (_: Exception) {
             Toast.makeText(
                 context,
-                if (isBangla) "ইমেইল অ্যাপ পাওয়া যায়নি" else "No email app found",
+                if (isBangla) "কোনো ইমেইল অ্যাপ পাওয়া যায়নি" else "No email app found",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -161,7 +161,7 @@ fun AboutScreen(
             ) {
                 Text(
                     text = if (isBangla)
-                        "গুগল প্লে প্রোটেক্ট \"ক্যাশ ফিগার\" অ্যাপটিকে যাচাই করা নয় বলে সতর্ক করতে পারে, কারণ এটি প্লে স্টোরে নেই। অ্যাপটি নিরাপদ ও ওপেন সোর্স — সতর্কতা এলে \"ইনস্টল করুন\" চাপুন।"
+                        "গুগল প্লে প্রোটেক্ট \"ক্যাশ ফিগার\" অ্যাপটিকে যাচাইকৃত নয় বলে সতর্ক করতে পারে, কারণ অ্যাপটি প্লে স্টোরে নেই। অ্যাপটি নিরাপদ ও ওপেন সোর্স — সতর্কতা দেখালে \"ইনস্টল করুন\" চাপুন।"
                         else "Google Play Protect may flag \"Cash Figure\" as unverified since it's not on the Play Store. The app is safe and open source — tap \"Install anyway\" if warned.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onErrorContainer,
@@ -218,7 +218,7 @@ fun AboutScreen(
                     AboutLinkRow(
                         iconRes = R.drawable.ic_code,
                         iconVector = Icons.Rounded.NewReleases,
-                        title = if (isBangla) "ভার্সন" else "Version",
+                        title = if (isBangla) "সংস্করণ" else "Version",
                         subtitle = if (isBangla) {
                             "v${BanglaDigitConverter.toBangla(installedName)} (বিল্ড ${BanglaDigitConverter.toBangla(installedCode)})"
                         } else {

@@ -254,7 +254,7 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             sheetRepository.deleteDraft(draftId)
             val msg = if (_uiState.value.language == AppLanguage.BANGLA) {
-                "ড্রাফট বাতিল করা হয়েছে"
+                "ড্রাফটটি বাতিল করা হয়েছে"
             } else {
                 "Draft discarded"
             }

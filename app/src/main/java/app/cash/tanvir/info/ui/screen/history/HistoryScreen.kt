@@ -152,9 +152,9 @@ fun HistoryScreen(
                         )
                         Text(
                             text = if (uiState.searchQuery.isEmpty()) {
-                                if (isBangla) "এখনো কোনো সেভ করা হিসাব নেই" else "No saved calculations yet"
+                                if (isBangla) "এখনো কোনো হিসাব সেভ করা হয়নি" else "No saved calculations yet"
                             } else {
-                                if (isBangla) "কোনো মিল থাকা হিসাব পাওয়া যায়নি" else "No matching calculations found"
+                                if (isBangla) "কোনো মিলে যাওয়া হিসাব পাওয়া যায়নি" else "No matching calculations found"
                             },
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
@@ -245,7 +245,7 @@ fun HistoryScreen(
                 viewModel.dismissDeleteConfirmation()
             },
             title = { Text(if (isBangla) "হিসাবটি মুছে ফেলবেন?" else "Delete Calculation?") },
-            text = { Text(if (isBangla) "আপনি কি সত্যিই \"$sheetName\" মুছে ফেলতে চান?" else "Are you sure you want to delete \"$sheetName\"?") },
+            text = { Text(if (isBangla) "আপনি কি \"$sheetName\" মুছে ফেলতে চান?" else "Are you sure you want to delete \"$sheetName\"?") },
             confirmButton = {
                 Button(
                     onClick = {
@@ -325,7 +325,7 @@ private fun HistoryCard(
 
             Text(
                 text = if (isBangla) {
-                    "$formattedDate · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)} টি নোট · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)} টি নোটের ধরণ"
+                    "$formattedDate · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)} টি নোট · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)} ধরণের নোট"
                 } else {
                     "$formattedDate · ${sheet.totalPieces} pieces · ${sheet.activeDenominations} denom."
                 },
@@ -337,7 +337,7 @@ private fun HistoryCard(
                 Spacer(modifier = Modifier.height(6.dp))
                 val sanitizedRemark = sheet.remark.replace("\n", " ").replace("\r", " ")
                 Text(
-                    text = if (isBangla) "নোট: $sanitizedRemark" else "Notes: $sanitizedRemark",
+                    text = if (isBangla) "মন্তব্য: $sanitizedRemark" else "Notes: $sanitizedRemark",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 )

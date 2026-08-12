@@ -138,11 +138,11 @@ fun SettingsDetailScreen(
         when (section) {
             SettingsSection.THEME -> {
                 viewModel.setTheme(pendingTheme)
-                Toast.makeText(context, if (isBangla) "থিম প্রয়োগ করা হয়েছে" else "Theme applied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, if (isBangla) "থিম সেট করা হয়েছে" else "Theme applied", Toast.LENGTH_SHORT).show()
             }
             SettingsSection.LANGUAGE -> {
                 viewModel.setLanguage(pendingLang)
-                Toast.makeText(context, if (isBangla) "ভাষা প্রয়োগ করা হয়েছে" else "Language applied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, if (isBangla) "ভাষা পরিবর্তন হয়েছে" else "Language applied", Toast.LENGTH_SHORT).show()
             }
             else -> Unit
         }
@@ -165,9 +165,9 @@ fun SettingsDetailScreen(
     }
 
     val title = when (section) {
-        SettingsSection.THEME -> if (isBangla) "অ্যাপ থিম" else "App Theme"
+        SettingsSection.THEME -> if (isBangla) "অ্যাপের থিম" else "App Theme"
         SettingsSection.LANGUAGE -> if (isBangla) "ভাষা" else "Language"
-        SettingsSection.CURRENCY -> if (isBangla) "নোটসমূহ" else "Currency"
+        SettingsSection.CURRENCY -> if (isBangla) "নোট" else "Currency"
         SettingsSection.MISCELLANEOUS -> if (isBangla) "টুলস" else "Miscellaneous"
     }
 
@@ -185,7 +185,7 @@ fun SettingsDetailScreen(
             }
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                 if (checked) {
-                    val msg = if (isBangla) "অনুগ্রহ করে আপনার ডিভাইসের সেটিংসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ করুন।" else "Please set up a screen lock (PIN/pattern/password) or fingerprint in your device settings."
+                    val msg = if (isBangla) "অ্যাপ লক চালু করতে ডিভাইসের সেটিংসে গিয়ে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক (PIN/প্যাটার্ন/পাসওয়ার্ড) সেটআপ করুন।" else "Please set up a screen lock (PIN/pattern/password) or fingerprint in your device settings."
                     Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                 } else {
                     viewModel.setBiometricEnabled(false)
@@ -193,7 +193,7 @@ fun SettingsDetailScreen(
             }
             else -> {
                 if (checked) {
-                    val msg = if (isBangla) "এই ডিভাইসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ নেই।" else "No fingerprint or screen lock set up on this device."
+                    val msg = if (isBangla) "এই ডিভাইসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ করা নেই।" else "No fingerprint or screen lock set up on this device."
                     Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                 } else {
                     viewModel.setBiometricEnabled(false)
@@ -259,8 +259,8 @@ fun SettingsDetailScreen(
             when (section) {
                 SettingsSection.THEME -> {
                     SectionHeader(
-                        title = if (isBangla) "অ্যাপ থিম" else "App Theme",
-                        subtitle = if (isBangla) "একটি থিম বেছে নিন, প্রিভিউ দেখুন, তারপর প্রয়োগ করুন" else "Pick a theme, preview it, then apply"
+                        title = if (isBangla) "অ্যাপের থিম" else "App Theme",
+                        subtitle = if (isBangla) "থিম বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a theme, preview it, then apply"
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     ThemeContent(
@@ -276,7 +276,7 @@ fun SettingsDetailScreen(
                 SettingsSection.LANGUAGE -> {
                     SectionHeader(
                         title = if (isBangla) "ভাষা" else "Language",
-                        subtitle = if (isBangla) "একটি ভাষা বেছে নিন, নমুনা দেখুন, তারপর প্রয়োগ করুন" else "Pick a language, preview it, then apply"
+                        subtitle = if (isBangla) "ভাষা বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a language, preview it, then apply"
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     LanguageContent(
@@ -290,8 +290,8 @@ fun SettingsDetailScreen(
                 }
                 SettingsSection.CURRENCY -> {
                     SectionHeader(
-                        title = if (isBangla) "নোটসমূহ" else "Currency",
-                        subtitle = if (isBangla) "ক্যালকুলেটরের হোমপেজে কোন নোট দেখাবে তা বেছে নিন" else "Pick which notes show on the calculator homepage"
+                        title = if (isBangla) "নোট" else "Currency",
+                        subtitle = if (isBangla) "ক্যালকুলেটরে কোন নোটগুলো দেখানো হবে তা বেছে নিন" else "Pick which notes show on the calculator homepage"
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     CurrencyContent(
@@ -355,10 +355,10 @@ fun SettingsDetailScreen(
                 HapticHelper.vibrate(context)
                 viewModel.dismissResetDialog()
             },
-            title = { Text(if (isBangla) "সকল ডাটা রিসেট করবেন?" else "Reset All Data?") },
+            title = { Text(if (isBangla) "সব ডেটা রিসেট করবেন?" else "Reset All Data?") },
             text = {
                 Text(
-                    if (isBangla) "এটি সেভ করা সকল হিসাব, ইতিহাস এবং সেটিংস স্থায়ীভাবে মুছে ফেলবে। এই কাজটি পূর্বাবস্থায় ফেরানো যাবে না।"
+                    if (isBangla) "এটি সব সেভ করা হিসাব, ইতিহাস ও সেটিংস স্থায়ীভাবে মুছে ফেলবে। এই কাজটি আর পূর্বাবস্থায় ফেরানো যাবে না।"
                     else "This will permanently delete all saved calculations, history, and user settings. This action cannot be undone."
                 )
             },
@@ -408,10 +408,10 @@ fun SettingsDetailScreen(
                 HapticHelper.vibrate(context)
                 viewModel.dismissRestoreDialog()
             },
-            title = { Text(if (isBangla) "ডাটা রিস্টোর করবেন?" else "Restore Data?") },
+            title = { Text(if (isBangla) "ডেটা পুনরুদ্ধার করবেন?" else "Restore Data?") },
             text = {
                 Text(
-                    if (isBangla) "পুরানো বা পূর্বের ডাটা রিস্টোর করলে আপনার বর্তমান ডাটা ওভাররাইট বা ক্ষতিগ্রস্ত হতে পারে।"
+                    if (isBangla) "পুরোনো ডেটা পুনরুদ্ধার করলে আপনার বর্তমান ডেটা নষ্ট বা মুছে যেতে পারে।"
                     else "Restoring outdated/old data might corrupt or overwrite your present data."
                 )
             },
@@ -434,9 +434,9 @@ fun SettingsDetailScreen(
                             } else {
                                 countdown.toString()
                             }
-                            if (isBangla) "রিস্টোর করুন ($secs)" else "Restore ($secs)"
+                            if (isBangla) "পুনরুদ্ধার করুন ($secs)" else "Restore ($secs)"
                         } else {
-                            if (isBangla) "রিস্টোর করুন" else "Restore"
+                            if (isBangla) "পুনরুদ্ধার করুন" else "Restore"
                         },
                         fontWeight = FontWeight.Bold
                     )
@@ -463,7 +463,7 @@ fun SettingsDetailScreen(
             title = { Text(if (isBangla) "পরিবর্তন বাতিল করবেন?" else "Discard changes?") },
             text = {
                 Text(
-                    if (isBangla) "আপনার নির্বাচন এখনো প্রয়োগ করা হয়নি।"
+                    if (isBangla) "আপনার করা পরিবর্তনগুলো এখনো প্রয়োগ করা হয়নি।"
                     else "Your selection has not been applied yet."
                 )
             },
@@ -532,7 +532,7 @@ private fun ResetAllCard(isBangla: Boolean, onClick: () -> Unit) {
                     color = MaterialTheme.colorScheme.error
                 )
                 Text(
-                    if (isBangla) "সব ডাটা ও সেটিংস মুছে ফেলুন" else "Delete all data and settings",
+                    if (isBangla) "সব ডেটা ও সেটিংস মুছে ফেলুন" else "Delete all data and settings",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                 )
@@ -549,22 +549,22 @@ private fun BackupRestoreCard(
 ) {
     SettingsCard {
         Text(
-            if (isBangla) "ব্যাকআপ ও রিস্টোর" else "Backup & Restore",
+            if (isBangla) "ব্যাকআপ ও পুনরুদ্ধার" else "Backup & Restore",
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold
         )
         Spacer(modifier = Modifier.height(6.dp))
         BackupRestoreRow(
             icon = Icons.Rounded.CloudUpload,
-            title = if (isBangla) "ব্যাকআপ ডাটা" else "Backup Data",
-            subtitle = if (isBangla) "ব্যাকআপ ফাইল সেভ করুন" else "Save backup file to Downloads",
+            title = if (isBangla) "ডেটা ব্যাকআপ" else "Backup Data",
+            subtitle = if (isBangla) "ব্যাকআপ ফাইল ডাউনলোড ফোল্ডারে সেভ করুন" else "Save backup file to Downloads",
             onClick = onBackup
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
         BackupRestoreRow(
             icon = Icons.Rounded.CloudDownload,
-            title = if (isBangla) "রিস্টোর ডাটা" else "Restore Data",
-            subtitle = if (isBangla) "ব্যাকআপ ফাইল রিস্টোর করুন" else "Restore from backup file",
+            title = if (isBangla) "ডেটা পুনরুদ্ধার" else "Restore Data",
+            subtitle = if (isBangla) "ব্যাকআপ ফাইল থেকে পুনরুদ্ধার করুন" else "Restore from backup file",
             onClick = onRestore
         )
     }
@@ -730,7 +730,7 @@ private fun ThemePreviewCard(
     val scheme = cashFigureColorScheme(isDark = previewIsDark, dynamicColor = dynamicColorEnabled)
     SettingsCard {
         Text(
-            if (isBangla) "প্রিভিউ" else "Preview",
+            if (isBangla) "দেখুন" else "Preview",
             style = MaterialTheme.typography.titleSmall,
             fontWeight = FontWeight.Bold
         )
@@ -996,7 +996,7 @@ private fun CurrencyContent(
     val togglableValues = listOf(1, 2, 5, 10, 20, 50)
     SettingsCard {
         Text(
-            if (isBangla) "হোমপেজের নোটগুলো নিয়ন্ত্রণ করুন" else "Manage homepage notes",
+            if (isBangla) "হোম পেজে কোন নোটগুলো থাকবে তা নিয়ন্ত্রণ করুন" else "Manage homepage notes",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
         )
@@ -1073,7 +1073,7 @@ private fun CurrencyContent(
                 }
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = if (isBangla) "এই নোটগুলো হোমপেজে দেখাবে না।"
+                    text = if (isBangla) "এই নোটগুলো হোম পেজে দেখানো হবে না।"
                     else "These notes won't show on the homepage",
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
@@ -1104,7 +1104,7 @@ private fun CurrencySummaryCard(
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            if (isBangla) "১০০, ২০০, ৫০০ ও ১০০০ টাকার নোট সবসময় হোমপেজে থাকবে।"
+            if (isBangla) "১০০, ২০০, ৫০০ ও ১০০০ টাকার নোট সবসময় হোম পেজে থাকবে।"
             else "100, 200, 500 and 1000 Tk notes always stay on the homepage",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
@@ -1212,7 +1212,7 @@ private fun MiscellaneousContent(
         ToggleRow(
             icon = { Icon(Icons.Rounded.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp)) },
             title = if (isBangla) "ডায়নামিক কালার" else "Dynamic Color",
-            subtitle = if (isBangla) "ম্যাটেরিয়াল ইউ কালার ব্যবহার করুন" else "Use Material You colors",
+            subtitle = if (isBangla) "ম্যাটেরিয়াল ইউ-এর কালার ব্যবহার করুন" else "Use Material You colors",
             checked = dynamicColorEnabled,
             onToggle = onDynamicColorToggle
         )
@@ -1220,7 +1220,7 @@ private fun MiscellaneousContent(
         ToggleRow(
             icon = { Icon(Icons.Rounded.Vibration, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp)) },
             title = if (isBangla) "হ্যাপটিক ফিডব্যাক" else "Haptic Feedback",
-            subtitle = if (isBangla) "বাটন ও টগলে কম্পন সক্রিয় করুন" else "Vibrate on interactions",
+            subtitle = if (isBangla) "বাটন ও টগল চাপলে কম্পন দিন" else "Vibrate on interactions",
             checked = hapticEnabled,
             onToggle = onHapticToggle
         )
@@ -1356,9 +1356,9 @@ private fun authenticateWithFingerprint(
         )
         .setSubtitle(
             if (enabling) {
-                if (isBangla) "অ্যাপ লক চালু করতে নিশ্চিত করুন" else "Confirm to enable app lock"
+                if (isBangla) "অ্যাপ লক চালু করতে চাইলে নিশ্চিত করুন" else "Confirm to enable app lock"
             } else {
-                if (isBangla) "অ্যাপ লক বন্ধ করতে নিশ্চিত করুন" else "Confirm to disable app lock"
+                if (isBangla) "অ্যাপ লক বন্ধ করতে চাইলে নিশ্চিত করুন" else "Confirm to disable app lock"
             }
         )
         .setAllowedAuthenticators(

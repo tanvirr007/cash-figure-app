@@ -20,7 +20,7 @@ object CsvReportGenerator {
         sb.append(if (isBangla) "মোট নোট,$totalPiecesStr\n" else "Total Pieces,$totalPiecesStr\n")
         sb.append(if (isBangla) "নোটের ধরণ,$activeDenomStr\n" else "Active Denominations,$activeDenomStr\n")
         val escapedNotes = (if (sheet.remark.isNotBlank()) sheet.remark else "N/A").replace("\"", "\"\"")
-        sb.append(if (isBangla) "নোট,\"$escapedNotes\"\n\n" else "Notes,\"$escapedNotes\"\n\n")
+        sb.append(if (isBangla) "মন্তব্য,\"$escapedNotes\"\n\n" else "Notes,\"$escapedNotes\"\n\n")
 
         sb.append(if (isBangla) "নোটের মান,সংখ্যা,সাবটোটাল\n" else "Denomination,Quantity,Subtotal\n")
         sheet.rows.filter { it.quantity > 0 }.forEach { row ->

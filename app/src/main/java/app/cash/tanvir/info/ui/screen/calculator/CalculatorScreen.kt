@@ -102,7 +102,7 @@ fun CalculatorScreen(
                 (context as? android.app.Activity)?.finish()
             } else {
                 lastBackPress = now
-                val msg = if (isBangla) "বের হতে আবার ব্যাক চাপুন" else "Press back again to exit"
+                val msg = if (isBangla) "অ্যাপ থেকে বের হতে আবার ব্যাক চাপুন" else "Press back again to exit"
                 activeToast?.cancel()
                 activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
             }
@@ -227,7 +227,7 @@ fun CalculatorScreen(
                             lastSaveClick = now
 
                             if (uiState.grandTotal <= 0L) {
-                                val msg = if (isBangla) "০ টাকা সেভ করা সম্ভব নয়" else "Cannot save 0 amount calculation"
+                                val msg = if (isBangla) "০ টাকার হিসাব সেভ করা যাবে না" else "Cannot save 0 amount calculation"
                                 activeToast?.cancel()
                                 activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                             } else {
@@ -254,8 +254,8 @@ fun CalculatorScreen(
                 HapticHelper.vibrate(context)
                 showClearAllConfirmation = false
             },
-            title = { Text(if (isBangla) "সব এন্ট্রি মুছে ফেলবেন?" else "Clear All Entries?") },
-            text = { Text(if (isBangla) "আপনি কি সমস্ত ইনপুট সংখ্যা মুছে নতুন হিসাব শুরু করতে চান?" else "Are you sure you want to clear all denomination entries?") },
+            title = { Text(if (isBangla) "সব হিসাব মুছে ফেলবেন?" else "Clear All Entries?") },
+            text = { Text(if (isBangla) "আপনি কি সব নোটের সংখ্যা মুছে ফেলে নতুন করে হিসাব শুরু করতে চান?" else "Are you sure you want to clear all denomination entries?") },
             confirmButton = {
                 Button(
                     onClick = {
@@ -295,7 +295,7 @@ fun CalculatorScreen(
                 if (uiState.loadedDraftId > 0L) {
                     Text(
                         text = if (isBangla) {
-                            "পূর্বের ড্রাফটটি থাকবে — একটি নতুন ড্রাফট তৈরি হবে"
+                            "আগের ড্রাফটটি থাকবে — নতুন একটি ড্রাফট তৈরি হবে"
                         } else {
                             "The loaded draft stays — a new draft will be created"
                         },
@@ -356,7 +356,7 @@ fun CalculatorScreen(
             },
             text = {
                 Text(
-                    if (isBangla) "আপনি কি $denomLabel এর সংখ্যা মুছে ফেলতে চান?"
+                    if (isBangla) "আপনি কি $denomLabel-এর সংখ্যা মুছে ফেলতে চান?"
                     else "Are you sure you want to clear the quantity for $denomLabel?"
                 )
             },
@@ -396,7 +396,7 @@ fun CalculatorScreen(
             },
             title = {
                 Text(
-                    text = if (isBangla) "ক্যাশ ব্রেকডাউন" else "Cash Breakdown",
+                    text = if (isBangla) "বিস্তারিত হিসাব" else "Cash Breakdown",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -568,7 +568,7 @@ fun CalculatorScreen(
             },
             title = {
                 Text(
-                    text = if (isBangla) "নোট যোগ করুন" else "Add Notes",
+                    text = if (isBangla) "মন্তব্য যোগ করুন" else "Add Notes",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -582,7 +582,7 @@ fun CalculatorScreen(
                 ) {
                     Text(
                         text = if (isBangla) 
-                            "রিপোর্ট তৈরি করতে অনুগ্রহ করে একটি নোট যোগ করুন (যেমন ব্যাংকের নাম বা উদ্দেশ্য):" 
+                            "রিপোর্ট তৈরি করতে একটি মন্তব্য যোগ করুন (যেমন ব্যাংকের নাম বা উদ্দেশ্য):" 
                             else "Please add a note to generate the report (e.g. bank name or purpose):",
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -602,7 +602,7 @@ fun CalculatorScreen(
                             modifier = Modifier.fillMaxWidth(),
                             label = {
                                 if (notesInputText.isNotEmpty() || isNotesFocused) {
-                                    Text(if (isBangla) "নোট" else "Notes")
+                                    Text(if (isBangla) "মন্তব্য" else "Notes")
                                 }
                             },
                             singleLine = true,
@@ -653,7 +653,7 @@ fun CalculatorScreen(
                         contentColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
-                    Text(if (isBangla) "পিছনে" else "Back")
+                    Text(if (isBangla) "ফিরে যান" else "Back")
                 }
             },
             confirmButton = {
@@ -661,13 +661,13 @@ fun CalculatorScreen(
                     onClick = {
                         HapticHelper.vibrate(context)
                         if (notesInputText.trim().isBlank()) {
-                            val msg = if (isBangla) "নোট ছাড়া সেভ করা যাবে না" else "Cannot save without a note"
+                            val msg = if (isBangla) "মন্তব্য ছাড়া সেভ করা যাবে না" else "Cannot save without a note"
                             activeToast?.cancel()
                             activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                             return@Button
                         }
                         viewModel.saveToHistory(remark = notesInputText.trim()) { savedId, savedAmount ->
-                            val msg = if (isBangla) "লেনদেন সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
+                            val msg = if (isBangla) "হিসাব সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
                             activeToast?.cancel()
                             activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                             onNavigateToReport(savedId, false)

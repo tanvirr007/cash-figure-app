@@ -130,7 +130,7 @@ fun DraftScreen(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = if (isBangla) {
-                        "কিছু টাকা হিসাব করে ব্যাক চাপলে ড্রাফটে সেভ করতে পারবেন, পরে আবার চালিয়ে যান"
+                        "কিছু হিসাব করে ব্যাক চাপলে ড্রাফট হিসেবে সেভ করতে পারবেন — পরে আবার চালিয়ে যেতে পারবেন"
                     } else {
                         "Count some cash and press back to save it as a draft — pick it up again anytime"
                     },
@@ -151,7 +151,7 @@ fun DraftScreen(
                     val savedCount = uiState.drafts.size
                     Text(
                         text = if (isBangla) {
-                            "${BanglaDigitConverter.toBangla(savedCount.toLong())} টি ড্রাফট সংরক্ষিত আছে"
+                            "${BanglaDigitConverter.toBangla(savedCount.toLong())}টি ড্রাফট সংরক্ষিত আছে"
                         } else {
                             if (savedCount == 1) "1 draft saved" else "$savedCount drafts saved"
                         },
@@ -190,7 +190,7 @@ fun DraftScreen(
                 HapticHelper.vibrate(context)
                 viewModel.dismissDiscardDraftDialog()
             },
-            title = { Text(if (isBangla) "ড্রাফট বাতিল করবেন?" else "Discard Draft?") },
+            title = { Text(if (isBangla) "ড্রাফটটি বাতিল করবেন?" else "Discard Draft?") },
             text = {},
             confirmButton = {
                 Button(
@@ -263,7 +263,7 @@ private fun DraftRowItem(
 
             Text(
                 text = if (isBangla) {
-                    "${BanglaDigitConverter.toBangla(draft.totalPieces)} টি নোট • " +
+                    "${BanglaDigitConverter.toBangla(draft.totalPieces)}টি নোট • " +
                         DateTimeFormatter.format(draft.updatedAt, isBangla = true)
                 } else {
                     "${draft.totalPieces} pieces • ${DateTimeFormatter.format(draft.updatedAt, isBangla = false)}"

@@ -95,7 +95,7 @@ object PdfReportGenerator {
         paint.isFakeBoldText = true
         paint.color = Color.parseColor("#00695C") // Deep Teal
         paint.textAlign = Paint.Align.CENTER
-        canvas.drawText(if (isBangla) "ক্যাশ ব্রেকডাউন" else "Cash Breakdown", (margin + rightMargin) / 2f, y, paint)
+        canvas.drawText(if (isBangla) "বিস্তারিত হিসাব" else "Cash Breakdown", (margin + rightMargin) / 2f, y, paint)
         paint.textAlign = Paint.Align.LEFT
 
         y += 28f
@@ -180,7 +180,7 @@ object PdfReportGenerator {
         // Notes section
         paint.textSize = 12f
         paint.color = Color.BLACK
-        val label = if (isBangla) "নোট: " else "Notes: "
+        val label = if (isBangla) "মন্তব্য: " else "Notes: "
         paint.isFakeBoldText = true
         canvas.drawText(label, margin, y, paint)
         val labelWidth = paint.measureText(label)

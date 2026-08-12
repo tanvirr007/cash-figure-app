@@ -155,17 +155,12 @@ so restoring data created by an older app version stays safe.
 
 ## Bangla Translation
 
-The Bangla (বাংলা) translation of Cash Figure is a **work in progress**. The app
-is bilingual (English + Bangla), but the Bangla side is not fully polished yet:
+The Bangla (বাংলা) translation of Cash Figure has been professionally revised
+to read naturally — everyday Bangla, consistent wording, and no robotic,
+machine-translated phrasing. The app is bilingual (English + Bangla); English
+is the default and Bangla is a user choice.
 
-- Some translations are correct and read naturally.
-- Others are not — awkward phrasing, inconsistent word choice, or spots that
-  still fall back to English.
-- The amount-in-words feature (`NumberToWordsConverter`) and the report
-  generators (PDF/CSV/TXT) also carry Bangla text that needs the same review.
-
-We are fixing these gradually, and it takes time to get every string right.
-If you are a native Bangla speaker and want to help, **you are very welcome** —
+If you spot a string that still feels off, **you are very welcome** to fix it —
 contributions of any size help. You do not need to know Android; fixing a single
 string is a perfectly good contribution.
 
@@ -186,7 +181,7 @@ table first, then grep for `isBangla` to see the exact context.
 | Rename Sheet | শিটের নাম পরিবর্তন |
 | Sheet deleted | শিটটি মুছে ফেলা হয়েছে |
 | Undo | পূর্বাবস্থায় আনুন |
-| Cash Breakdown | ক্যাশ ব্রেকডাউন |
+| Cash Breakdown | বিস্তারিত হিসাব |
 | Subtotal | সাবটোটাল |
 | Grand Total | সর্বমোট |
 | Cash Calculation Report | ক্যাশ হিসাবের রিপোর্ট |
@@ -195,6 +190,19 @@ table first, then grep for `isBangla` to see the exact context.
 | Clear All | সব মুছুন |
 | Search | খুঁজুন |
 | Update | আপডেট |
+| Currency | নোট |
+| Version | সংস্করণ |
+| Data | ডেটা |
+| Restore Data | ডেটা পুনরুদ্ধার |
+| Backup & Restore | ব্যাকআপ ও পুনরুদ্ধার |
+| Changelog | আপডেটের ইতিহাস |
+| Preview | দেখুন |
+| Export & Print Report | রিপোর্ট সেভ ও প্রিন্ট |
+
+Two rules from the translation rewrite: **নোট always means banknote** — the
+remarks field (Add Notes / Notes:) is **মন্তব্য**. And keep everyday loanwords
+that native speakers actually use (আপডেট, ডাউনলোড, রিপোর্ট, থিম, সেভ, ড্রাফট,
+ব্যাকআপ, রিসেট, ক্যাশ) — avoid robotic ones (ডাটা, ভার্সন, রিস্টোর, প্রিভিউ).
 
 If you believe a settled term itself is wrong, suggest the change in the PR —
 but keep every other string consistent with the table.
