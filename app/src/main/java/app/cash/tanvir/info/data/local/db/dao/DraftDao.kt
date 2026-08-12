@@ -19,14 +19,14 @@ interface DraftDao {
     @Query("SELECT * FROM drafts WHERE id = :id LIMIT 1")
     suspend fun getDraftById(id: Long): DraftEntity?
 
+    @Query("SELECT name FROM drafts")
+    suspend fun getDraftNames(): List<String>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDraft(draft: DraftEntity): Long
 
     @Query("DELETE FROM drafts WHERE id = :id")
     suspend fun deleteDraft(id: Long)
-
-    @Query("SELECT COUNT(*) FROM drafts")
-    suspend fun getDraftCount(): Int
 
     @Query("DELETE FROM drafts")
     suspend fun clearAllDrafts()

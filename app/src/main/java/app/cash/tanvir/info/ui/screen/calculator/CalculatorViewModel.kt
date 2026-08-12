@@ -37,7 +37,9 @@ data class CalculatorUiState(
 
     val quantities: Map<Int, String> = Denomination.ALL.associate { it.value to "" },
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
-    val disabledDenominations: Set<Int> = emptySet()
+    val disabledDenominations: Set<Int> = emptySet(),
+    // Draft currently loaded into the calculator; -1 when none. Consumed only on Save to History.
+    val loadedDraftId: Long = -1L
 )
 
 /**
@@ -119,6 +121,7 @@ class CalculatorViewModel @Inject constructor(
                     // Persist as the working sheet so a later restart resumes it
                     flushDraft()
                     loadedDraftId = draft.id
+                    _uiState.update { it.copy(loadedDraftId = draft.id) }
                 }
             }
         }
@@ -163,31 +166,21 @@ class CalculatorViewModel @Inject constructor(
     }
 
     /**
-     * Save the current count as a draft entry (back-exit "Save to Draft").
-     * If a draft is currently loaded into the calculator, it is updated in
-     * place instead of creating a duplicate entry.
+     * Save the current count as a new draft entry (back-exit "Save to Draft").
+     * Every save creates a fresh snapshot — a draft loaded into the calculator
+     * is never overwritten; it stays listed until saved to History.
      * Blocking is intentional: the write must complete before the process dies.
      */
     fun saveAsDraft() {
         val state = _uiState.value
         if (state.grandTotal <= 0L) return
         runBlocking {
-            if (loadedDraftId > 0L) {
-                sheetRepository.updateDraft(
-                    id = loadedDraftId,
-                    quantities = state.quantities,
-                    grandTotal = state.grandTotal,
-                    totalPieces = state.totalPieces,
-                    activeDenominations = state.activeDenominations
-                )
-            } else {
-                sheetRepository.saveDraft(
-                    quantities = state.quantities,
-                    grandTotal = state.grandTotal,
-                    totalPieces = state.totalPieces,
-                    activeDenominations = state.activeDenominations
-                )
-            }
+            sheetRepository.saveDraft(
+                quantities = state.quantities,
+                grandTotal = state.grandTotal,
+                totalPieces = state.totalPieces,
+                activeDenominations = state.activeDenominations
+            )
         }
     }
 
@@ -268,6 +261,7 @@ class CalculatorViewModel @Inject constructor(
             if (loadedDraftId > 0L) {
                 sheetRepository.deleteDraft(loadedDraftId)
                 loadedDraftId = -1L
+                _uiState.update { it.copy(loadedDraftId = -1L) }
             }
             onSuccess(savedId, savedAmountFormatted)
         }

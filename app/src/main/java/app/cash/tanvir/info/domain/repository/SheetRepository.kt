@@ -23,7 +23,6 @@ interface SheetRepository {
     fun getAllDrafts(): Flow<List<Sheet>>
     suspend fun getDraftById(id: Long): Sheet?
     suspend fun saveDraft(quantities: Map<Int, String>, grandTotal: Long, totalPieces: Long, activeDenominations: Int): Long
-    suspend fun updateDraft(id: Long, quantities: Map<Int, String>, grandTotal: Long, totalPieces: Long, activeDenominations: Int)
     suspend fun deleteDraft(id: Long)
     suspend fun restoreDrafts(drafts: List<Sheet>)
     suspend fun clearAllDrafts()

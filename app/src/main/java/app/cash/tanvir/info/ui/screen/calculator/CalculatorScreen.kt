@@ -291,14 +291,26 @@ fun CalculatorScreen(
                 showExitWithDraftDialog = false
             },
             title = { Text(if (isBangla) "ড্রাফট হিসেবে সেভ করবেন?" else "Save as Draft?") },
-            text = {},
+            text = {
+                if (uiState.loadedDraftId > 0L) {
+                    Text(
+                        text = if (isBangla) {
+                            "পূর্বের ড্রাফটটি থাকবে — একটি নতুন ড্রাফট তৈরি হবে"
+                        } else {
+                            "The loaded draft stays — a new draft will be created"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                }
+            },
             confirmButton = {
                 Button(
                     onClick = {
                         HapticHelper.vibrate(context)
                         viewModel.saveAsDraftAndClear()
                         showExitWithDraftDialog = false
-                        val msg = if (isBangla) "ড্রাফটে সেভ হয়েছে" else "Saved to draft"
+                        val msg = if (isBangla) "নতুন ড্রাফট সেভ হয়েছে" else "New draft saved"
                         activeToast?.cancel()
                         activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                     }

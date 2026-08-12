@@ -154,9 +154,13 @@ class SheetRepositoryImpl @Inject constructor(
         activeDenominations: Int
     ): Long {
         val now = System.currentTimeMillis()
-        val draftNumber = draftDao.getDraftCount() + 1
+        // Name from the max existing "Draft #N" + 1 so numbers are never duplicated,
+        // even after deletions or restores with legacy names.
+        val maxNumber = draftDao.getDraftNames()
+            .mapNotNull { it.removePrefix("Draft #").toIntOrNull() }
+            .maxOrNull() ?: 0
         val entity = DraftEntity(
-            name = "Draft #$draftNumber",
+            name = "Draft #${maxNumber + 1}",
             grandTotal = grandTotal,
             totalPieces = totalPieces,
             activeDenominations = activeDenominations,
@@ -165,27 +169,6 @@ class SheetRepositoryImpl @Inject constructor(
             quantitiesJson = quantities.toQuantitiesJson()
         )
         return draftDao.insertDraft(entity)
-    }
-
-    override suspend fun updateDraft(
-        id: Long,
-        quantities: Map<Int, String>,
-        grandTotal: Long,
-        totalPieces: Long,
-        activeDenominations: Int
-    ) {
-        val existing = draftDao.getDraftById(id) ?: return
-        val entity = DraftEntity(
-            id = existing.id,
-            name = existing.name,
-            grandTotal = grandTotal,
-            totalPieces = totalPieces,
-            activeDenominations = activeDenominations,
-            createdAt = existing.createdAt,
-            updatedAt = System.currentTimeMillis(),
-            quantitiesJson = quantities.toQuantitiesJson()
-        )
-        draftDao.insertDraft(entity)
     }
 
     override suspend fun deleteDraft(id: Long) {
