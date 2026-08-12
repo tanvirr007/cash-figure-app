@@ -20,6 +20,7 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 
 enum class AppTheme { SYSTEM, LIGHT, DARK }
 enum class AppLanguage { ENGLISH, BANGLA }
+enum class AppFont { DEFAULT, GOOGLE_SANS_ROUNDED, GOOGLE_SANS_FLEX, VOLTE_ROUND }
 
 /**
  * DataStore preferences manager for persistent user settings.
@@ -31,6 +32,7 @@ class PreferencesManager @Inject constructor(
     private object Keys {
         val THEME = stringPreferencesKey("app_theme")
         val LANGUAGE = stringPreferencesKey("app_language")
+        val FONT = stringPreferencesKey("app_font")
         val DISABLED_DENOMINATIONS = stringSetPreferencesKey("disabled_note_denominations")
         val BIOMETRIC_ENABLED = booleanPreferencesKey("biometric_enabled")
         val SCREENSHOT_BLOCK_ENABLED = booleanPreferencesKey("screenshot_block_enabled")
@@ -54,6 +56,15 @@ class PreferencesManager @Inject constructor(
         when (prefs[Keys.LANGUAGE]) {
             "BANGLA" -> AppLanguage.BANGLA
             else -> AppLanguage.ENGLISH
+        }
+    }
+
+    val fontFlow: Flow<AppFont> = context.dataStore.data.map { prefs ->
+        when (prefs[Keys.FONT]) {
+            "GOOGLE_SANS_ROUNDED" -> AppFont.GOOGLE_SANS_ROUNDED
+            "GOOGLE_SANS_FLEX" -> AppFont.GOOGLE_SANS_FLEX
+            "VOLTE_ROUND" -> AppFont.VOLTE_ROUND
+            else -> AppFont.DEFAULT
         }
     }
 
@@ -102,6 +113,12 @@ class PreferencesManager @Inject constructor(
     suspend fun setLanguage(language: AppLanguage) {
         context.dataStore.edit { prefs ->
             prefs[Keys.LANGUAGE] = language.name
+        }
+    }
+
+    suspend fun setFont(font: AppFont) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.FONT] = font.name
         }
     }
 

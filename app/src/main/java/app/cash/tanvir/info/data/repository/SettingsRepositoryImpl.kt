@@ -1,6 +1,7 @@
 package app.cash.tanvir.info.data.repository
 
 import app.cash.tanvir.info.data.local.db.dao.SheetDao
+import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.data.local.preferences.PreferencesManager
@@ -21,6 +22,8 @@ class SettingsRepositoryImpl @Inject constructor(
     override fun getTheme(): Flow<AppTheme> = preferencesManager.themeFlow
 
     override fun getLanguage(): Flow<AppLanguage> = preferencesManager.languageFlow
+
+    override fun getFont(): Flow<AppFont> = preferencesManager.fontFlow
 
     override fun getDisabledDenominations(): Flow<Set<Int>> = preferencesManager.disabledDenominationsFlow
 
@@ -44,6 +47,10 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setLanguage(language: AppLanguage) {
         preferencesManager.setLanguage(language)
+    }
+
+    override suspend fun setFont(font: AppFont) {
+        preferencesManager.setFont(font)
     }
 
     override suspend fun setDenominationEnabled(denomination: Int, enabled: Boolean) {

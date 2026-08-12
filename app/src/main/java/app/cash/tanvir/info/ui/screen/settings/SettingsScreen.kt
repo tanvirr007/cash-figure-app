@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Bookmarks
+import androidx.compose.material.icons.rounded.FontDownload
 import androidx.compose.material.icons.rounded.HistoryToggleOff
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.SettingsSuggest
@@ -53,6 +54,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsSection
 import app.cash.tanvir.info.util.BanglaDigitConverter
@@ -125,6 +127,21 @@ fun SettingsScreen(
                     onClick = {
                         HapticHelper.vibrate(context)
                         onNavigateToSettingsDetail(SettingsSection.LANGUAGE)
+                    }
+                )
+                SettingsGroupDivider()
+                SettingsGroupRow(
+                    icon = Icons.Rounded.FontDownload,
+                    title = if (isBangla) "ফন্ট" else "Font",
+                    subtitle = when (uiState.font) {
+                        AppFont.GOOGLE_SANS_ROUNDED -> "Google Sans Rounded"
+                        AppFont.GOOGLE_SANS_FLEX -> "Google Sans Flex"
+                        AppFont.VOLTE_ROUND -> "Volte Round"
+                        AppFont.DEFAULT -> if (isBangla) "ডিফল্ট (সিস্টেম)" else "Default (system)"
+                    },
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        onNavigateToSettingsDetail(SettingsSection.FONT)
                     }
                 )
                 SettingsGroupDivider()

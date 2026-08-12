@@ -84,10 +84,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
+import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
 import app.cash.tanvir.info.ui.theme.cashFigureColorScheme
+import app.cash.tanvir.info.ui.theme.fontFamilyFor
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.HapticHelper
@@ -114,13 +116,17 @@ fun SettingsDetailScreen(
     val pendingTheme = AppTheme.valueOf(pendingThemeName)
     var pendingLangName by rememberSaveable { mutableStateOf(uiState.language.name) }
     val pendingLang = AppLanguage.valueOf(pendingLangName)
+    var pendingFontName by rememberSaveable { mutableStateOf(uiState.font.name) }
+    val pendingFont = AppFont.valueOf(pendingFontName)
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
 
     val themeSelectionPending = section == SettingsSection.THEME && pendingTheme != uiState.theme
     val langSelectionPending = section == SettingsSection.LANGUAGE && pendingLang != uiState.language
+    val fontSelectionPending = section == SettingsSection.FONT && pendingFont != uiState.font
     val selectionPending = when (section) {
         SettingsSection.THEME -> themeSelectionPending
         SettingsSection.LANGUAGE -> langSelectionPending
+        SettingsSection.FONT -> fontSelectionPending
         else -> false
     }
     val requestLeave = {
@@ -143,6 +149,10 @@ fun SettingsDetailScreen(
             SettingsSection.LANGUAGE -> {
                 viewModel.setLanguage(pendingLang)
                 Toast.makeText(context, if (isBangla) "ভাষা পরিবর্তন হয়েছে" else "Language applied", Toast.LENGTH_SHORT).show()
+            }
+            SettingsSection.FONT -> {
+                viewModel.setFont(pendingFont)
+                Toast.makeText(context, if (isBangla) "ফন্ট প্রয়োগ করা হয়েছে" else "Font applied", Toast.LENGTH_SHORT).show()
             }
             else -> Unit
         }
@@ -167,6 +177,7 @@ fun SettingsDetailScreen(
     val title = when (section) {
         SettingsSection.THEME -> if (isBangla) "অ্যাপের থিম" else "App Theme"
         SettingsSection.LANGUAGE -> if (isBangla) "ভাষা" else "Language"
+        SettingsSection.FONT -> if (isBangla) "ফন্ট" else "Font"
         SettingsSection.CURRENCY -> if (isBangla) "নোট" else "Currency"
         SettingsSection.MISCELLANEOUS -> if (isBangla) "টুলস" else "Miscellaneous"
     }
@@ -223,7 +234,7 @@ fun SettingsDetailScreen(
             )
         },
         bottomBar = {
-            if (section == SettingsSection.THEME || section == SettingsSection.LANGUAGE) {
+            if (section == SettingsSection.THEME || section == SettingsSection.LANGUAGE || section == SettingsSection.FONT) {
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.surface,
@@ -285,6 +296,21 @@ fun SettingsDetailScreen(
                         onSelect = { lang ->
                             HapticHelper.vibrate(context)
                             pendingLangName = lang.name
+                        }
+                    )
+                }
+                SettingsSection.FONT -> {
+                    SectionHeader(
+                        title = if (isBangla) "ফন্ট" else "Font",
+                        subtitle = if (isBangla) "ফন্ট বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a font, preview it, then apply"
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    FontContent(
+                        isBangla = isBangla,
+                        pendingFont = pendingFont,
+                        onSelect = { font ->
+                            HapticHelper.vibrate(context)
+                            pendingFontName = font.name
                         }
                     )
                 }
@@ -473,6 +499,7 @@ fun SettingsDetailScreen(
                     showDiscardDialog = false
                     pendingThemeName = uiState.theme.name
                     pendingLangName = uiState.language.name
+                    pendingFontName = uiState.font.name
                     onNavigateBack()
                 }) {
                     Text(
@@ -1368,4 +1395,226 @@ private fun authenticateWithFingerprint(
         .build()
 
     biometricPrompt.authenticate(promptInfo)
+}
+
+@Composable
+private fun FontContent(
+    isBangla: Boolean,
+    pendingFont: AppFont,
+    onSelect: (AppFont) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        AppFont.entries.forEach { font ->
+            FontOptionCard(
+                isBangla = isBangla,
+                font = font,
+                selected = font == pendingFont,
+                onClick = { onSelect(font) }
+            )
+        }
+        FontPreviewCard(isBangla = isBangla, pendingFont = pendingFont)
+        FontInfoCard(isBangla = isBangla)
+    }
+}
+
+@Composable
+private fun FontOptionCard(
+    isBangla: Boolean,
+    font: AppFont,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val containerColor = if (selected) {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+    } else {
+        MaterialTheme.colorScheme.surfaceVariant
+    }
+    val borderColor = if (selected) {
+        MaterialTheme.colorScheme.primary
+    } else {
+        MaterialTheme.colorScheme.outlineVariant
+    }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .background(containerColor)
+            .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = when (font) {
+                    AppFont.DEFAULT -> if (isBangla) "ডিফল্ট" else "Default"
+                    AppFont.GOOGLE_SANS_ROUNDED -> "Google Sans Rounded"
+                    AppFont.GOOGLE_SANS_FLEX -> "Google Sans Flex"
+                    AppFont.VOLTE_ROUND -> "Volte Round"
+                },
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = when (font) {
+                    AppFont.DEFAULT -> if (isBangla) "ডিভাইসের সিস্টেম ফন্ট ব্যবহার করুন" else "Use your device's system font"
+                    AppFont.GOOGLE_SANS_ROUNDED -> if (isBangla) "গোলাকার ও আধুনিক চেহারা" else "Rounded, modern look"
+                    AppFont.GOOGLE_SANS_FLEX -> if (isBangla) "নমনীয় ও ভার্সেটাইল স্টাইল" else "Flexible, versatile style"
+                    AppFont.VOLTE_ROUND -> if (isBangla) "পরিষ্কার ও গোলাকার ডিজাইন" else "Clean, rounded design"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (selected) {
+            Spacer(modifier = Modifier.width(10.dp))
+            Icon(
+                imageVector = Icons.Rounded.CheckCircle,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(22.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun FontPreviewCard(
+    isBangla: Boolean,
+    pendingFont: AppFont
+) {
+    val previewFamily = fontFamilyFor(pendingFont, isBangla)
+    SettingsCard {
+        Text(
+            if (isBangla) "দেখুন" else "Preview",
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .background(MaterialTheme.colorScheme.background)
+                .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.3f), RoundedCornerShape(14.dp))
+                .padding(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(24.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(horizontal = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(8.dp)
+                            .background(MaterialTheme.colorScheme.onPrimary, RoundedCornerShape(4.dp))
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(6.dp)
+                            .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.6f), RoundedCornerShape(3.dp))
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .padding(10.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(30.dp)
+                            .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(9.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "৳",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = previewFamily),
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            if (isBangla) "৫,০০০ টাকা" else "৳ 5,000",
+                            style = MaterialTheme.typography.titleMedium.copy(fontFamily = previewFamily),
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                        Text(
+                            if (isBangla) "১০ × ৫০০ টাকার নোট" else "10 × 500 Tk notes",
+                            style = MaterialTheme.typography.bodySmall.copy(fontFamily = previewFamily),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            PreviewNoteRow(MaterialTheme.colorScheme)
+            Spacer(modifier = Modifier.height(6.dp))
+            PreviewNoteRow(MaterialTheme.colorScheme)
+        }
+    }
+}
+
+@Composable
+private fun FontInfoCard(isBangla: Boolean) {
+    SettingsCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Top
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .background(color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.14f), shape = RoundedCornerShape(12.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Info,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Column {
+                Text(
+                    if (isBangla) "কীভাবে ফন্ট কাজ করে" else "How the font option works",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    if (isBangla) "নির্বাচিত ফন্টটি অ্যাপের ইংরেজি (ল্যাটিন) লেখায় প্রযোজ্য হয়। বাংলা লেখা সবসময় টিরো বাংলা ফন্টে দেখানো হয়, কারণ এই ফন্টগুলোতে বাংলা হরফ নেই।"
+                    else "The selected font applies to English (Latin) text in the app. Bangla text always renders in Tiro Bangla, because these fonts don't include Bengali glyphs.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    if (isBangla) "ডিফল্ট মানে আপনার ডিভাইসের সিস্টেম ফন্ট। ফন্ট পছন্দ হলে নিচের \"প্রয়োগ করুন\" বাটনে চাপুন।"
+                    else "Default means your device's system font. Tap Apply when you like a font.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                )
+            }
+        }
+    }
 }

@@ -7,6 +7,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import app.cash.tanvir.info.R
+import app.cash.tanvir.info.data.local.preferences.AppFont
 
 private val defaultTypography = Typography()
 
@@ -16,6 +17,40 @@ val TiroBanglaFontFamily = FontFamily(
     Font(R.font.tiro_bangla, FontWeight.SemiBold),
     Font(R.font.tiro_bangla, FontWeight.Bold)
 )
+
+private fun customFontFamily(fontResId: Int): FontFamily = FontFamily(
+    Font(fontResId, FontWeight.Normal),
+    Font(fontResId, FontWeight.Medium),
+    Font(fontResId, FontWeight.SemiBold),
+    Font(fontResId, FontWeight.Bold)
+)
+
+private val GoogleSansRoundedFamily = customFontFamily(R.font.google_sans_rounded_regular)
+private val GoogleSansFlexRoundedFamily = customFontFamily(R.font.google_sans_flex_rounded)
+private val VolteRoundFamily = customFontFamily(R.font.volte_round_regular)
+
+/**
+ * Bangla UI with a custom Latin font: the custom font renders Latin glyphs,
+ * Bengali glyphs fall back to Tiro Bangla (the custom fonts are Latin-only).
+ */
+private fun banglaFallbackFamily(latinFamily: FontFamily): FontFamily =
+    FontFamily(latinFamily.toList() + TiroBanglaFontFamily.toList())
+
+private val GoogleSansRoundedBanglaFamily = banglaFallbackFamily(GoogleSansRoundedFamily)
+private val GoogleSansFlexRoundedBanglaFamily = banglaFallbackFamily(GoogleSansFlexRoundedFamily)
+private val VolteRoundBanglaFamily = banglaFallbackFamily(VolteRoundFamily)
+
+/**
+ * Resolves the FontFamily for the selected [AppFont] and UI language.
+ * Bangla mode always chains the custom font over Tiro Bangla so Bengali
+ * glyphs keep their dedicated font.
+ */
+fun fontFamilyFor(font: AppFont, isBangla: Boolean): FontFamily = when (font) {
+    AppFont.DEFAULT -> if (isBangla) TiroBanglaFontFamily else FontFamily.Default
+    AppFont.GOOGLE_SANS_ROUNDED -> if (isBangla) GoogleSansRoundedBanglaFamily else GoogleSansRoundedFamily
+    AppFont.GOOGLE_SANS_FLEX -> if (isBangla) GoogleSansFlexRoundedBanglaFamily else GoogleSansFlexRoundedFamily
+    AppFont.VOLTE_ROUND -> if (isBangla) VolteRoundBanglaFamily else VolteRoundFamily
+}
 
 /**
  * Bangla UI: Tiro Bangla everywhere (Latin + Bengali glyphs).
@@ -27,6 +62,12 @@ val BanglaTypography = appTypography(TiroBanglaFontFamily)
  * Google Sans on Pixel, OEM fonts elsewhere).
  */
 val EnglishTypography = appTypography(FontFamily.Default)
+
+/**
+ * Typography for the selected app font and language.
+ */
+fun typographyFor(font: AppFont, isBangla: Boolean): Typography =
+    appTypography(fontFamilyFor(font, isBangla))
 
 private fun appTypography(fontFamily: FontFamily): Typography = Typography(
     // Display styles

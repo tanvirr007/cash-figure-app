@@ -27,6 +27,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.data.local.preferences.PreferencesManager
@@ -77,6 +78,7 @@ class MainActivity : FragmentActivity() {
         setContent {
             val appTheme by preferencesManager.themeFlow.collectAsState(initial = AppTheme.SYSTEM)
             val language by preferencesManager.languageFlow.collectAsState(initial = AppLanguage.ENGLISH)
+            val font by preferencesManager.fontFlow.collectAsState(initial = AppFont.DEFAULT)
             val screenshotBlockEnabled by preferencesManager.screenshotBlockEnabledFlow.collectAsState(initial = false)
             val hapticEnabled by preferencesManager.hapticFeedbackEnabledFlow.collectAsState(initial = false)
             val hapticIntensity by preferencesManager.hapticFeedbackIntensityFlow.collectAsState(initial = 0.5f)
@@ -174,7 +176,8 @@ class MainActivity : FragmentActivity() {
             CashFigureTheme(
                 darkTheme = isDark,
                 dynamicColor = useDynamic,
-                isBangla = isBangla
+                isBangla = isBangla,
+                font = font
             ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),

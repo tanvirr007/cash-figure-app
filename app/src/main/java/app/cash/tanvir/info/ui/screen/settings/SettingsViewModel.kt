@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import app.cash.tanvir.info.domain.model.Denomination
@@ -52,6 +53,7 @@ enum class UpdateErrorType {
 data class SettingsUiState(
     val theme: AppTheme = AppTheme.SYSTEM,
     val language: AppLanguage = AppLanguage.ENGLISH,
+    val font: AppFont = AppFont.DEFAULT,
     val disabledDenominations: Set<Int> = emptySet(),
     val showResetConfirmationDialog: Boolean = false,
     val showRestoreWarningDialog: Boolean = false,
@@ -103,6 +105,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             settingsRepository.getLanguage().collect { lang ->
                 _uiState.update { it.copy(language = lang) }
+            }
+        }
+        viewModelScope.launch {
+            settingsRepository.getFont().collect { font ->
+                _uiState.update { it.copy(font = font) }
             }
         }
         viewModelScope.launch {
@@ -161,6 +168,12 @@ class SettingsViewModel @Inject constructor(
     fun setLanguage(language: AppLanguage) {
         viewModelScope.launch {
             settingsRepository.setLanguage(language)
+        }
+    }
+
+    fun setFont(font: AppFont) {
+        viewModelScope.launch {
+            settingsRepository.setFont(font)
         }
     }
 

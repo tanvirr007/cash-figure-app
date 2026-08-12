@@ -6,6 +6,7 @@ package app.cash.tanvir.info.ui.screen.settingsdetail
 enum class SettingsSection(val routeParam: String) {
     THEME("theme"),
     LANGUAGE("language"),
+    FONT("font"),
     CURRENCY("currency"),
     MISCELLANEOUS("misc");
 

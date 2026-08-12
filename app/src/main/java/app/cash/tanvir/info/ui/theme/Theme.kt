@@ -14,6 +14,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import app.cash.tanvir.info.data.local.preferences.AppFont
 
 internal val LightColorScheme = lightColorScheme(
     primary = PrimaryLight,
@@ -84,6 +85,7 @@ fun CashFigureTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     isBangla: Boolean = false,
+    font: AppFont = AppFont.DEFAULT,
     content: @Composable () -> Unit
 ) {
     val colorScheme = cashFigureColorScheme(isDark = darkTheme, dynamicColor = dynamicColor)
@@ -103,7 +105,7 @@ fun CashFigureTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = if (isBangla) BanglaTypography else EnglishTypography,
+        typography = typographyFor(font, isBangla),
         content = content
     )
 }

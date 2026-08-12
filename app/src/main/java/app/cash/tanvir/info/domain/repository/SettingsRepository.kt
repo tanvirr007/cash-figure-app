@@ -1,5 +1,6 @@
 package app.cash.tanvir.info.domain.repository
 
+import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
 import kotlinx.coroutines.flow.Flow
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface SettingsRepository {
     fun getTheme(): Flow<AppTheme>
     fun getLanguage(): Flow<AppLanguage>
+    fun getFont(): Flow<AppFont>
     fun getDisabledDenominations(): Flow<Set<Int>>
     fun getBiometricEnabled(): Flow<Boolean>
     fun getScreenshotBlockEnabled(): Flow<Boolean>
@@ -20,6 +22,7 @@ interface SettingsRepository {
     fun getLastSuccessfulCheck(): Flow<Long?>
     suspend fun setTheme(theme: AppTheme)
     suspend fun setLanguage(language: AppLanguage)
+    suspend fun setFont(font: AppFont)
     suspend fun setDenominationEnabled(denomination: Int, enabled: Boolean)
     suspend fun setBiometricEnabled(enabled: Boolean)
     suspend fun setScreenshotBlockEnabled(enabled: Boolean)
