@@ -134,12 +134,6 @@ fun NavGraph(
                 onNavigateBack = { navController.popBackStack() },
                 onOpenDraft = { draftId ->
                     navController.navigate(Screen.Report.createRoute(draftId, fromDraft = true))
-                },
-                onLoadIntoCalculator = { draftId ->
-                    navController.navigate(Screen.Calculator.createRoute(loadDraftId = draftId)) {
-                        popUpTo(Screen.Calculator.route) { inclusive = true }
-                        launchSingleTop = true
-                    }
                 }
             )
         }

@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.Bookmarks
-import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.DeleteSweep
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -54,18 +53,18 @@ import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.DateTimeFormatter
 import app.cash.tanvir.info.util.HapticHelper
+import app.cash.tanvir.info.util.NumberToWordsConverter
 
 /**
- * Dedicated Draft page: saved drafts list with load-into-calculator and discard
- * controls, plus an empty state. Reuses the activity-scoped SettingsViewModel
- * so the draft list and discard-confirmation state stay in sync.
+ * Dedicated Draft page: saved drafts list with discard controls, plus an empty
+ * state. Reuses the activity-scoped SettingsViewModel so the draft list and
+ * discard-confirmation state stay in sync.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DraftScreen(
     onNavigateBack: () -> Unit,
-    onOpenDraft: (Long) -> Unit,
-    onLoadIntoCalculator: (Long) -> Unit
+    onOpenDraft: (Long) -> Unit
 ) {
     val activity = LocalContext.current as ComponentActivity
     val viewModel: SettingsViewModel = hiltViewModel(viewModelStoreOwner = activity)
@@ -169,10 +168,6 @@ fun DraftScreen(
                             HapticHelper.vibrate(context)
                             onOpenDraft(draft.id)
                         },
-                        onLoadIntoCalculator = {
-                            HapticHelper.vibrate(context)
-                            onLoadIntoCalculator(draft.id)
-                        },
                         onDiscard = {
                             HapticHelper.vibrate(context)
                             viewModel.openDiscardDraftDialog(draft.id)
@@ -223,7 +218,6 @@ private fun DraftRowItem(
     draft: Sheet,
     isBangla: Boolean,
     onOpen: () -> Unit,
-    onLoadIntoCalculator: () -> Unit,
     onDiscard: () -> Unit
 ) {
     Card(
@@ -235,31 +229,25 @@ private fun DraftRowItem(
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = draftTitle(draft.name, isBangla),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(end = 8.dp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = CurrencyFormatter.format(draft.grandTotal, useBengaliDigits = isBangla),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-            }
+            Text(
+                text = draftTitle(draft.name, isBangla),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
 
             Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = CurrencyFormatter.format(draft.grandTotal, useBengaliDigits = isBangla),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
 
             Text(
                 text = if (isBangla) {
@@ -272,19 +260,24 @@ private fun DraftRowItem(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
 
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Text(
+                text = if (isBangla) {
+                    NumberToWordsConverter.toBangla(draft.grandTotal)
+                } else {
+                    NumberToWordsConverter.toEnglish(draft.grandTotal)
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                IconButton(onClick = onLoadIntoCalculator) {
-                    Icon(
-                        imageVector = Icons.Rounded.Calculate,
-                        contentDescription = if (isBangla) "ক্যালকুলেটরে লোড করুন" else "Load into Calculator",
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
                 IconButton(onClick = onDiscard) {
                     Icon(
                         imageVector = Icons.Rounded.DeleteSweep,
@@ -301,5 +294,9 @@ private fun draftTitle(name: String, isBangla: Boolean): String {
     if (name.isBlank()) return if (isBangla) "ড্রাফট" else "Draft"
     if (!isBangla) return name
     val number = name.substringAfter("Draft #", missingDelimiterValue = "")
-    return if (number.isNotEmpty()) "ড্রাফট #$number" else "ড্রাফট"
+    val parsed = number.toLongOrNull()
+    return when {
+        parsed != null -> "ড্রাফট #${BanglaDigitConverter.toBangla(parsed)}"
+        else -> "ড্রাফট"
+    }
 }
