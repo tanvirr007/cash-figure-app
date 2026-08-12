@@ -11,34 +11,40 @@ import app.cash.tanvir.info.data.local.preferences.AppFont
 
 private val defaultTypography = Typography()
 
-val TiroBanglaFontFamily = FontFamily(
+private val tiroBanglaFonts: List<Font> = listOf(
     Font(R.font.tiro_bangla, FontWeight.Normal),
     Font(R.font.tiro_bangla, FontWeight.Medium),
     Font(R.font.tiro_bangla, FontWeight.SemiBold),
     Font(R.font.tiro_bangla, FontWeight.Bold)
 )
 
-private fun customFontFamily(fontResId: Int): FontFamily = FontFamily(
+val TiroBanglaFontFamily = FontFamily(tiroBanglaFonts)
+
+private fun customFonts(fontResId: Int): List<Font> = listOf(
     Font(fontResId, FontWeight.Normal),
     Font(fontResId, FontWeight.Medium),
     Font(fontResId, FontWeight.SemiBold),
     Font(fontResId, FontWeight.Bold)
 )
 
-private val GoogleSansRoundedFamily = customFontFamily(R.font.google_sans_rounded_regular)
-private val GoogleSansFlexRoundedFamily = customFontFamily(R.font.google_sans_flex_rounded)
-private val VolteRoundFamily = customFontFamily(R.font.volte_round_regular)
+private val GoogleSansRoundedFonts = customFonts(R.font.google_sans_rounded_regular)
+private val GoogleSansFlexRoundedFonts = customFonts(R.font.google_sans_flex_rounded)
+private val VolteRoundFonts = customFonts(R.font.volte_round_regular)
+
+private val GoogleSansRoundedFamily = FontFamily(GoogleSansRoundedFonts)
+private val GoogleSansFlexRoundedFamily = FontFamily(GoogleSansFlexRoundedFonts)
+private val VolteRoundFamily = FontFamily(VolteRoundFonts)
 
 /**
  * Bangla UI with a custom Latin font: the custom font renders Latin glyphs,
  * Bengali glyphs fall back to Tiro Bangla (the custom fonts are Latin-only).
  */
-private fun banglaFallbackFamily(latinFamily: FontFamily): FontFamily =
-    FontFamily(latinFamily.toList() + TiroBanglaFontFamily.toList())
+private fun banglaFallbackFamily(latinFonts: List<Font>): FontFamily =
+    FontFamily(latinFonts + tiroBanglaFonts)
 
-private val GoogleSansRoundedBanglaFamily = banglaFallbackFamily(GoogleSansRoundedFamily)
-private val GoogleSansFlexRoundedBanglaFamily = banglaFallbackFamily(GoogleSansFlexRoundedFamily)
-private val VolteRoundBanglaFamily = banglaFallbackFamily(VolteRoundFamily)
+private val GoogleSansRoundedBanglaFamily = banglaFallbackFamily(GoogleSansRoundedFonts)
+private val GoogleSansFlexRoundedBanglaFamily = banglaFallbackFamily(GoogleSansFlexRoundedFonts)
+private val VolteRoundBanglaFamily = banglaFallbackFamily(VolteRoundFonts)
 
 /**
  * Resolves the FontFamily for the selected [AppFont] and UI language.
