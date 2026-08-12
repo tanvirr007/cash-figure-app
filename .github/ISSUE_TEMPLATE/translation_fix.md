@@ -8,6 +8,10 @@ assignees: ""
 
 **Screen** (where the string appears):
 
+**App version** (Settings → Update shows "App vX (Build Y)"):
+
+**Android version** (e.g., Android 13 / API 33):
+
 **Wrong Bangla text** (copy-paste it exactly):
 
 **Suggested Bangla text**:
