@@ -16,11 +16,17 @@
   <a href="https://github.com/tanvirr007/cash-figure-app/issues/new/choose">
     <img src="https://img.shields.io/github/issues/tanvirr007/cash-figure-app" alt="Issues"/>
   </a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white" alt="Platform"/>
   <img src="https://img.shields.io/badge/Language-Kotlin-7F52FF?logo=kotlin&logoColor=white" alt="Language"/>
   <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="UI"/>
   <img src="https://img.shields.io/badge/Android-7.0%2B-3DDC84" alt="Minimum Android version"/>
   <img src="https://img.shields.io/badge/Ads-None-brightgreen" alt="No ads"/>
+</p>
+
+<p align="center">
   <img src="https://visitor-badge.laobi.icu/badge?page_id=tanvirr007.cash-figure-app" alt="Visitors"/>
   <img src="https://img.shields.io/github/stars/tanvirr007/cash-figure-app" alt="Stars"/>
   <img src="https://img.shields.io/github/forks/tanvirr007/cash-figure-app" alt="Forks"/>
@@ -355,16 +361,22 @@ and keep your branch rebased on the latest `main` before opening the PR.
 
 <p align="center">
   <b>Sagar</b> — typography
+  &nbsp;
   [![Telegram](https://img.shields.io/badge/@Sagar1180-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/Sagar1180)<br/>
   <b>JellyBean</b> — LLM
+  &nbsp;
   [![Telegram](https://img.shields.io/badge/@JELLYBEANx1-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/JELLYBEANx1)<br/>
   <b>Ghost</b> — banner design
+  &nbsp;
   [![Telegram](https://img.shields.io/badge/@GhostRX89-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/GhostRX89)<br/>
   <b>Viper</b> — guidelines
+  &nbsp;
   [![Telegram](https://img.shields.io/badge/@wannabeviper-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/wannabeviper)<br/>
   <b>Sanji</b> — doing nothing
+  &nbsp;
   [![Telegram](https://img.shields.io/badge/@SanjiVns-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/SanjiVns)<br/>
   <b>Chehthan</b> — app testing
+  &nbsp;
   [![Telegram](https://img.shields.io/badge/@No_Cache-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/No_Cache)
 </p>
 
