@@ -70,6 +70,7 @@ import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.HapticHelper
+import app.cash.tanvir.info.util.NumberToWordsConverter
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -135,7 +136,7 @@ fun QuantityPickerSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(scrollState)
-                    .padding(start = 20.dp, end = 20.dp, bottom = 32.dp)
+                    .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 16.dp)
             ) {
                 // Header: denomination + Clear
                 Row(
@@ -220,7 +221,7 @@ fun QuantityPickerSheet(
                         onRepeat = { setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString()) }
                     )
                 }
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 // Preset grid (4 per row) + Custom
                 FlowRow(
@@ -302,12 +303,17 @@ fun QuantityPickerSheet(
                 }
 
                 // Live breakdown footer — previews what OK will commit
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 val pendingRow = pendingValue ?: 0
                 val rowTotal = denominationValue.toLong() * pendingRow
                 val previewGrandTotal = grandTotal - denominationValue.toLong() * currentQty + rowTotal
                 val rowTotalFormatted = CurrencyFormatter.format(rowTotal, useBengaliDigits = isBangla)
                 val previewGrandFormatted = CurrencyFormatter.format(previewGrandTotal, useBengaliDigits = isBangla)
+                val previewGrandWords = if (isBangla) {
+                    NumberToWordsConverter.toBangla(previewGrandTotal)
+                } else {
+                    NumberToWordsConverter.toEnglish(previewGrandTotal)
+                }
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -317,31 +323,33 @@ fun QuantityPickerSheet(
                         )
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = if (isBangla) {
-                                "$denominationLabel × ${BanglaDigitConverter.toBangla(pendingRow)}"
-                            } else {
-                                "$denominationLabel × $pendingRow"
-                            },
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            maxLines = 1
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        AutoShrinkText(
-                            text = rowTotalFormatted,
-                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            textAlign = TextAlign.End,
-                            minFontSize = 10.sp,
-                            modifier = Modifier.weight(1f)
-                        )
+                    if (pendingValue != null) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = if (isBangla) {
+                                    "$denominationLabel × ${BanglaDigitConverter.toBangla(pendingRow)}"
+                                } else {
+                                    "$denominationLabel × $pendingRow"
+                                },
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                maxLines = 1
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            AutoShrinkText(
+                                text = rowTotalFormatted,
+                                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                textAlign = TextAlign.End,
+                                minFontSize = 10.sp,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -362,10 +370,20 @@ fun QuantityPickerSheet(
                             modifier = Modifier.weight(1f)
                         )
                     }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    AutoShrinkText(
+                        text = previewGrandWords,
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        textAlign = TextAlign.End,
+                        minFontSize = 9.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
 
                 // Commit button — the only way pending becomes the row value
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 val okInteractionSource = remember { MutableInteractionSource() }
                 Button(
                     onClick = {
