@@ -67,3 +67,6 @@ build_log.txt
 # Kotlin build artifacts
 .kotlin/
 
+# opencode (local only)
+.opencode/
+

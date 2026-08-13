@@ -9,10 +9,6 @@
 </p>
 
 <p align="center">
-  <img src="https://visitor-badge.laobi.icu/badge?page_id=tanvirr007.cash-figure-app" alt="Visitors"/>
-  <img src="https://img.shields.io/github/stars/tanvirr007/cash-figure-app" alt="Stars"/>
-  <img src="https://img.shields.io/github/forks/tanvirr007/cash-figure-app" alt="Forks"/>
-  <img src="https://img.shields.io/github/contributors/tanvirr007/cash-figure-app" alt="Contributors"/>
   <img src="https://img.shields.io/github/v/release/tanvirr007/cash-figure-app" alt="Latest release"/>
   <img src="https://github.com/tanvirr007/cash-figure-app/actions/workflows/build_apk.yml/badge.svg" alt="Build status"/>
   <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white" alt="Platform"/>
@@ -25,6 +21,13 @@
   <a href="https://github.com/tanvirr007/cash-figure-app/issues/new/choose">
     <img src="https://img.shields.io/github/issues/tanvirr007/cash-figure-app" alt="Issues"/>
   </a>
+</p>
+
+<p align="center">
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=tanvirr007.cash-figure-app" alt="Visitors"/>
+  <img src="https://img.shields.io/github/stars/tanvirr007/cash-figure-app" alt="Stars"/>
+  <img src="https://img.shields.io/github/forks/tanvirr007/cash-figure-app" alt="Forks"/>
+  <img src="https://img.shields.io/github/contributors/tanvirr007/cash-figure-app" alt="Contributors"/>
 </p>
 
 ---
