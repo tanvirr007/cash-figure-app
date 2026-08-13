@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.infiniteRepeatable
@@ -45,6 +46,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -288,7 +290,7 @@ fun AboutScreen(
     easterEggMessage?.let { message ->
         Dialog(onDismissRequest = { easterEggMessage = null }) {
             val scale = remember { Animatable(0.6f) }
-            val alpha = remember { Animatable(0f) }
+            val alphaAnim = remember { Animatable(0f) }
             LaunchedEffect(Unit) {
                 launch {
                     scale.animateTo(
@@ -297,14 +299,14 @@ fun AboutScreen(
                     )
                 }
                 launch {
-                    alpha.animateTo(1f, tween(durationMillis = 250))
+                    alphaAnim.animateTo(1f, tween(durationMillis = 250))
                 }
             }
             Card(
                 modifier = Modifier.graphicsLayer {
                     scaleX = scale.value
                     scaleY = scale.value
-                    alpha = alpha.value
+                    alpha = alphaAnim.value
                 },
                 shape = RoundedCornerShape(28.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -385,11 +387,11 @@ private fun MoneyEggScreen(onDismiss: () -> Unit) {
                 emoji = emojis[random.nextInt(emojis.size)],
                 xFraction = random.nextFloat(),
                 size = random.nextFloat() * 24 + 28,
-                durationMillis = random.nextLong(2600, 4200),
-                delayMillis = random.nextLong(0, 1200),
+                durationMillis = random.nextInt(2600, 4200),
+                delayMillis = random.nextInt(0, 1200),
                 swayAmplitude = random.nextFloat() * 40 + 20,
-                swayMillis = random.nextLong(1200, 2200),
-                rotationMillis = random.nextLong(3000, 6000)
+                swayMillis = random.nextInt(1200, 2200),
+                rotationMillis = random.nextInt(3000, 6000)
             )
         }
     }
