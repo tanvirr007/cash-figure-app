@@ -166,7 +166,7 @@ jobs:
           cat <<EOF | sed 's/^          //' > release_notes.md
           ![Cash Figure Banner](https://github.com/${{ github.repository }}/blob/main/assets/update.png?raw=true)
           
-          **Cash Figure — Bangladeshi Cash Counter**
+          **Cash Figure**
           
           > [!NOTE]
           > This release tracks build \`v${{ env.VERSION_NAME }}\` (Build ${{ github.run_number }})
