@@ -1,10 +1,14 @@
 package app.cash.tanvir.info.ui.components
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -17,28 +21,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 /**
- * Compact page header for root screens. Handles the status-bar inset once and
- * places the title tight below it, replacing the taller default TopAppBar.
- * The title stays vertically centered in a fixed-height bar so its position
- * never shifts with language, font, or title length.
+ * Compact page header for back-navigation screens. Slimmer than the default
+ * TopAppBar: the back arrow and title sit centered in a 48dp band right
+ * below the status bar, mirroring CompactTopBar so every screen shares the
+ * same compact header language.
  */
 @Composable
-fun CompactTopBar(
+fun CompactBackTopBar(
     title: String,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = modifier.fillMaxWidth()
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .statusBarsPadding()
                 .fillMaxWidth()
-                .height(36.dp)
-                .padding(horizontal = 16.dp),
-            contentAlignment = Alignment.CenterStart
+                .height(48.dp)
+                .padding(horizontal = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = onBack) {
+                Icon(
+                    Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
