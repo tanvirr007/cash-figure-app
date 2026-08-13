@@ -362,22 +362,22 @@ and keep your branch rebased on the latest `main` before opening the PR.
 <p align="center">
   <b>Sagar</b> — typography
   &nbsp;
-  [![Telegram](https://img.shields.io/badge/@Sagar1180-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/Sagar1180)<br/>
+  <a href="https://t.me/Sagar1180"><img src="https://img.shields.io/badge/@Sagar1180-2CA5E0?style=flat-square&logo=telegram&logoColor=white"/></a><br/>
   <b>JellyBean</b> — LLM
   &nbsp;
-  [![Telegram](https://img.shields.io/badge/@JELLYBEANx1-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/JELLYBEANx1)<br/>
+  <a href="https://t.me/JELLYBEANx1"><img src="https://img.shields.io/badge/@JELLYBEANx1-2CA5E0?style=flat-square&logo=telegram&logoColor=white"/></a><br/>
   <b>Ghost</b> — banner design
   &nbsp;
-  [![Telegram](https://img.shields.io/badge/@GhostRX89-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/GhostRX89)<br/>
+  <a href="https://t.me/GhostRX89"><img src="https://img.shields.io/badge/@GhostRX89-2CA5E0?style=flat-square&logo=telegram&logoColor=white"/></a><br/>
   <b>Viper</b> — guidelines
   &nbsp;
-  [![Telegram](https://img.shields.io/badge/@wannabeviper-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/wannabeviper)<br/>
+  <a href="https://t.me/wannabeviper"><img src="https://img.shields.io/badge/@wannabeviper-2CA5E0?style=flat-square&logo=telegram&logoColor=white"/></a><br/>
   <b>Sanji</b> — doing nothing
   &nbsp;
-  [![Telegram](https://img.shields.io/badge/@SanjiVns-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/SanjiVns)<br/>
+  <a href="https://t.me/SanjiVns"><img src="https://img.shields.io/badge/@SanjiVns-2CA5E0?style=flat-square&logo=telegram&logoColor=white"/></a><br/>
   <b>Chehthan</b> — app testing
   &nbsp;
-  [![Telegram](https://img.shields.io/badge/@No_Cache-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/No_Cache)
+  <a href="https://t.me/No_Cache"><img src="https://img.shields.io/badge/@No_Cache-2CA5E0?style=flat-square&logo=telegram&logoColor=white"/></a>
 </p>
 
 ## License
