@@ -10,6 +10,9 @@
 
 <p align="center">
   <img src="https://visitor-badge.laobi.icu/badge?page_id=tanvirr007.cash-figure-app" alt="Visitors"/>
+  <img src="https://img.shields.io/github/stars/tanvirr007/cash-figure-app" alt="Stars"/>
+  <img src="https://img.shields.io/github/forks/tanvirr007/cash-figure-app" alt="Forks"/>
+  <img src="https://img.shields.io/github/contributors/tanvirr007/cash-figure-app" alt="Contributors"/>
   <img src="https://img.shields.io/github/v/release/tanvirr007/cash-figure-app" alt="Latest release"/>
   <img src="https://github.com/tanvirr007/cash-figure-app/actions/workflows/build_apk.yml/badge.svg" alt="Build status"/>
   <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white" alt="Platform"/>
@@ -347,6 +350,23 @@ and keep your branch rebased on the latest `main` before opening the PR.
 </details>
 
 </details>
+
+## Credits
+
+<p align="center">
+  <b>Sagar</b> — typography
+  [![Telegram](https://img.shields.io/badge/@Sagar1180-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/Sagar1180)<br/>
+  <b>JellyBean</b> — LLM
+  [![Telegram](https://img.shields.io/badge/@JELLYBEANx1-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/JELLYBEANx1)<br/>
+  <b>Ghost</b> — banner design
+  [![Telegram](https://img.shields.io/badge/@GhostRX89-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/GhostRX89)<br/>
+  <b>Viper</b> — guidelines
+  [![Telegram](https://img.shields.io/badge/@wannabeviper-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/wannabeviper)<br/>
+  <b>Sanji</b> — doing nothing
+  [![Telegram](https://img.shields.io/badge/@SanjiVns-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/SanjiVns)<br/>
+  <b>Chehthan</b> — app testing
+  [![Telegram](https://img.shields.io/badge/@No_Cache-2CA5E0?style=flat-square&logo=telegram&logoColor=white)](https://t.me/No_Cache)
+</p>
 
 ## License
 
