@@ -193,7 +193,7 @@ fun AboutScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f))
                 ) {
                     Text(
-                        text = "Google Play Protect may flag \"Cash Figure\" as unverified since it's not on the Play Store. The app is safe and open source — tap \"Install anyway\" if warned.",
+                        text = "Google Play Protect may flag this app as unverified since it's not on the Play Store. It's safe and open source — tap \"Install anyway\" if warned.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         textAlign = TextAlign.Center,
