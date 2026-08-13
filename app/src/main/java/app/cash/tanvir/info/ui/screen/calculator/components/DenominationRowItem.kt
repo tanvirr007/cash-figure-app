@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.cash.tanvir.info.ui.components.AutoShrinkText
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
 
@@ -98,7 +99,7 @@ fun DenominationRowItem(
                 .padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(
+            AutoShrinkText(
                 text = displayQuantity.ifEmpty { if (isBangla) "০" else "0" },
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontSize = 18.sp,
@@ -109,8 +110,7 @@ fun DenominationRowItem(
                 } else {
                     MaterialTheme.colorScheme.onSurface
                 },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                minFontSize = 12.sp,
                 modifier = Modifier.padding(end = 28.dp)
             )
             Icon(
@@ -129,24 +129,25 @@ fun DenominationRowItem(
             modifier = Modifier.width(if (isCompact) 88.dp else 108.dp),
             horizontalAlignment = Alignment.End
         ) {
-            Text(
+            AutoShrinkText(
                 text = CurrencyFormatter.format(rowTotal, useBengaliDigits = isBangla),
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = if (rowTotal > 0) FontWeight.SemiBold else FontWeight.Normal,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontWeight = if (rowTotal > 0) FontWeight.SemiBold else FontWeight.Normal
+                ),
                 color = if (rowTotal > 0)
                     MaterialTheme.colorScheme.onSurface
                 else
                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
                 textAlign = TextAlign.End,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                minFontSize = 10.sp
             )
             if (quantityText.isNotEmpty()) {
                 Text(
                     text = if (isBangla) "× ${BanglaDigitConverter.toBengali(quantityText)}" else "× $quantityText",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
-                    textAlign = TextAlign.End
+                    textAlign = TextAlign.End,
+                    maxLines = 1
                 )
             }
         }

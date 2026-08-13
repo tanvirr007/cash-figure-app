@@ -29,9 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.cash.tanvir.info.ui.components.AutoShrinkText
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.HapticHelper
 
@@ -78,16 +78,14 @@ fun DashboardCard(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Grand Total — largest, boldest element
-                Text(
+                AutoShrinkText(
                     text = grandTotalFormatted,
                     style = MaterialTheme.typography.displayLarge.copy(
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Bold
                     ),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = TextOverflow.Ellipsis
+                    minFontSize = 18.sp
                 )
 
                 // Amount in words — only show when there's a non-zero amount

@@ -283,7 +283,7 @@ fun CalculatorScreen(
                 denominationLabel = if (isBangla) pickerRow.denomination.labelBn else pickerRow.denomination.label,
                 denominationValue = pickerRow.denomination.value,
                 quantityText = uiState.quantities[pickerRow.denomination.value] ?: "",
-                grandTotalFormatted = uiState.grandTotalFormatted,
+                grandTotal = uiState.grandTotal,
                 isBangla = isBangla,
                 onQuantityChange = { viewModel.updateQuantity(pickerRow.denomination.value, it) },
                 onDismiss = { pickerRowValue = null }

@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -26,6 +26,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Remove
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -61,6 +62,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.cash.tanvir.info.ui.components.AutoShrinkText
 import app.cash.tanvir.info.ui.screen.calculator.CalculatorViewModel
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
@@ -72,16 +74,17 @@ import kotlinx.coroutines.withTimeoutOrNull
  * stepper (hold-to-repeat), quick preset grid, inline custom input,
  * and a live breakdown footer (row total + grand total).
  *
- * Preset taps apply and close the sheet; stepper and custom input apply live
- * and keep the sheet open. Tapping the active preset clears the row.
+ * The sheet edits a local pending quantity — presets, the stepper, and the
+ * custom field only change the pending value; the full-width OK button
+ * commits it to the row and closes. Swiping down or pressing back discards.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun QuantityPickerSheet(
     denominationLabel: String,
     denominationValue: Int,
     quantityText: String,
-    grandTotalFormatted: String,
+    grandTotal: Long,
     isBangla: Boolean,
     onQuantityChange: (String) -> Unit,
     onDismiss: () -> Unit
@@ -90,23 +93,29 @@ fun QuantityPickerSheet(
     val currentQty = quantityText.toIntOrNull() ?: 0
     var showCustom by remember { mutableStateOf(false) }
     var customInput by remember { mutableStateOf("") }
+    // Pending quantity — nothing is committed to the row until OK is pressed
+    var pendingQty by remember { mutableStateOf(quantityText) }
+    val pendingValue = pendingQty.toIntOrNull()
     val customFocusRequester = remember { FocusRequester() }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val focusManager = LocalFocusManager.current
+
+    fun setPending(value: String) {
+        pendingQty = value
+        if (showCustom) customInput = value
+    }
+
+    fun commit() {
+        val value = pendingValue ?: return
+        onQuantityChange(value.coerceIn(1, CalculatorViewModel.MAX_QUANTITY).toString())
+        focusManager.clearFocus()
+        onDismiss()
+    }
 
     // Auto-open the keyboard when the custom input appears
     LaunchedEffect(showCustom) {
         if (showCustom) {
             customFocusRequester.requestFocus()
-        }
-    }
-
-    fun apply(value: Int, close: Boolean) {
-        val clamped = value.coerceIn(1, CalculatorViewModel.MAX_QUANTITY)
-        onQuantityChange(clamped.toString())
-        if (close) {
-            focusManager.clearFocus()
-            onDismiss()
         }
     }
 
@@ -158,27 +167,30 @@ fun QuantityPickerSheet(
                 HoldToRepeatButton(
                     icon = Icons.Rounded.Remove,
                     contentDescription = if (isBangla) "এক কম করুন" else "Decrease by one",
-                    enabled = currentQty > 1,
+                    enabled = (pendingValue ?: 0) > 1,
                     onPress = {
                         HapticHelper.vibrate(context)
-                        apply(currentQty - 1, close = false)
+                        setPending(((pendingValue ?: 0) - 1).coerceAtLeast(1).toString())
                     },
-                    onRepeat = { apply(currentQty - 1, close = false) }
+                    onRepeat = { setPending(((pendingValue ?: 0) - 1).coerceAtLeast(1).toString()) }
                 )
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = if (isBangla) BanglaDigitConverter.toBangla(currentQty) else currentQty.toString(),
-                        style = MaterialTheme.typography.displayMedium.copy(fontSize = 44.sp),
-                        fontWeight = FontWeight.Bold,
-                        color = if (currentQty > 0) {
+                    AutoShrinkText(
+                        text = if (isBangla) BanglaDigitConverter.toBangla(pendingValue ?: 0) else (pendingValue ?: 0).toString(),
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            fontSize = 44.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = if (pendingValue != null) {
                             MaterialTheme.colorScheme.onSurface
                         } else {
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
                         },
-                        maxLines = 1
+                        minFontSize = 26.sp,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     Text(
                         text = if (isBangla) "টি নোট" else "pieces",
@@ -189,12 +201,12 @@ fun QuantityPickerSheet(
                 HoldToRepeatButton(
                     icon = Icons.Rounded.Add,
                     contentDescription = if (isBangla) "এক বেশি করুন" else "Increase by one",
-                    enabled = currentQty < CalculatorViewModel.MAX_QUANTITY,
+                    enabled = (pendingValue ?: 0) < CalculatorViewModel.MAX_QUANTITY,
                     onPress = {
                         HapticHelper.vibrate(context)
-                        apply(currentQty + 1, close = false)
+                        setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString())
                     },
-                    onRepeat = { apply(currentQty + 1, close = false) }
+                    onRepeat = { setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString()) }
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -208,23 +220,15 @@ fun QuantityPickerSheet(
                 CalculatorViewModel.QUANTITY_PRESETS.forEach { preset ->
                     PresetChip(
                         label = if (isBangla) BanglaDigitConverter.toBangla(preset) else preset.toString(),
-                        selected = currentQty == preset,
+                        selected = pendingValue == preset,
                         modifier = Modifier.weight(1f),
                         onClick = {
                             HapticHelper.vibrate(context)
-                            if (currentQty == preset) {
-                                onQuantityChange("")
-                                focusManager.clearFocus()
-                                onDismiss()
+                            if (pendingValue == preset) {
+                                setPending("")
                             } else {
-                                apply(preset, close = true)
+                                setPending(preset.toString())
                             }
-                        },
-                        // Long-press applies without closing — handy when the same
-                        // quantity is counted across several denominations
-                        onLongClick = {
-                            HapticHelper.vibrate(context)
-                            apply(preset, close = false)
                         }
                     )
                 }
@@ -236,8 +240,8 @@ fun QuantityPickerSheet(
                         HapticHelper.vibrate(context)
                         showCustom = !showCustom
                         if (showCustom) {
-                            // Pre-fill with the current applied value for quick tweaks
-                            customInput = if (currentQty > 0) currentQty.toString() else ""
+                            // Pre-fill with the current pending value for quick tweaks
+                            customInput = if (pendingValue != null) pendingValue.toString() else ""
                         }
                     }
                 )
@@ -252,7 +256,7 @@ fun QuantityPickerSheet(
                         val western = BanglaDigitConverter.toWestern(input)
                         val filtered = western.filter { it.isDigit() }
                         if (filtered.length <= 5) {
-                            customInput = filtered
+                            setPending(filtered)
                         }
                     },
                     modifier = Modifier
@@ -273,12 +277,7 @@ fun QuantityPickerSheet(
                     ),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            val value = customInput.toIntOrNull()
-                            if (value != null) {
-                                apply(value, close = false)
-                                showCustom = false
-                                focusManager.clearFocus()
-                            }
+                            focusManager.clearFocus()
                         }
                     ),
                     supportingText = {
@@ -291,10 +290,13 @@ fun QuantityPickerSheet(
                 )
             }
 
-            // Live breakdown footer
+            // Live breakdown footer — previews what OK will commit
             Spacer(modifier = Modifier.height(20.dp))
-            val rowTotal = denominationValue.toLong() * currentQty
+            val pendingRow = pendingValue ?: 0
+            val rowTotal = denominationValue.toLong() * pendingRow
+            val previewGrandTotal = grandTotal - denominationValue.toLong() * currentQty + rowTotal
             val rowTotalFormatted = CurrencyFormatter.format(rowTotal, useBengaliDigits = isBangla)
+            val previewGrandFormatted = CurrencyFormatter.format(previewGrandTotal, useBengaliDigits = isBangla)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -310,19 +312,22 @@ fun QuantityPickerSheet(
                 ) {
                     Text(
                         text = if (isBangla) {
-                            "$denominationLabel × ${BanglaDigitConverter.toBangla(currentQty)}"
+                            "$denominationLabel × ${BanglaDigitConverter.toBangla(pendingRow)}"
                         } else {
-                            "$denominationLabel × $currentQty"
+                            "$denominationLabel × $pendingRow"
                         },
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
                     )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text(
+                    Spacer(modifier = Modifier.width(8.dp))
+                    AutoShrinkText(
                         text = rowTotalFormatted,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        textAlign = TextAlign.End,
+                        minFontSize = 10.sp,
+                        modifier = Modifier.weight(1f)
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -336,14 +341,36 @@ fun QuantityPickerSheet(
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        text = grandTotalFormatted,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                    Spacer(modifier = Modifier.width(8.dp))
+                    AutoShrinkText(
+                        text = previewGrandFormatted,
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.End,
+                        minFontSize = 10.sp,
+                        modifier = Modifier.weight(1f)
                     )
                 }
+            }
+
+            // Commit button — the only way pending becomes the row value
+            Spacer(modifier = Modifier.height(24.dp))
+            Button(
+                onClick = {
+                    HapticHelper.vibrate(context)
+                    commit()
+                },
+                enabled = pendingValue != null,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(14.dp)
+            ) {
+                Text(
+                    text = if (isBangla) "ঠিক আছে" else "OK",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
@@ -434,17 +461,15 @@ private fun HoldToRepeatButton(
 }
 
 /**
- * Preset chip: rounded tile, highlighted when it matches the current value.
- * Tap applies and closes; long-press applies without closing.
+ * Preset chip: rounded tile, highlighted when it matches the pending value.
+ * Tap selects/deselects the pending quantity; OK commits.
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PresetChip(
     label: String,
     selected: Boolean,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null
+    onClick: () -> Unit
 ) {
     val background = if (selected) {
         MaterialTheme.colorScheme.primaryContainer
@@ -462,10 +487,9 @@ private fun PresetChip(
             .clip(RoundedCornerShape(14.dp))
             .background(background)
             .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .combinedClickable(
+            .clickable(
                 role = Role.Button,
-                onClick = onClick,
-                onLongClick = onLongClick
+                onClick = onClick
             )
             .semantics { this.selected = selected },
         contentAlignment = Alignment.Center

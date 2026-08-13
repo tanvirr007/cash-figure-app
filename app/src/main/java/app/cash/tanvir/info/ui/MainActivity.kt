@@ -146,6 +146,15 @@ class MainActivity : FragmentActivity() {
                 }
             }
 
+            // One-shot legacy cleanup: fresh installs (no last-known version) wipe the
+            // OTA APK that older versions left behind in shared Downloads.
+            LaunchedEffect(Unit) {
+                val lastKnown = preferencesManager.lastKnownVersionFlow.first()
+                if (lastKnown == null) {
+                    updateRepository.cleanupLegacyOtaApk()
+                }
+            }
+
             // "Update complete" toast when the app was just updated via OTA
             LaunchedEffect(isAppLocked, showOnboarding) {
                 if (!isAppLocked && !showOnboarding) {

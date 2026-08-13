@@ -18,6 +18,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -303,11 +304,17 @@ fun AboutScreen(
                 }
             }
             Card(
-                modifier = Modifier.graphicsLayer {
-                    scaleX = scale.value
-                    scaleY = scale.value
-                    alpha = alphaAnim.value
-                },
+                modifier = Modifier
+                    .graphicsLayer {
+                        scaleX = scale.value
+                        scaleY = scale.value
+                        alpha = alphaAnim.value
+                    }
+                    .clip(RoundedCornerShape(28.dp))
+                    .clickable {
+                        HapticHelper.vibrate(context)
+                        easterEggMessage = null
+                    },
                 shape = RoundedCornerShape(28.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -316,15 +323,14 @@ fun AboutScreen(
                     modifier = Modifier.padding(28.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(
-                        text = "💵",
-                        fontSize = 64.sp,
-                        modifier = Modifier.clickable {
-                            HapticHelper.vibrate(context)
-                            easterEggMessage = null
-                            showMoneyEgg = true
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        listOf("💵", "💸", "🏦", "💳", "🪙").forEach { emoji ->
+                            Text(text = emoji, fontSize = 30.sp)
                         }
-                    )
+                    }
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = "Money Master",
@@ -339,21 +345,32 @@ fun AboutScreen(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Tap anywhere to exit",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
                     Spacer(modifier = Modifier.height(20.dp))
-                    Button(
-                        onClick = {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                easterEggMessage = null
+                                showMoneyEgg = true
+                            }
+                        ) {
+                            Text("Open", fontWeight = FontWeight.Bold)
+                        }
+                        TextButton(onClick = {
                             HapticHelper.vibrate(context)
                             easterEggMessage = null
-                            showMoneyEgg = true
+                        }) {
+                            Text("Close")
                         }
-                    ) {
-                        Text("Open", fontWeight = FontWeight.Bold)
-                    }
-                    TextButton(onClick = {
-                        HapticHelper.vibrate(context)
-                        easterEggMessage = null
-                    }) {
-                        Text("Close")
                     }
                 }
             }

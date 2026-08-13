@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <cache-path name="reports" path="reports/" />
-    <!-- OTA APK installs on API <= 28 (legacy file path); API 29+ uses the MediaStore URI directly -->
-    <external-path name="ota_downloads" path="Download/CashFigure/ota/" />
+    <!-- OTA APK lives in app-private storage (filesDir/ota) so uninstall always wipes it -->
+    <files-path name="ota_downloads" path="ota/" />
 </paths>

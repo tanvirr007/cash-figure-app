@@ -17,15 +17,13 @@ data class UpdateManifest(
 
 /**
  * Completed APK download, ready to install.
- * Pure JVM types: [uri] is the installable content URI and converts to an
- * Android Uri via `Uri.parse(uri.toString())` at the UI layer.
+ * Pure JVM types: [uri] is the installable FileProvider content URI and
+ * converts to an Android Uri via `Uri.parse(uri.toString())` at the UI layer.
  *
- * @param uri  content URI for ACTION_VIEW:
- *             • MediaStore `content://media/…` on API 29+ (app owns the entry)
- *             • FileProvider `content://…fileprovider/…` on API ≤ 28
- * @param file physical APK File on API ≤ 28 only (null on API 29+, MediaStore-backed)
+ * @param uri  FileProvider `content://…fileprovider/ota/…` URI for ACTION_VIEW
+ * @param file physical APK File (app-private `filesDir/ota/`, wiped on uninstall)
  */
 data class DownloadedUpdate(
     val uri: URI,
-    val file: File?
+    val file: File
 )

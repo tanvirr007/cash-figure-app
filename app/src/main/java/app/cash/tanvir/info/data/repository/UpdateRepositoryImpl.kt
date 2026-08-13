@@ -1,6 +1,7 @@
 package app.cash.tanvir.info.data.repository
 
 import android.content.Context
+import androidx.core.content.FileProvider
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
 import app.cash.tanvir.info.domain.model.ReleaseChangelog
 import app.cash.tanvir.info.domain.model.UpdateManifest
@@ -9,6 +10,8 @@ import app.cash.tanvir.info.util.ChangelogParser
 import app.cash.tanvir.info.util.UpdateManifestParser
 import app.cash.tanvir.info.util.report.StorageUtil
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.File
+import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URI
 import java.net.URL
@@ -20,7 +23,7 @@ import kotlinx.coroutines.withContext
 /**
  * OTA update pipeline over platform `HttpURLConnection` (zero new dependencies):
  * manifest fetch from the raw GitHub CDN + streamed APK download to
- * `Downloads/CashFigure/ota/CashFigure.apk`.
+ * app-private `filesDir/ota/CashFigure.apk` (wiped on uninstall).
  */
 @Singleton
 class UpdateRepositoryImpl @Inject constructor(
@@ -72,8 +75,12 @@ class UpdateRepositoryImpl @Inject constructor(
         manifest: UpdateManifest,
         onProgress: (downloaded: Long, total: Long) -> Unit
     ): DownloadedUpdate = withContext(Dispatchers.IO) {
-        val handle = StorageUtil.openReportFile(context, FILE_NAME, APK_MIME, subFolder = OTA_SUBFOLDER)
-            ?: throw RuntimeException("Cannot open Downloads/CashFigure/ota")
+        val dir = File(context.filesDir, OTA_SUBFOLDER)
+        if (!dir.exists() && !dir.mkdirs()) {
+            throw RuntimeException("Cannot create OTA directory")
+        }
+        val targetFile = File(dir, FILE_NAME)
+        if (targetFile.exists()) targetFile.delete()
 
         var downloaded = 0L
         try {
@@ -89,7 +96,7 @@ class UpdateRepositoryImpl @Inject constructor(
                 }
                 val total = connection.contentLengthLong
                 val buffer = ByteArray(BUFFER_SIZE)
-                handle.outputStream.use { out ->
+                FileOutputStream(targetFile).use { out ->
                     while (true) {
                         val read = connection.inputStream.read(buffer)
                         if (read == -1) break
@@ -104,11 +111,28 @@ class UpdateRepositoryImpl @Inject constructor(
                 connection.disconnect()
             }
         } catch (e: Exception) {
-            handle.rollback()
+            targetFile.delete()
             throw e
         }
 
-        DownloadedUpdate(uri = URI.create(handle.uri.toString()), file = handle.file)
+        val contentUri = FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            targetFile
+        )
+        DownloadedUpdate(uri = URI.create(contentUri.toString()), file = targetFile)
+    }
+
+    /**
+     * Best-effort removal of the OTA APK that older versions left in shared
+     * Downloads (`Download/CashFigure/ota/CashFigure.apk`). Called on fresh
+     * installs so no update residue survives uninstall/reinstall.
+     */
+    override suspend fun cleanupLegacyOtaApk() = withContext(Dispatchers.IO) {
+        try {
+            StorageUtil.deleteReportFile(context, FILE_NAME, OTA_SUBFOLDER)
+        } catch (_: Exception) {
+        }
     }
 
     private companion object {
@@ -120,7 +144,6 @@ class UpdateRepositoryImpl @Inject constructor(
         const val READ_TIMEOUT_MS = 30_000
         const val USER_AGENT = "CashFigure-OTA/2.3.1"
         const val FILE_NAME = "CashFigure.apk"
-        const val APK_MIME = "application/vnd.android.package-archive"
         const val OTA_SUBFOLDER = "ota"
         const val BUFFER_SIZE = 8 * 1024
     }

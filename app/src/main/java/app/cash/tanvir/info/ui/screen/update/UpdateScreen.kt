@@ -696,18 +696,15 @@ private fun ErrorContent(
 
 /**
  * Launches the system package installer for a downloaded APK.
- * URI selection per API level: MediaStore content URI on 29+, FileProvider on ≤ 28.
+ * The APK lives in app-private storage; its FileProvider content URI
+ * (built by the repository) is granted to the installer directly.
  */
 private fun launchInstaller(
     context: Context,
     update: DownloadedUpdate,
     onUnresolved: () -> Unit
 ) {
-    val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        Uri.parse(update.uri.toString())
-    } else {
-        androidx.core.content.FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", update.file!!)
-    }
+    val uri = Uri.parse(update.uri.toString())
     val intent = Intent(Intent.ACTION_VIEW).apply {
         setDataAndType(uri, "application/vnd.android.package-archive")
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

@@ -23,16 +23,23 @@ interface UpdateRepository {
     suspend fun fetchReleaseChangelogs(): List<ReleaseChangelog>
 
     /**
-     * Downloads the release APK to `Downloads/CashFigure/ota/` (shared Downloads,
-     * visible and re-shareable by the user).
+     * Downloads the release APK to app-private storage (`filesDir/ota/`,
+     * always wiped on uninstall).
      * @param manifest   the manifest whose [UpdateManifest.downloadUrl] is downloaded
      * @param onProgress invoked on the calling context with (bytesDownloaded, totalBytes).
      *                    totalBytes may be -1 when the server omits Content-Length.
-     * @return [DownloadedUpdate] with an installable content URI (and physical file on ≤28)
+     * @return [DownloadedUpdate] with an installable FileProvider content URI + physical file
      * @throws Exception on any failure (caller maps to UI error state)
      */
     suspend fun downloadApk(
         manifest: UpdateManifest,
         onProgress: (downloaded: Long, total: Long) -> Unit
     ): DownloadedUpdate
+
+    /**
+     * Best-effort removal of the OTA APK that older versions left in shared
+     * Downloads (`Download/CashFigure/ota/CashFigure.apk`). Called on fresh
+     * installs so no update residue survives uninstall/reinstall.
+     */
+    suspend fun cleanupLegacyOtaApk()
 }
