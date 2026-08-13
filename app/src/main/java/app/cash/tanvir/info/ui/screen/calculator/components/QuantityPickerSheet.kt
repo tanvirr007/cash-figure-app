@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,6 +66,7 @@ import androidx.compose.ui.unit.sp
 import app.cash.tanvir.info.ui.components.AutoShrinkText
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.screen.calculator.CalculatorViewModel
+import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.HapticHelper
@@ -364,15 +366,18 @@ fun QuantityPickerSheet(
 
                 // Commit button — the only way pending becomes the row value
                 Spacer(modifier = Modifier.height(24.dp))
+                val okInteractionSource = remember { MutableInteractionSource() }
                 Button(
                     onClick = {
                         HapticHelper.vibrate(context)
                         commit()
                     },
+                    interactionSource = okInteractionSource,
                     enabled = pendingValue != null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(52.dp),
+                        .height(52.dp)
+                        .pressScale(okInteractionSource),
                     shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(

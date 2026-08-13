@@ -1,7 +1,7 @@
 package app.cash.tanvir.info.ui.screen.history
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,6 +56,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.domain.model.Sheet
+import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.ui.components.CompactTopBar
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.util.CurrencyFormatter
@@ -286,11 +287,14 @@ private fun HistoryCard(
     onDelete: () -> Unit
 ) {
     val formattedDate = formatHistoryDate(sheet.updatedAt, isBangla)
+    val interactionSource = remember { MutableInteractionSource() }
 
     Card(
         onClick = onClick,
+        interactionSource = interactionSource,
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .pressScale(interactionSource),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)

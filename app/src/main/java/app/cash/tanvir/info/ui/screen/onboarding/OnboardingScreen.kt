@@ -1,9 +1,13 @@
 package app.cash.tanvir.info.ui.screen.onboarding
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,6 +46,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
+import app.cash.tanvir.info.ui.animation.pageEnterTransition
+import app.cash.tanvir.info.ui.animation.pageExitTransition
+import app.cash.tanvir.info.ui.animation.pressScale
+import app.cash.tanvir.info.ui.animation.shouldReduceMotion
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.theme.fontFamilyFor
 import app.cash.tanvir.info.util.BanglaDigitConverter
@@ -50,6 +59,7 @@ import app.cash.tanvir.info.util.HapticHelper
  * First-launch wizard: Language (English recommended) → Font → Theme → Done.
  * Selections apply live so the wizard itself previews each choice.
  */
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OnboardingScreen(
     onDone: () -> Unit,
@@ -58,6 +68,7 @@ fun OnboardingScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isBangla = uiState.language == AppLanguage.BANGLA
+    val reducedMotion = shouldReduceMotion()
 
     BackHandler(enabled = uiState.pageIndex > 0) { viewModel.back() }
 
@@ -115,32 +126,40 @@ fun OnboardingScreen(
                         .fillMaxSize()
                         .verticalScroll(scrollState)
                 ) {
-                    when (uiState.pageIndex) {
-                        0 -> LanguagePage(
-                            isBangla = isBangla,
-                            selected = uiState.language,
-                            onSelect = { lang ->
-                                HapticHelper.vibrate(context)
-                                viewModel.selectLanguage(lang)
-                            }
-                        )
-                        1 -> FontPage(
-                            isBangla = isBangla,
-                            selected = uiState.font,
-                            onSelect = { font ->
-                                HapticHelper.vibrate(context)
-                                viewModel.selectFont(font)
-                            }
-                        )
-                        2 -> ThemePage(
-                            isBangla = isBangla,
-                            selected = uiState.theme,
-                            onSelect = { theme ->
-                                HapticHelper.vibrate(context)
-                                viewModel.selectTheme(theme)
-                            }
-                        )
-                        else -> DonePage(isBangla = isBangla)
+                    AnimatedContent(
+                        targetState = uiState.pageIndex,
+                        transitionSpec = {
+                            pageEnterTransition(reducedMotion) togetherWith pageExitTransition(reducedMotion)
+                        },
+                        label = "onboardingPage"
+                    ) { pageIndex ->
+                        when (pageIndex) {
+                            0 -> LanguagePage(
+                                isBangla = isBangla,
+                                selected = uiState.language,
+                                onSelect = { lang ->
+                                    HapticHelper.vibrate(context)
+                                    viewModel.selectLanguage(lang)
+                                }
+                            )
+                            1 -> FontPage(
+                                isBangla = isBangla,
+                                selected = uiState.font,
+                                onSelect = { font ->
+                                    HapticHelper.vibrate(context)
+                                    viewModel.selectFont(font)
+                                }
+                            )
+                            2 -> ThemePage(
+                                isBangla = isBangla,
+                                selected = uiState.theme,
+                                onSelect = { theme ->
+                                    HapticHelper.vibrate(context)
+                                    viewModel.selectTheme(theme)
+                                }
+                            )
+                            else -> DonePage(isBangla = isBangla)
+                        }
                     }
                 }
                 VerticalScrollbarIndicator(
@@ -157,11 +176,14 @@ fun OnboardingScreen(
             ) {
                 Spacer(modifier = Modifier.weight(1f))
                 if (uiState.pageIndex > 0) {
+                    val backInteractionSource = remember { MutableInteractionSource() }
                     OutlinedButton(
                         onClick = {
                             HapticHelper.vibrate(context)
                             viewModel.back()
                         },
+                        interactionSource = backInteractionSource,
+                        modifier = Modifier.pressScale(backInteractionSource),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(
@@ -173,11 +195,14 @@ fun OnboardingScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                 }
                 if (uiState.pageIndex < OnboardingViewModel.MAX_PAGE) {
+                    val nextInteractionSource = remember { MutableInteractionSource() }
                     Button(
                         onClick = {
                             HapticHelper.vibrate(context)
                             viewModel.next()
                         },
+                        interactionSource = nextInteractionSource,
+                        modifier = Modifier.pressScale(nextInteractionSource),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(
@@ -187,11 +212,14 @@ fun OnboardingScreen(
                         )
                     }
                 } else {
+                    val doneInteractionSource = remember { MutableInteractionSource() }
                     Button(
                         onClick = {
                             HapticHelper.vibrate(context)
                             viewModel.complete(onDone)
                         },
+                        interactionSource = doneInteractionSource,
+                        modifier = Modifier.pressScale(doneInteractionSource),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(

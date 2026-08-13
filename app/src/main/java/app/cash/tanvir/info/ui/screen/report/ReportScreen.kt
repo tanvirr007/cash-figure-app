@@ -1,6 +1,7 @@
 package app.cash.tanvir.info.ui.screen.report
 
 import android.widget.Toast
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.NumberToWordsConverter
@@ -317,12 +319,16 @@ fun ReportScreen(
 
                     // Load into Calculator: draft reports only (draft stays in the list until saved to History)
                     if (viewModel.fromDraft) {
+                        val loadInteractionSource = remember { MutableInteractionSource() }
                         Button(
                             onClick = {
                                 HapticHelper.vibrate(context)
                                 onLoadIntoCalculator(viewModel.sheetId)
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            interactionSource = loadInteractionSource,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .pressScale(loadInteractionSource),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Icon(Icons.Rounded.Calculate, contentDescription = null)
@@ -374,36 +380,48 @@ fun ReportScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            val pdfInteractionSource = remember { MutableInteractionSource() }
                             Button(
                                 onClick = {
                                     HapticHelper.vibrate(context)
                                     pendingExportFormat = ExportFormat.PDF
                                 },
-                                modifier = Modifier.weight(1f),
+                                interactionSource = pdfInteractionSource,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .pressScale(pdfInteractionSource),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Icon(Icons.Default.PictureAsPdf, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("PDF")
                             }
+                            val csvInteractionSource = remember { MutableInteractionSource() }
                             Button(
                                 onClick = {
                                     HapticHelper.vibrate(context)
                                     pendingExportFormat = ExportFormat.CSV
                                 },
-                                modifier = Modifier.weight(1f),
+                                interactionSource = csvInteractionSource,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .pressScale(csvInteractionSource),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Icon(Icons.Default.TableChart, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text("CSV")
                             }
+                            val txtInteractionSource = remember { MutableInteractionSource() }
                             Button(
                                 onClick = {
                                     HapticHelper.vibrate(context)
                                     pendingExportFormat = ExportFormat.TXT
                                 },
-                                modifier = Modifier.weight(1f),
+                                interactionSource = txtInteractionSource,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .pressScale(txtInteractionSource),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Icon(Icons.AutoMirrored.Filled.TextSnippet, contentDescription = null)
@@ -416,24 +434,32 @@ fun ReportScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            val printInteractionSource = remember { MutableInteractionSource() }
                             OutlinedButton(
                                 onClick = {
                                     HapticHelper.vibrate(context)
                                     viewModel.printReport(context)
                                 },
-                                modifier = Modifier.weight(1f),
+                                interactionSource = printInteractionSource,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .pressScale(printInteractionSource),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Icon(Icons.Default.Print, contentDescription = null)
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(if (isBangla) "প্রিন্ট" else "Print")
                             }
+                            val shareInteractionSource = remember { MutableInteractionSource() }
                             OutlinedButton(
                                 onClick = {
                                     HapticHelper.vibrate(context)
                                     viewModel.shareReport(context)
                                 },
-                                modifier = Modifier.weight(1f),
+                                interactionSource = shareInteractionSource,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .pressScale(shareInteractionSource),
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 Icon(Icons.Default.Share, contentDescription = null)

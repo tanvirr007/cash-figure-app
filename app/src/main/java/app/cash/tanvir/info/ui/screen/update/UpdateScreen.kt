@@ -10,6 +10,9 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -59,6 +63,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
 import app.cash.tanvir.info.domain.model.UpdateManifest
+import app.cash.tanvir.info.ui.animation.contentEnterTransition
+import app.cash.tanvir.info.ui.animation.contentExitTransition
+import app.cash.tanvir.info.ui.animation.pressScale
+import app.cash.tanvir.info.ui.animation.shouldReduceMotion
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
 import app.cash.tanvir.info.ui.screen.settings.UpdateErrorType
@@ -76,7 +84,7 @@ import app.cash.tanvir.info.util.getInstalledVersion
  * with the Settings screen via the activity-scoped [SettingsViewModel].
  * Only the presentation changed — all update/download/install logic is reused.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun UpdateScreen(
     onNavigateBack: () -> Unit
@@ -86,6 +94,7 @@ fun UpdateScreen(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val isBangla = uiState.language == AppLanguage.BANGLA
+    val reducedMotion = shouldReduceMotion()
     val (installedName, installedCode) = remember(context) { getInstalledVersion(context) }
     val installedUpdatedAt = remember(context) { getInstalledUpdatedAt(context) }
 
@@ -191,8 +200,15 @@ fun UpdateScreen(
                         .fillMaxHeight()
                         .widthIn(max = 600.dp)
                 ) {
-                    when (uiState.updateStatus) {
-                        UpdateStatus.UP_TO_DATE -> {
+                    AnimatedContent(
+                        targetState = uiState.updateStatus,
+                        transitionSpec = {
+                            contentEnterTransition(reducedMotion) togetherWith contentExitTransition(reducedMotion)
+                        },
+                        label = "updateStatus"
+                    ) { status ->
+                        when (status) {
+                            UpdateStatus.UP_TO_DATE -> {
                             UpToDateContent(
                                 isBangla = isBangla,
                                 installedName = installedName,
@@ -281,6 +297,7 @@ fun UpdateScreen(
                                     modifier = Modifier.align(Alignment.CenterEnd)
                                 )
                             }
+                        }
                         }
                     }
                 }
@@ -390,12 +407,15 @@ private fun UpToDateContent(
                 )
             }
         }
+        val checkInteractionSource = remember { MutableInteractionSource() }
         Button(
             onClick = onCheckAgain,
+            interactionSource = checkInteractionSource,
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 16.dp)
+                .pressScale(checkInteractionSource)
         ) {
             Text(
                 if (isBangla) "আপডেট চেক করুন" else "Check for update",
@@ -467,9 +487,12 @@ private fun UpdateAvailableContent(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val downloadInteractionSource = remember { MutableInteractionSource() }
         Button(
             onClick = onDownload,
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
+            interactionSource = downloadInteractionSource,
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
+            modifier = Modifier.pressScale(downloadInteractionSource)
         ) {
             Text(
                 if (isBangla) "ডাউনলোড" else "Download",
@@ -580,12 +603,15 @@ private fun DownloadingContent(
                 progress = { progress.coerceIn(0f, 1f) }
             )
         }
+        val cancelInteractionSource = remember { MutableInteractionSource() }
         Button(
             onClick = onCancel,
+            interactionSource = cancelInteractionSource,
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 16.dp)
+                .pressScale(cancelInteractionSource)
         ) {
             Text(
                 if (isBangla) "বাতিল" else "Cancel",
@@ -633,12 +659,15 @@ private fun DownloadReadyContent(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+        val installInteractionSource = remember { MutableInteractionSource() }
         Button(
             onClick = onInstall,
+            interactionSource = installInteractionSource,
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = 16.dp)
+                .pressScale(installInteractionSource)
         ) {
             Text(
                 if (isBangla) "ইনস্টল করুন" else "Install",
@@ -704,9 +733,12 @@ private fun ErrorContent(
         horizontalArrangement = Arrangement.End,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        val retryInteractionSource = remember { MutableInteractionSource() }
         Button(
             onClick = onRetry,
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp)
+            interactionSource = retryInteractionSource,
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
+            modifier = Modifier.pressScale(retryInteractionSource)
         ) {
             Text(
                 if (isBangla) "আবার চেষ্টা করুন" else "Retry",

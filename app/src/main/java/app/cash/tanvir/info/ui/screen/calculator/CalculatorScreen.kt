@@ -2,6 +2,12 @@ package app.cash.tanvir.info.ui.screen.calculator
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -131,7 +137,17 @@ fun CalculatorScreen(
         },
         contentWindowInsets = WindowInsets(0),
         floatingActionButton = {
-            if (uiState.grandTotal > 0L) {
+            AnimatedVisibility(
+                visible = uiState.grandTotal > 0L,
+                enter = scaleIn(
+                    initialScale = 0.9f,
+                    animationSpec = tween(250)
+                ) + fadeIn(tween(250)),
+                exit = scaleOut(
+                    targetScale = 0.9f,
+                    animationSpec = tween(200)
+                ) + fadeOut(tween(200))
+            ) {
                 ExtendedFloatingActionButton(
                     onClick = onSaveClick,
                     shape = RoundedCornerShape(16.dp),

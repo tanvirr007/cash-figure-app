@@ -1,10 +1,5 @@
 package app.cash.tanvir.info.ui.navigation
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
@@ -27,6 +22,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import app.cash.tanvir.info.ui.animation.screenEnterTransition
+import app.cash.tanvir.info.ui.animation.screenExitTransition
+import app.cash.tanvir.info.ui.animation.screenPopEnterTransition
+import app.cash.tanvir.info.ui.animation.screenPopExitTransition
+import app.cash.tanvir.info.ui.animation.shouldReduceMotion
+import app.cash.tanvir.info.ui.animation.tabEnterTransition
+import app.cash.tanvir.info.ui.animation.tabExitTransition
+import app.cash.tanvir.info.ui.animation.tabPopEnterTransition
+import app.cash.tanvir.info.ui.animation.tabPopExitTransition
 import app.cash.tanvir.info.ui.screen.about.AboutScreen
 import app.cash.tanvir.info.ui.screen.calculator.CalculatorScreen
 import app.cash.tanvir.info.ui.screen.changelog.ChangelogScreen
@@ -72,6 +76,7 @@ fun NavGraph(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val context = LocalContext.current
+    val reducedMotion = shouldReduceMotion()
 
     Scaffold(
         bottomBar = {
@@ -112,18 +117,10 @@ fun NavGraph(
             navController = navController,
             startDestination = Screen.Calculator.route,
             modifier = Modifier.padding(paddingValues),
-            enterTransition = {
-                slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300)) + fadeIn(tween(300))
-            },
-            exitTransition = {
-                fadeOut(tween(200))
-            },
-            popEnterTransition = {
-                fadeIn(tween(300))
-            },
-            popExitTransition = {
-                slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300)) + fadeOut(tween(200))
-            }
+            enterTransition = { screenEnterTransition(reducedMotion) },
+            exitTransition = { screenExitTransition(reducedMotion) },
+            popEnterTransition = { screenPopEnterTransition(reducedMotion) },
+            popExitTransition = { screenPopExitTransition(reducedMotion) }
         ) {
             composable(
                 route = Screen.Calculator.route,
@@ -132,14 +129,24 @@ fun NavGraph(
                         type = NavType.LongType
                         defaultValue = -1L
                     }
-                )
+                ),
+                enterTransition = { tabEnterTransition(reducedMotion) },
+                exitTransition = { tabExitTransition(reducedMotion) },
+                popEnterTransition = { tabPopEnterTransition(reducedMotion) },
+                popExitTransition = { tabPopExitTransition(reducedMotion) }
             ) {
                 CalculatorScreen(
                     onNavigateToReport = { sheetId, fromSave -> navController.navigate(Screen.Report.createRoute(sheetId, fromSave)) }
                 )
             }
 
-            composable(Screen.History.route) {
+            composable(
+                route = Screen.History.route,
+                enterTransition = { tabEnterTransition(reducedMotion) },
+                exitTransition = { tabExitTransition(reducedMotion) },
+                popEnterTransition = { tabPopEnterTransition(reducedMotion) },
+                popExitTransition = { tabPopExitTransition(reducedMotion) }
+            ) {
                 HistoryScreen(
                     onSelectSheet = { sheet ->
                         navController.navigate(Screen.Report.createRoute(sheet.id))
@@ -173,7 +180,11 @@ fun NavGraph(
             }
 
             composable(
-                route = Screen.Settings.route
+                route = Screen.Settings.route,
+                enterTransition = { tabEnterTransition(reducedMotion) },
+                exitTransition = { tabExitTransition(reducedMotion) },
+                popEnterTransition = { tabPopEnterTransition(reducedMotion) },
+                popExitTransition = { tabPopExitTransition(reducedMotion) }
             ) {
                 SettingsScreen(
                     onNavigateToChangelog = { navController.navigate(Screen.Changelog.route) },

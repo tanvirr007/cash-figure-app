@@ -14,6 +14,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -69,6 +70,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -87,6 +89,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
+import app.cash.tanvir.info.ui.animation.AppMotion
+import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
 import app.cash.tanvir.info.ui.theme.cashFigureColorScheme
@@ -242,6 +246,7 @@ fun SettingsDetailScreen(
         },
         bottomBar = {
             if (section == SettingsSection.THEME || section == SettingsSection.LANGUAGE || section == SettingsSection.FONT) {
+                val applyInteractionSource = remember { MutableInteractionSource() }
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     color = MaterialTheme.colorScheme.surface,
@@ -249,12 +254,14 @@ fun SettingsDetailScreen(
                 ) {
                     Button(
                         onClick = applyPendingSelection,
+                        interactionSource = applyInteractionSource,
                         enabled = selectionPending,
                         modifier = Modifier
                             .fillMaxWidth()
                             .navigationBarsPadding()
                             .padding(horizontal = 16.dp, vertical = 12.dp)
-                            .height(52.dp),
+                            .height(52.dp)
+                            .pressScale(applyInteractionSource),
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(
@@ -540,9 +547,13 @@ fun SettingsDetailScreen(
 
 @Composable
 private fun ResetAllCard(isBangla: Boolean, onClick: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
     Card(
         onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        interactionSource = interactionSource,
+        modifier = Modifier
+            .fillMaxWidth()
+            .pressScale(interactionSource),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
@@ -622,13 +633,18 @@ private fun BackupRestoreRow(
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                HapticHelper.vibrate(context)
-                onClick()
-            }
+            .pressScale(interactionSource)
+            .clickable(
+                interactionSource = interactionSource,
+                onClick = {
+                    HapticHelper.vibrate(context)
+                    onClick()
+                }
+            )
             .padding(vertical = 6.dp, horizontal = 6.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -707,6 +723,7 @@ private fun ThemeOptionCard(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     val containerColor = if (selected) {
         MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
     } else {
@@ -720,10 +737,11 @@ private fun ThemeOptionCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .pressScale(interactionSource)
             .clip(RoundedCornerShape(14.dp))
             .background(containerColor)
             .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
+            .clickable(interactionSource = interactionSource, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -908,6 +926,7 @@ private fun LanguageOptionCard(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     val containerColor = if (selected) {
         MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
     } else {
@@ -921,10 +940,11 @@ private fun LanguageOptionCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .pressScale(interactionSource)
             .clip(RoundedCornerShape(14.dp))
             .background(containerColor)
             .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
+            .clickable(interactionSource = interactionSource, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1174,7 +1194,10 @@ private fun CurrencySummaryCard(
         Spacer(modifier = Modifier.height(8.dp))
         val animatedProgress by animateFloatAsState(
             targetValue = enabledCount / togglableValues.size.toFloat(),
-            animationSpec = tween(durationMillis = 400),
+            animationSpec = tween(
+                durationMillis = AppMotion.DurationMedium,
+                easing = AppMotion.EnterEasing
+            ),
             label = "summaryProgress"
         )
         LinearProgressIndicator(
@@ -1326,11 +1349,15 @@ private fun ToggleRow(
     checked: Boolean,
     onToggle: (Boolean) -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .pressScale(interactionSource)
+            .clip(RoundedCornerShape(14.dp))
             .toggleable(
                 value = checked,
+                interactionSource = interactionSource,
                 role = Role.Switch,
                 onValueChange = onToggle
             )
@@ -1440,6 +1467,7 @@ private fun FontOptionCard(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
     val containerColor = if (selected) {
         MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
     } else {
@@ -1453,10 +1481,11 @@ private fun FontOptionCard(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .pressScale(interactionSource)
             .clip(RoundedCornerShape(14.dp))
             .background(containerColor)
             .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
+            .clickable(interactionSource = interactionSource, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

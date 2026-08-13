@@ -3,6 +3,7 @@ package app.cash.tanvir.info.ui.screen.calculator.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -30,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.ui.components.AutoShrinkText
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
@@ -84,10 +87,12 @@ fun DenominationRowItem(
         // Quantity selector — opens the picker sheet on tap. A plain clickable
         // box (not a TextField) so taps are never swallowed by text-field input
         // handling and the value is never clipped by field internals.
+        val quantityInteractionSource = remember { MutableInteractionSource() }
         Box(
             modifier = Modifier
                 .weight(1f)
                 .height(56.dp)
+                .pressScale(quantityInteractionSource)
                 .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .border(
@@ -95,7 +100,10 @@ fun DenominationRowItem(
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
                     shape = RoundedCornerShape(12.dp)
                 )
-                .clickable { onOpenPicker() }
+                .clickable(
+                    interactionSource = quantityInteractionSource,
+                    onClick = { onOpenPicker() }
+                )
                 .padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center
         ) {
