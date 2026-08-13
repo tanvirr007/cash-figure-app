@@ -1,5 +1,7 @@
 package app.cash.tanvir.info.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -7,29 +9,51 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 
 private val ScrollbarWidth = 4.dp
 private val MinThumbHeight = 24f
+private const val ScrollbarHideDelayMillis = 900L
+private const val ScrollbarFadeMillis = 200
 
 /**
  * Lightweight vertical scroll indicator drawn over scrollable content.
  * Exact for plain scroll states, approximated from layout info for lazy lists.
+ * Only appears while the content is being scrolled (drag or fling) and fades
+ * out shortly after it stops.
  */
 @Composable
 fun VerticalScrollbarIndicator(
     state: ScrollState,
     modifier: Modifier = Modifier
 ) {
+    val visible = rememberScrollbarVisibility(state.isScrollInProgress)
     val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
     val trackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
-    Canvas(modifier = modifier.fillMaxHeight().width(ScrollbarWidth)) {
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(ScrollbarFadeMillis),
+        label = "scrollbarAlpha"
+    )
+    Canvas(
+        modifier = modifier
+            .fillMaxHeight()
+            .width(ScrollbarWidth)
+            .graphicsLayer { this.alpha = alpha }
+    ) {
         // Only render when the content actually overflows (fits on big screens)
         if (state.maxValue <= 0) return@Canvas
         val trackHeight = size.height
@@ -53,18 +77,29 @@ fun VerticalScrollbarIndicator(
     state: LazyListState,
     modifier: Modifier = Modifier
 ) {
+    val visible = rememberScrollbarVisibility(state.isScrollInProgress)
     val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
     val trackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
-    Canvas(modifier = modifier.fillMaxHeight().width(ScrollbarWidth)) {
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(ScrollbarFadeMillis),
+        label = "scrollbarAlpha"
+    )
+    Canvas(
+        modifier = modifier
+            .fillMaxHeight()
+            .width(ScrollbarWidth)
+            .graphicsLayer { this.alpha = alpha }
+    ) {
         // Only render when the list actually overflows (short lists stay clean)
         if (!state.canScrollForward && !state.canScrollBackward) return@Canvas
         val info = state.layoutInfo
         val totalItems = info.totalItemsCount
         val viewportHeight = info.viewportSize.height.toFloat()
         if (totalItems == 0 || viewportHeight <= 0f) return@Canvas
-        val visible = info.visibleItemsInfo
-        val avgItemHeight = viewportHeight / visible.size.coerceAtLeast(1)
-        val first = visible.firstOrNull()
+        val visibleItems = info.visibleItemsInfo
+        val avgItemHeight = viewportHeight / visibleItems.size.coerceAtLeast(1)
+        val first = visibleItems.firstOrNull()
         val contentHeight = totalItems * avgItemHeight + viewportHeight
         val scrollPosition = (first?.index ?: 0) * avgItemHeight + (first?.offset ?: 0)
         drawScrollIndicator(
@@ -98,4 +133,22 @@ private fun DrawScope.drawScrollIndicator(
         size = Size(size.width, thumbHeight),
         cornerRadius = radius
     )
+}
+
+/**
+ * Tracks scroll activity: shows the indicator immediately while scrolling
+ * (drag or fling) and hides it after a short idle delay once scrolling stops.
+ */
+@Composable
+private fun rememberScrollbarVisibility(isScrollInProgress: Boolean): Boolean {
+    var visible by remember { mutableStateOf(false) }
+    LaunchedEffect(isScrollInProgress) {
+        if (isScrollInProgress) {
+            visible = true
+        } else {
+            delay(ScrollbarHideDelayMillis)
+            visible = false
+        }
+    }
+    return visible
 }
