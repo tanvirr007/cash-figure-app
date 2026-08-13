@@ -1,6 +1,42 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.22",
+      "publishedAt": "2026-08-13T05:27:13Z",
+      "items": [
+        {
+          "title": "fix: repair release compile errors",
+          "subItems": [
+            "Replace the removed Compose scrollbar API with a custom lightweight scrollbar in ui/components.",
+            "Use the new scrollbar in Draft, History, and Settings screens.",
+            "Add missing TextButton and animateFloat imports in the About screen.",
+            "Rename the alpha animatable so it no longer shadows the graphics layer scope.",
+            "Generate easter egg particle timings with nextInt to match the Int fields."
+          ]
+        },
+        {
+          "title": "fix: remove stray brace in settings screen",
+          "subItems": [
+            "Drop the extra closing brace left by the Box-wrapping of the settings scroll area.",
+            "Re-indent the closing tail so Column, Box, and Scaffold lambdas line up."
+          ]
+        },
+        {
+          "title": "feat: polish picker taps, scrollbars, and money easter egg",
+          "subItems": [
+            "Fix denomination quantity selector so taps reliably open the picker sheet and the value never clips.",
+            "Shrink top bar titles across all screens for a tighter header.",
+            "Add vibration feedback to bottom nav tab switches.",
+            "Add scrollbars and bottom clearance to History, Draft, and Settings lists.",
+            "Remove the Last updated caption and its 30-second refresh loop from the dashboard.",
+            "Remove the Skip button and the final subtitle from the first-run wizard.",
+            "Rework the Author easter egg into a Money Master popup with a full-screen floating-notes animation.",
+            "Collapse the Bangla Translation README section behind an expandable summary."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.21",
       "publishedAt": "2026-08-13T04:00:27Z",
       "items": [
