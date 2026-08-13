@@ -1,6 +1,42 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.25",
+      "publishedAt": "2026-08-13T14:55:34Z",
+      "items": [
+        {
+          "title": "docs: group README badges and tidy credits",
+          "subItems": [
+            "Split the single badge row into Project, Tech and Community groups so each wraps cleanly on narrow screens.",
+            "Space out name, role and Telegram badge in the Credits section so they no longer run together."
+          ]
+        },
+        {
+          "title": "fix: import layout exclude extension for top bar insets",
+          "subItems": [
+            "Add the androidx.compose.foundation.layout.exclude import to six screens.",
+            "TopAppBarDefaults.windowInsets.exclude is an extension function and was unresolved without an explicit import, breaking the release build."
+          ]
+        },
+        {
+          "title": "refactor: improve screen header hierarchy",
+          "subItems": [
+            "Enlarge all top bar titles to 22sp semi-bold and move them 8dp higher.",
+            "Remove duplicate screen titles under the app bar on Theme, Language, Font and Currency screens.",
+            "Update section headers (Security, Preview, Backup & Restore etc.) to 16sp semi-bold with tighter spacing.",
+            "Bump root screen headers (Cash Figure, Settings, History) to the same larger size."
+          ]
+        },
+        {
+          "title": "fix: stop the picker sheet from filling the screen",
+          "subItems": [
+            "Overlay the scrollbar with matchParentSize so it no longer",
+            "Center the grand total words line under the preview number."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.24",
       "publishedAt": "2026-08-13T13:59:35Z",
       "items": [
