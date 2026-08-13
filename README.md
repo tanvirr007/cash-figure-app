@@ -11,19 +11,16 @@
 <p align="center">
   <img src="https://img.shields.io/github/v/release/tanvirr007/cash-figure-app" alt="Latest release"/>
   <img src="https://github.com/tanvirr007/cash-figure-app/actions/workflows/build_apk.yml/badge.svg" alt="Build status"/>
-  <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white" alt="Platform"/>
-  <img src="https://img.shields.io/badge/Language-Kotlin-7F52FF?logo=kotlin&logoColor=white" alt="Language"/>
-  <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="UI"/>
-  <img src="https://img.shields.io/badge/Android-7.0%2B-3DDC84" alt="Minimum Android version"/>
-  <img src="https://img.shields.io/badge/Ads-None-brightgreen" alt="No ads"/>
   <img src="https://img.shields.io/badge/Open%20Source-Yes-brightgreen" alt="Open source"/>
   <img src="https://img.shields.io/github/license/tanvirr007/cash-figure-app" alt="License"/>
   <a href="https://github.com/tanvirr007/cash-figure-app/issues/new/choose">
     <img src="https://img.shields.io/github/issues/tanvirr007/cash-figure-app" alt="Issues"/>
   </a>
-</p>
-
-<p align="center">
+  <img src="https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white" alt="Platform"/>
+  <img src="https://img.shields.io/badge/Language-Kotlin-7F52FF?logo=kotlin&logoColor=white" alt="Language"/>
+  <img src="https://img.shields.io/badge/UI-Jetpack%20Compose-4285F4?logo=jetpackcompose&logoColor=white" alt="UI"/>
+  <img src="https://img.shields.io/badge/Android-7.0%2B-3DDC84" alt="Minimum Android version"/>
+  <img src="https://img.shields.io/badge/Ads-None-brightgreen" alt="No ads"/>
   <img src="https://visitor-badge.laobi.icu/badge?page_id=tanvirr007.cash-figure-app" alt="Visitors"/>
   <img src="https://img.shields.io/github/stars/tanvirr007/cash-figure-app" alt="Stars"/>
   <img src="https://img.shields.io/github/forks/tanvirr007/cash-figure-app" alt="Forks"/>
