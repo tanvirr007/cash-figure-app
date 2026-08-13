@@ -1,6 +1,61 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.24",
+      "publishedAt": "2026-08-13T13:59:35Z",
+      "items": [
+        {
+          "title": "fix: center the dashboard total card content",
+          "subItems": [
+            "Fill the full card width on the amount-in-words line so its",
+            "Balance the vertical padding around the words line."
+          ]
+        },
+        {
+          "title": "fix: polish the author easter egg dialog",
+          "subItems": [
+            "Give the dialog a consistent, fixed-size card with balanced padding.",
+            "Tile each emoji in a rounded box so they render uniformly.",
+            "Even out the vertical rhythm between title, message and buttons.",
+            "Make Open and Close matched buttons of the same style."
+          ]
+        },
+        {
+          "title": "fix: compact the denomination picker sheet",
+          "subItems": [
+            "Balance sheet padding: breathing room on top, less dead space",
+            "Tighten section gaps from 20/24dp down to 16dp.",
+            "Hide the row preview line until a count is selected.",
+            "Show the grand total preview in words under the number."
+          ]
+        },
+        {
+          "title": "docs: tidy README badge row spacing and order",
+          "subItems": [
+            "Merge the social badges into the main badge paragraph to remove",
+            "Move the Open Source, License and Issues badges to third place,"
+          ]
+        },
+        {
+          "title": "fix: center compact header titles consistently",
+          "subItems": [
+            "Place the title in a fixed-height bar so its position never drifts",
+            "Keep the title on one line so the header height stays constant.",
+            "Preserve the existing style, size, colors, and 16dp side padding."
+          ]
+        },
+        {
+          "title": "fix: tidy up onboarding wizard layout",
+          "subItems": [
+            "Give AnimatedContent fixed bounds so pages never overlap mid-transition.",
+            "Move scrolling into per-page containers with their own scrollbars.",
+            "Center the Done page content in the available space.",
+            "Reserve a fixed trailing slot in option cards to keep titles aligned."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.23",
       "publishedAt": "2026-08-13T12:10:39Z",
       "items": [
