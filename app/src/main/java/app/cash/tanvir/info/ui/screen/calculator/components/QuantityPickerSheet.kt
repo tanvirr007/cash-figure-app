@@ -240,6 +240,7 @@ fun QuantityPickerSheet(
                             label = if (isBangla) BanglaDigitConverter.toBangla(preset) else preset.toString(),
                             selected = !showCustom && pendingValue == preset,
                             modifier = Modifier.weight(1f),
+                            indication = null,
                             onClick = {
                                 HapticHelper.vibrate(context)
                                 showCustom = false
