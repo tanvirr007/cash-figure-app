@@ -1,6 +1,35 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.20",
+      "publishedAt": "2026-08-13T03:27:05Z",
+      "items": [
+        {
+          "title": "fix: resolve release build compile errors",
+          "subItems": [
+            "Use the Calculate icon name instead of the nonexistent Calculator.",
+            "Add the missing Spacer and height imports to the dashboard card.",
+            "Add the missing Column import to the denomination row item.",
+            "Rework stepper semantics onto clickable with a repeat-suppression flag."
+          ]
+        },
+        {
+          "title": "feat: redesign home screen and add onboarding for 4.4.20",
+          "subItems": [
+            "Add bottom navigation bar with Calculator, History, and Settings.",
+            "Add smart quantity picker sheet with presets, stepper, custom input, and live breakdown.",
+            "Turn denomination rows into one connected Cash Breakdown card.",
+            "Add grand total dashboard with last-updated time and corner clear.",
+            "Move Save into a floating action button and drop the redundant breakdown dialog.",
+            "Add first-launch onboarding wizard for language, font, and theme.",
+            "Harden light/dark themes with neutral ramps and contained dynamic color.",
+            "Add hidden Android-style easter egg to the About version row.",
+            "Bump app version to 4.4.20."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v3.4.19",
       "publishedAt": "2026-08-12T18:11:16Z",
       "items": [
