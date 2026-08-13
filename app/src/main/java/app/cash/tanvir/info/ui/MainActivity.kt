@@ -197,7 +197,7 @@ class MainActivity : FragmentActivity() {
                             onUnlockClick = { showBiometricPrompt(isBangla) }
                         )
                     } else {
-                        NavGraph(navController = navController)
+                        NavGraph(navController = navController, isBangla = isBangla)
                     }
 
                     // Lightweight launch update dialog — hands off to the Update screen for the full flow

@@ -19,9 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Calculate
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -32,8 +29,6 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -41,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -52,11 +48,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.util.DateTimeFormatter
 import app.cash.tanvir.info.util.HapticHelper
+import kotlinx.coroutines.delay
 
 import app.cash.tanvir.info.ui.screen.calculator.components.DashboardCard
 import app.cash.tanvir.info.ui.screen.calculator.components.DenominationRowItem
@@ -68,9 +66,7 @@ import app.cash.tanvir.info.ui.screen.calculator.components.QuantityPickerSheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CalculatorScreen(
-    onNavigateToHistory: () -> Unit = {},
     onNavigateToReport: (Long, Boolean) -> Unit = { _, _ -> },
-    onNavigateToSettings: () -> Unit = {},
     viewModel: CalculatorViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -94,6 +90,15 @@ fun CalculatorScreen(
 
     // Denomination row whose quantity picker sheet is open (null = closed)
     var pickerRowValue by remember { mutableStateOf<Int?>(null) }
+
+    // Keep "Last updated" fresh while the screen is visible
+    var lastUpdatedRefresh by remember { mutableLongStateOf(0L) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(30_000)
+            lastUpdatedRefresh = System.currentTimeMillis()
+        }
+    }
 
     val onSaveClick: () -> Unit = {
         HapticHelper.vibrate(context)
@@ -158,34 +163,6 @@ fun CalculatorScreen(
                     fontWeight = FontWeight.Bold
                 )
             }
-        },
-        bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = true,
-                    onClick = {},
-                    icon = { Icon(Icons.Default.Calculate, contentDescription = null) },
-                    label = { Text(if (isBangla) "ক্যালকুলেটর" else "Calculator") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = {
-                        HapticHelper.vibrate(context)
-                        onNavigateToHistory()
-                    },
-                    icon = { Icon(Icons.Default.History, contentDescription = null) },
-                    label = { Text(if (isBangla) "ইতিহাস" else "History") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = {
-                        HapticHelper.vibrate(context)
-                        onNavigateToSettings()
-                    },
-                    icon = { Icon(Icons.Default.Settings, contentDescription = null) },
-                    label = { Text(if (isBangla) "সেটিংস" else "Settings") }
-                )
-            }
         }
     ) { paddingValues ->
         LazyColumn(
@@ -203,9 +180,11 @@ fun CalculatorScreen(
             // Dashboard card
             item {
                 val words = if (isBangla) uiState.amountInWordsBn else uiState.amountInWordsEn
-                val lastUpdatedText = uiState.lastUpdated
-                    .takeIf { it > 0L }
-                    ?.let { DateTimeFormatter.formatTime(it, isBangla) }
+                val lastUpdatedText = remember(uiState.lastUpdated, lastUpdatedRefresh, isBangla) {
+                    uiState.lastUpdated
+                        .takeIf { it > 0L }
+                        ?.let { DateTimeFormatter.formatTime(it, isBangla) }
+                }
                 DashboardCard(
                     grandTotal = uiState.grandTotal,
                     amountInWords = words,
@@ -268,6 +247,22 @@ fun CalculatorScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column {
+                        // First-time hint: point at the tap-to-count interaction when idle
+                        if (uiState.totalPieces == 0L) {
+                            Text(
+                                text = if (isBangla) "শুরু করতে নোটের সংখ্যায় চাপ দিন" else "Tap a note's count to begin",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 10.dp)
+                            )
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+                            )
+                        }
                         uiState.rows.forEachIndexed { index, row ->
                             if (index > 0) {
                                 HorizontalDivider(
@@ -484,6 +479,18 @@ fun CalculatorScreen(
                     val interactionSource = remember { MutableInteractionSource() }
                     val isNotesFocused by interactionSource.collectIsFocusedAsState()
                     Box(modifier = Modifier.fillMaxWidth()) {
+                        // Always-visible live preview: ghost hint while the box is empty.
+                        // Drawn below the field so it never blocks taps on the input.
+                        if (notesInputText.isEmpty()) {
+                            Text(
+                                text = fullPlaceholder,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                                modifier = Modifier
+                                    .align(Alignment.CenterStart)
+                                    .padding(start = 16.dp)
+                            )
+                        }
                         OutlinedTextField(
                             value = notesInputText,
                             onValueChange = { input ->
@@ -520,17 +527,6 @@ fun CalculatorScreen(
                                 }
                             }
                         )
-                        // Always-visible live preview: ghost hint while the box is empty
-                        if (notesInputText.isEmpty()) {
-                            Text(
-                                text = fullPlaceholder,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                                modifier = Modifier
-                                    .align(Alignment.CenterStart)
-                                    .padding(start = 16.dp)
-                            )
-                        }
                     }
                 }
             },

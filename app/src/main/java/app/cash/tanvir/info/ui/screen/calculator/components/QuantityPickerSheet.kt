@@ -1,8 +1,10 @@
 package app.cash.tanvir.info.ui.screen.calculator.components
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
@@ -73,7 +75,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  * Preset taps apply and close the sheet; stepper and custom input apply live
  * and keep the sheet open. Tapping the active preset clears the row.
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun QuantityPickerSheet(
     denominationLabel: String,
@@ -217,6 +219,12 @@ fun QuantityPickerSheet(
                             } else {
                                 apply(preset, close = true)
                             }
+                        },
+                        // Long-press applies without closing — handy when the same
+                        // quantity is counted across several denominations
+                        onLongClick = {
+                            HapticHelper.vibrate(context)
+                            apply(preset, close = false)
                         }
                     )
                 }
@@ -427,13 +435,16 @@ private fun HoldToRepeatButton(
 
 /**
  * Preset chip: rounded tile, highlighted when it matches the current value.
+ * Tap applies and closes; long-press applies without closing.
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun PresetChip(
     label: String,
     selected: Boolean,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null
 ) {
     val background = if (selected) {
         MaterialTheme.colorScheme.primaryContainer
@@ -451,7 +462,11 @@ private fun PresetChip(
             .clip(RoundedCornerShape(14.dp))
             .background(background)
             .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                role = Role.Button,
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .semantics { this.selected = selected },
         contentAlignment = Alignment.Center
     ) {

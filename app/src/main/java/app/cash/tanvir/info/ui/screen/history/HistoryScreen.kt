@@ -12,11 +12,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -58,11 +58,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.domain.model.Sheet
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.HapticHelper
+import app.cash.tanvir.info.util.NumberToWordsConverter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HistoryScreen(
-    onNavigateBack: () -> Unit,
     onSelectSheet: (Sheet) -> Unit,
     viewModel: HistoryViewModel = hiltViewModel()
 ) {
@@ -91,14 +91,6 @@ fun HistoryScreen(
         topBar = {
             TopAppBar(
                 title = { Text(if (isBangla) "হিসাবের ইতিহাস" else "Calculation History") },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        HapticHelper.vibrate(context)
-                        onNavigateBack()
-                    }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = if (isBangla) "ফিরে যান" else "Back")
-                    }
-                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
@@ -297,9 +289,9 @@ private fun HistoryCard(
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Title with actions in the top-right corner (draft-card style)
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
@@ -309,25 +301,58 @@ private fun HistoryCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
                         .weight(1f)
-                        .padding(end = 8.dp),
+                        .padding(end = 4.dp),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Text(
-                    text = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                IconButton(onClick = onRename, modifier = Modifier.size(32.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = if (isBangla) "নাম পরিবর্তন" else "Rename",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = if (isBangla) "মুছে ফেলুন" else "Delete",
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // Amount right after the title
+            Text(
+                text = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
 
             Text(
                 text = if (isBangla) {
                     "$formattedDate · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)} টি নোট · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)} ধরণের নোট"
                 } else {
                     "$formattedDate · ${sheet.totalPieces} pieces · ${sheet.activeDenominations} denom."
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            // Amount in words
+            Text(
+                text = if (isBangla) {
+                    "কথায়: ${NumberToWordsConverter.toBangla(sheet.grandTotal)}"
+                } else {
+                    "In words: ${NumberToWordsConverter.toEnglish(sheet.grandTotal)}"
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
@@ -341,21 +366,6 @@ private fun HistoryCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Action row
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ) {
-                IconButton(onClick = onRename) {
-                    Icon(Icons.Default.Edit, contentDescription = if (isBangla) "নাম পরিবর্তন" else "Rename", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = if (isBangla) "মুছে ফেলুন" else "Delete", tint = MaterialTheme.colorScheme.error)
-                }
             }
         }
     }

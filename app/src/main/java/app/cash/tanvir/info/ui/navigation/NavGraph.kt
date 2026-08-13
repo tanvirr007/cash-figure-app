@@ -5,11 +5,25 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import app.cash.tanvir.info.ui.screen.about.AboutScreen
@@ -42,133 +56,184 @@ sealed class Screen(val route: String) {
     object Draft : Screen("draft")
 }
 
+/**
+ * True tab architecture: a single outer Scaffold hosts the persistent bottom
+ * navigation bar (visible only on the three main tabs) around the NavHost.
+ * Tab switches use popUpTo(start) + launchSingleTop + save/restoreState so
+ * destinations never stack duplicates and back always returns to Calculator.
+ */
 @Composable
 fun NavGraph(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    isBangla: Boolean = false
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = Screen.Calculator.route,
-        enterTransition = {
-            slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300)) + fadeIn(tween(300))
-        },
-        exitTransition = {
-            fadeOut(tween(200))
-        },
-        popEnterTransition = {
-            fadeIn(tween(300))
-        },
-        popExitTransition = {
-            slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300)) + fadeOut(tween(200))
-        }
-    ) {
-        composable(
-            route = Screen.Calculator.route,
-            arguments = listOf(
-                navArgument("loadDraftId") {
-                    type = NavType.LongType
-                    defaultValue = -1L
-                }
-            )
-        ) {
-            CalculatorScreen(
-                onNavigateToHistory = { navController.navigate(Screen.History.route) },
-                onNavigateToReport = { sheetId, fromSave -> navController.navigate(Screen.Report.createRoute(sheetId, fromSave)) },
-                onNavigateToSettings = { navController.navigate(Screen.Settings.route) }
-            )
-        }
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
 
-        composable(Screen.History.route) {
-            HistoryScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onSelectSheet = { sheet ->
-                    navController.navigate(Screen.Report.createRoute(sheet.id))
+    Scaffold(
+        bottomBar = {
+            if (currentRoute.isMainTab()) {
+                NavigationBar {
+                    NavigationBarItem(
+                        selected = currentRoute.isCalculatorTab(),
+                        onClick = { navController.navigateToTab(Screen.Calculator.createRoute()) },
+                        icon = { Icon(Icons.Filled.Calculate, contentDescription = null) },
+                        label = { Text(if (isBangla) "ক্যালকুলেটর" else "Calculator") }
+                    )
+                    NavigationBarItem(
+                        selected = currentRoute == Screen.History.route,
+                        onClick = { navController.navigateToTab(Screen.History.route) },
+                        icon = { Icon(Icons.Filled.History, contentDescription = null) },
+                        label = { Text(if (isBangla) "ইতিহাস" else "History") }
+                    )
+                    NavigationBarItem(
+                        selected = currentRoute == Screen.Settings.route,
+                        onClick = { navController.navigateToTab(Screen.Settings.route) },
+                        icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
+                        label = { Text(if (isBangla) "সেটিংস" else "Settings") }
+                    )
                 }
-            )
+            }
         }
-
-        composable(
-            route = Screen.Report.route,
-            arguments = listOf(
-                navArgument("sheetId") { type = NavType.LongType },
-                navArgument("fromSave") {
-                    type = NavType.BoolType
-                    defaultValue = false
-                },
-                navArgument("fromDraft") {
-                    type = NavType.BoolType
-                    defaultValue = false
-                }
-            )
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Calculator.route,
+            modifier = Modifier.padding(paddingValues),
+            enterTransition = {
+                slideInHorizontally(initialOffsetX = { it }, animationSpec = tween(300)) + fadeIn(tween(300))
+            },
+            exitTransition = {
+                fadeOut(tween(200))
+            },
+            popEnterTransition = {
+                fadeIn(tween(300))
+            },
+            popExitTransition = {
+                slideOutHorizontally(targetOffsetX = { it }, animationSpec = tween(300)) + fadeOut(tween(200))
+            }
         ) {
-            ReportScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onLoadIntoCalculator = { draftId ->
-                    navController.navigate(Screen.Calculator.createRoute(loadDraftId = draftId)) {
-                        popUpTo(Screen.Calculator.route) { inclusive = true }
-                        launchSingleTop = true
+            composable(
+                route = Screen.Calculator.route,
+                arguments = listOf(
+                    navArgument("loadDraftId") {
+                        type = NavType.LongType
+                        defaultValue = -1L
                     }
-                }
-            )
-        }
+                )
+            ) {
+                CalculatorScreen(
+                    onNavigateToReport = { sheetId, fromSave -> navController.navigate(Screen.Report.createRoute(sheetId, fromSave)) }
+                )
+            }
 
-        composable(
-            route = Screen.Settings.route
-        ) {
-            SettingsScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onNavigateToChangelog = { navController.navigate(Screen.Changelog.route) },
-                onNavigateToUpdate = { navController.navigate(Screen.Update.route) },
-                onNavigateToAbout = { navController.navigate(Screen.About.route) },
-                onNavigateToSettingsDetail = { section ->
-                    navController.navigate(Screen.SettingsDetail.createRoute(section))
-                },
-                onNavigateToDraft = {
-                    navController.navigate(Screen.Draft.route)
-                }
-            )
-        }
+            composable(Screen.History.route) {
+                HistoryScreen(
+                    onSelectSheet = { sheet ->
+                        navController.navigate(Screen.Report.createRoute(sheet.id))
+                    }
+                )
+            }
 
-        composable(Screen.Draft.route) {
-            DraftScreen(
-                onNavigateBack = { navController.popBackStack() },
-                onOpenDraft = { draftId ->
-                    navController.navigate(Screen.Report.createRoute(draftId, fromDraft = true))
-                }
-            )
-        }
+            composable(
+                route = Screen.Report.route,
+                arguments = listOf(
+                    navArgument("sheetId") { type = NavType.LongType },
+                    navArgument("fromSave") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    },
+                    navArgument("fromDraft") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    }
+                )
+            ) {
+                ReportScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onLoadIntoCalculator = { draftId ->
+                        navController.navigate(Screen.Calculator.createRoute(loadDraftId = draftId)) {
+                            popUpTo(Screen.Calculator.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
 
-        composable(Screen.Changelog.route) {
-            ChangelogScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
+            composable(
+                route = Screen.Settings.route
+            ) {
+                SettingsScreen(
+                    onNavigateToChangelog = { navController.navigate(Screen.Changelog.route) },
+                    onNavigateToUpdate = { navController.navigate(Screen.Update.route) },
+                    onNavigateToAbout = { navController.navigate(Screen.About.route) },
+                    onNavigateToSettingsDetail = { section ->
+                        navController.navigate(Screen.SettingsDetail.createRoute(section))
+                    },
+                    onNavigateToDraft = {
+                        navController.navigate(Screen.Draft.route)
+                    }
+                )
+            }
 
-        composable(Screen.Update.route) {
-            UpdateScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
+            composable(Screen.Draft.route) {
+                DraftScreen(
+                    onNavigateBack = { navController.popBackStack() },
+                    onOpenDraft = { draftId ->
+                        navController.navigate(Screen.Report.createRoute(draftId, fromDraft = true))
+                    }
+                )
+            }
 
-        composable(Screen.About.route) {
-            AboutScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
-        }
+            composable(Screen.Changelog.route) {
+                ChangelogScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
 
-        composable(
-            route = Screen.SettingsDetail.route,
-            arguments = listOf(
-                navArgument("section") { type = NavType.StringType }
-            )
-        ) {
-            val section = SettingsSection.fromRouteParam(
-                it.arguments?.getString("section")
-            )
-            SettingsDetailScreen(
-                section = section,
-                onNavigateBack = { navController.popBackStack() }
-            )
+            composable(Screen.Update.route) {
+                UpdateScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(Screen.About.route) {
+                AboutScreen(
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = Screen.SettingsDetail.route,
+                arguments = listOf(
+                    navArgument("section") { type = NavType.StringType }
+                )
+            ) {
+                val section = SettingsSection.fromRouteParam(
+                    it.arguments?.getString("section")
+                )
+                SettingsDetailScreen(
+                    section = section,
+                    onNavigateBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }
+
+/**
+ * Bottom-nav tab switch: keeps the start destination (Calculator) at the stack
+ * root, never stacks duplicate tabs, and saves/restores each tab's state.
+ */
+private fun NavHostController.navigateToTab(route: String) {
+    navigate(route) {
+        popUpTo(graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+}
+
+private fun String?.isMainTab(): Boolean =
+    isCalculatorTab() || this == Screen.History.route || this == Screen.Settings.route
+
+private fun String?.isCalculatorTab(): Boolean = this?.startsWith("calculator") == true
