@@ -115,26 +115,22 @@ fun OnboardingScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            val scrollState = rememberScrollState()
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                ) {
-                    AnimatedContent(
-                        targetState = uiState.pageIndex,
-                        transitionSpec = {
-                            pageEnterTransition(reducedMotion) togetherWith pageExitTransition(reducedMotion)
-                        },
-                        label = "onboardingPage"
-                    ) { pageIndex ->
-                        when (pageIndex) {
-                            0 -> LanguagePage(
+                AnimatedContent(
+                    targetState = uiState.pageIndex,
+                    modifier = Modifier.fillMaxSize(),
+                    transitionSpec = {
+                        pageEnterTransition(reducedMotion) togetherWith pageExitTransition(reducedMotion)
+                    },
+                    label = "onboardingPage"
+                ) { pageIndex ->
+                    when (pageIndex) {
+                        0 -> OnboardingPageScroll {
+                            LanguagePage(
                                 isBangla = isBangla,
                                 selected = uiState.language,
                                 onSelect = { lang ->
@@ -142,7 +138,9 @@ fun OnboardingScreen(
                                     viewModel.selectLanguage(lang)
                                 }
                             )
-                            1 -> FontPage(
+                        }
+                        1 -> OnboardingPageScroll {
+                            FontPage(
                                 isBangla = isBangla,
                                 selected = uiState.font,
                                 onSelect = { font ->
@@ -150,7 +148,9 @@ fun OnboardingScreen(
                                     viewModel.selectFont(font)
                                 }
                             )
-                            2 -> ThemePage(
+                        }
+                        2 -> OnboardingPageScroll {
+                            ThemePage(
                                 isBangla = isBangla,
                                 selected = uiState.theme,
                                 onSelect = { theme ->
@@ -158,14 +158,10 @@ fun OnboardingScreen(
                                     viewModel.selectTheme(theme)
                                 }
                             )
-                            else -> DonePage(isBangla = isBangla)
                         }
+                        else -> DonePage(isBangla = isBangla)
                     }
                 }
-                VerticalScrollbarIndicator(
-                    state = scrollState,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
             }
 
             Row(
@@ -231,6 +227,28 @@ fun OnboardingScreen(
                 }
             }
         }
+    }
+}
+
+/**
+ * Fixed-size scroll container for a wizard page. Each page scrolls
+ * independently so page transitions never change the container height.
+ */
+@Composable
+private fun OnboardingPageScroll(content: @Composable () -> Unit) {
+    val pageScroll = rememberScrollState()
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(pageScroll)
+        ) {
+            content()
+        }
+        VerticalScrollbarIndicator(
+            state = pageScroll,
+            modifier = Modifier.align(Alignment.CenterEnd)
+        )
     }
 }
 
@@ -354,10 +372,9 @@ private fun ThemePage(
 @Composable
 private fun DonePage(isBangla: Boolean) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
         Box(
             modifier = Modifier
@@ -421,7 +438,10 @@ private fun OptionCard(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
                     text = title,
                     style = MaterialTheme.typography.bodyLarge,
@@ -462,6 +482,8 @@ private fun OptionCard(
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(22.dp)
             )
+        } else {
+            Spacer(modifier = Modifier.width(32.dp))
         }
     }
 }
