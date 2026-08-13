@@ -109,7 +109,9 @@ fun DashboardCard(
                             text = amountInWords,
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f),
-                            modifier = Modifier.padding(top = 6.dp, bottom = 12.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, bottom = 8.dp),
                             textAlign = TextAlign.Center
                         )
                         Row(
