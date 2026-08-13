@@ -1,6 +1,84 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.23",
+      "publishedAt": "2026-08-13T12:10:39Z",
+      "items": [
+        {
+          "title": "docs: relocate social badges and ignore local opencode dir",
+          "subItems": [
+            "Move Visitors, Stars, Forks and Contributors badges from the top row to below the Open Source, License and Issues badges.",
+            "Ignore the .opencode directory in .gitignore so local agent config stays untracked."
+          ]
+        },
+        {
+          "title": "fix: resolve release compile errors",
+          "subItems": [
+            "Pass LocalIndication to clickable and toggleable so the required indication parameter is supplied.",
+            "Type the press-scale animation specs so tween and spring can infer their type arguments.",
+            "Compare against TextUnit.Unspecified instead of the unimported isSpecified extension.",
+            "Make cleanupLegacyOtaApk return Unit instead of the Boolean/Unit try-catch union."
+          ]
+        },
+        {
+          "title": "feat: polish animations app-wide",
+          "subItems": [
+            "Add ui/animation/AppMotion.kt with shared durations, easings, and transitions.",
+            "Cross-fade bottom-tab switches; eased slide+fade for sub-screen pushes.",
+            "Animate UpdateScreen status and onboarding page changes via AnimatedContent.",
+            "Animate Save FAB show/hide with scale and fade.",
+            "Add subtle press-scale micro-interaction to cards, rows, and buttons.",
+            "Restore clipped ripples on settings rows, toggle rows, dashboard icon, about rows.",
+            "Animate dashboard stats row in/out; ease the grand-total count-up.",
+            "Respect the system remove-animations setting everywhere."
+          ]
+        },
+        {
+          "title": "feat: hide Save button when count is empty",
+          "subItems": [
+            "Save FAB only renders when grand total is above zero.",
+            "Matches existing guard in onSaveClick; covers rows typed as 0."
+          ]
+        },
+        {
+          "title": "docs: add live badges and crew credits to README",
+          "subItems": [
+            "Add realtime stars, forks, and contributor count badges to the header.",
+            "Add Credits section with the Telegram-crew shoutout grid."
+          ]
+        },
+        {
+          "title": "feat: compact headers on root screens",
+          "subItems": [
+            "Add shared CompactTopBar component handling the status bar inset once.",
+            "Replace default TopAppBar on Calculator, History and Settings screens.",
+            "Zero out Scaffold content insets so only the header pads the top.",
+            "Keep title style, colors and all other UI unchanged."
+          ]
+        },
+        {
+          "title": "feat: scrollbars on all scrollable screens, piece plural",
+          "subItems": [
+            "Gate the scrollbar indicator so it renders only when content overflows (size-dependent).",
+            "Add the indicator to Calculator, About, Settings Detail, Changelog, Report, Onboarding, the quantity picker sheet, and all four Update screen states.",
+            "Pluralize the pieces label: 1 piece, anything else pieces, in the picker, breakdown header, dashboard stats, and history and draft cards."
+          ]
+        },
+        {
+          "title": "feat: picker OK flow, auto-fit numbers, clean uninstall",
+          "subItems": [
+            "Add a pending quantity to the picker sheet: presets and the stepper only stage the value, a full-width OK button commits it.",
+            "Let custom input follow the same pattern, with live row and grand total previews.",
+            "Add AutoShrinkText so long quantities and totals shrink instead of clipping with ellipsis.",
+            "Put the Money Master dialog Open and Close buttons side by side with an emoji row.",
+            "Disable cloud backup so uninstalling wipes all app data and fresh installs stay fresh.",
+            "Store the OTA APK in app-private storage and clean legacy Downloads leftovers on fresh install.",
+            "Refresh FILES.md line counts and file list."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.22",
       "publishedAt": "2026-08-13T05:27:13Z",
       "items": [
