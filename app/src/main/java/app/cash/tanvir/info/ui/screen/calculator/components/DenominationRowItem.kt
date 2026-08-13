@@ -134,7 +134,7 @@ fun DenominationRowItem(
             )
         }
 
-        // Subtotal with explicit × quantity relation
+        // Subtotal
         Column(
             modifier = Modifier.width(if (isCompact) 88.dp else 108.dp),
             horizontalAlignment = Alignment.End
@@ -151,15 +151,6 @@ fun DenominationRowItem(
                 textAlign = TextAlign.End,
                 minFontSize = 10.sp
             )
-            if (quantityText.isNotEmpty()) {
-                Text(
-                    text = if (isBangla) "× ${BanglaDigitConverter.toBengali(quantityText)}" else "× $quantityText",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
-                    textAlign = TextAlign.End,
-                    maxLines = 1
-                )
-            }
         }
 
         // Clear button

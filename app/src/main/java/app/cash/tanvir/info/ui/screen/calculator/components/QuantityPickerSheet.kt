@@ -3,6 +3,8 @@ package app.cash.tanvir.info.ui.screen.calculator.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Indication
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -153,9 +155,9 @@ fun QuantityPickerSheet(
                     Spacer(modifier = Modifier.weight(1f))
                     TextButton(onClick = {
                         HapticHelper.vibrate(context)
-                        onQuantityChange("")
+                        pendingQty = ""
+                        customInput = ""
                         focusManager.clearFocus()
-                        onDismiss()
                     }) {
                         Text(
                             text = if (isBangla) "মুছুন" else "Clear",
@@ -233,10 +235,13 @@ fun QuantityPickerSheet(
                     CalculatorViewModel.QUANTITY_PRESETS.forEach { preset ->
                         PresetChip(
                             label = if (isBangla) BanglaDigitConverter.toBangla(preset) else preset.toString(),
-                            selected = pendingValue == preset,
+                            selected = !showCustom && pendingValue == preset,
                             modifier = Modifier.weight(1f),
                             onClick = {
                                 HapticHelper.vibrate(context)
+                                showCustom = false
+                                customInput = ""
+                                focusManager.clearFocus()
                                 if (pendingValue == preset) {
                                     setPending("")
                                 } else {
@@ -249,6 +254,7 @@ fun QuantityPickerSheet(
                         label = if (isBangla) "নিজের সংখ্যা" else "Custom",
                         selected = showCustom,
                         modifier = Modifier.weight(1f),
+                        indication = null,
                         onClick = {
                             HapticHelper.vibrate(context)
                             showCustom = !showCustom
@@ -507,6 +513,7 @@ private fun PresetChip(
     label: String,
     selected: Boolean,
     modifier: Modifier = Modifier,
+    indication: Indication? = LocalIndication.current,
     onClick: () -> Unit
 ) {
     val background = if (selected) {
@@ -526,6 +533,8 @@ private fun PresetChip(
             .background(background)
             .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
             .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = indication,
                 role = Role.Button,
                 onClick = onClick
             )
