@@ -220,12 +220,11 @@ fun SettingsScreen(
                     onNavigateToAbout()
                 }
             )
-                }
-                VerticalScrollbar(
-                    adapter = rememberScrollbarAdapter(scrollState),
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                )
             }
+            VerticalScrollbar(
+                adapter = rememberScrollbarAdapter(scrollState),
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
         }
     }
 }
