@@ -1,6 +1,42 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.27",
+      "publishedAt": "2026-08-13T18:13:08Z",
+      "items": [
+        {
+          "title": "fix: draw app bars behind status bar",
+          "subItems": [
+            "Stop the outer nav scaffold padding the host below the status bar.",
+            "Apply edge-to-edge once in onCreate before setContent.",
+            "App bar surfaces now extend behind the status bar on every screen."
+          ]
+        },
+        {
+          "title": "docs: shorten play protect notice in about",
+          "subItems": [
+            "Trim the Play Protect warning so it fits in three lines.",
+            "Keep the same meaning in a natural voice."
+          ]
+        },
+        {
+          "title": "fix: drop custom chip ripple for good",
+          "subItems": [
+            "Replace the custom chip clickable with plain tap detection so no",
+            "Keep button semantics for TalkBack on the custom chip.",
+            "Preset chips keep their normal ripple."
+          ]
+        },
+        {
+          "title": "fix: hide clear all when calculator is empty",
+          "subItems": [
+            "Hide Clear All icon on total card when there is nothing to clear.",
+            "Remove unused idle check and dead nothing-to-clear toast branch."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.26",
       "publishedAt": "2026-08-13T15:45:46Z",
       "items": [
