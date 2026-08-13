@@ -1,6 +1,39 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.29",
+      "publishedAt": "2026-08-13T20:06:12Z",
+      "items": [
+        {
+          "title": "fix: declare ContentDrawScope receiver on draw override",
+          "subItems": [
+            "DrawModifierNode.draw is a member extension on ContentDrawScope and must be",
+            "NoIndicationNode now mirrors the library's own override pattern"
+          ]
+        },
+        {
+          "title": "fix: replace null indication provider with no-op factory",
+          "subItems": [
+            "LocalIndication is non-nullable in foundation 1.7.6, so provides null was a compile error",
+            "NoIndication (IndicationNodeFactory) draws nothing and is provided to LocalIndication",
+            "Clear and OK buttons stay ripple-free; chips, stepper and overscroll unchanged"
+          ]
+        },
+        {
+          "title": "fix: nuke all ripples in quantity sheet",
+          "subItems": [
+            "Preset chips, stepper buttons, Clear and OK buttons draw no ripple at all",
+            "Overscroll glow/stretch suppressed on the sheet scroll container",
+            "Selection highlight, semantics, haptics and pressScale are unchanged"
+          ]
+        },
+        {
+          "title": "docs: reorder credits rows",
+          "subItems": []
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.28",
       "publishedAt": "2026-08-13T18:44:39Z",
       "items": [

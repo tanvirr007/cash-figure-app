@@ -1,7 +1,7 @@
 {
-  "versionCode": 73,
-  "versionName": "v4.4.28",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.28/CashFigure.apk",
-  "changelog": "* **docs: badge-only credits, add DrDisagree** (307e44d)\n* **feat: show scrollbar only while scrolling** (63387f8)\n  - Scrollbar (track + thumb) now fades in on drag/fling and fades out ~1s after scrolling stops\n  - Applies to all screens via the shared VerticalScrollbarIndicator\n  - Non-scrolling overflow content still hides the bar\n  TEST: not run — visual-only change; build on Windows (gradlew.bat assembleDebug)\n* **docs: drop tagline from release title** (96f31c2)\n* **fix: drop ripple from quantity presets** (bcb8150)\n  - Quantity preset chips now use the same ripple-free tap path (detectTapGestures + semantics) as the Custom chip\n  - Selection highlight via background/border is unchanged\n  TEST: not run — visual-only change\n",
+  "versionCode": 76,
+  "versionName": "v4.4.29",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.29/CashFigure.apk",
+  "changelog": "* **fix: declare ContentDrawScope receiver on draw override** (44ef30a)\n  - DrawModifierNode.draw is a member extension on ContentDrawScope and must be\n    overridden with the explicit receiver, otherwise it overrides nothing\n  - NoIndicationNode now mirrors the library's own override pattern\n  TEST: not run — compile fix; build on Windows (gradlew.bat assembleDebug)\n* **fix: replace null indication provider with no-op factory** (3d416aa)\n  - LocalIndication is non-nullable in foundation 1.7.6, so provides null was a compile error\n  - NoIndication (IndicationNodeFactory) draws nothing and is provided to LocalIndication\n  - Clear and OK buttons stay ripple-free; chips, stepper and overscroll unchanged\n  TEST: not run — compile fix; build on Windows (gradlew.bat assembleDebug)\n* **fix: nuke all ripples in quantity sheet** (eb91bc2)\n  - Preset chips, stepper buttons, Clear and OK buttons draw no ripple at all\n  - Overscroll glow/stretch suppressed on the sheet scroll container\n  - Selection highlight, semantics, haptics and pressScale are unchanged\n  TEST: not run — visual-only change; build on Windows (gradlew.bat assembleDebug)\n* **docs: reorder credits rows** (4f8d7b6)\n",
   "fileSize": 6211354
 }
