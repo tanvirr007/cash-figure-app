@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -52,10 +51,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -347,7 +342,8 @@ fun QuantityPickerSheet(
 }
 
 /**
- * Stepper button: fires once on press, then repeats while held
+ * Stepper button: fires once per tap (via clickable, which also carries the
+ * button semantics for TalkBack), then repeats while held
  * (400ms initial delay, 60ms between repeats).
  */
 @Composable
@@ -360,8 +356,9 @@ private fun HoldToRepeatButton(
 ) {
     // Always call the latest callbacks from the gesture coroutine (they capture
     // the live quantity from recomposition, not the stale value at gesture start)
-    val latestOnPress by rememberUpdatedState(onPress)
     val latestOnRepeat by rememberUpdatedState(onRepeat)
+    // Set while a hold is repeating so the release-time click is suppressed
+    var repeatActive by remember { mutableStateOf(false) }
     val background = if (enabled) {
         MaterialTheme.colorScheme.primaryContainer
     } else {
@@ -382,24 +379,22 @@ private fun HoldToRepeatButton(
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                 shape = RoundedCornerShape(16.dp)
             )
-            .semantics {
-                role = Role.Button
-                this.contentDescription = contentDescription
-                disabled = !enabled
+            .clickable(
+                enabled = enabled,
+                role = Role.Button,
                 onClick = {
-                    if (enabled) {
+                    if (!repeatActive) {
                         onPress()
-                        true
-                    } else {
-                        false
                     }
+                    repeatActive = false
                 }
-            }
+            )
+            // Hold-to-repeat: after 400ms of holding, tick every 60ms.
+            // A quick tap never reaches the timeout, so only clickable fires.
             .pointerInput(enabled) {
                 awaitEachGesture {
                     awaitFirstDown(requireUnconsumed = false)
                     if (!enabled) return@awaitEachGesture
-                    latestOnPress()
                     var repeatDelayMillis = 400L
                     while (true) {
                         val event = withTimeoutOrNull(repeatDelayMillis) {
@@ -407,6 +402,7 @@ private fun HoldToRepeatButton(
                         }
                         if (event == null) {
                             if (enabled) {
+                                repeatActive = true
                                 latestOnRepeat()
                                 repeatDelayMillis = 60L
                             } else {
