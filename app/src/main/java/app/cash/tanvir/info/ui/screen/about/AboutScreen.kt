@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +41,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,7 +51,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -75,6 +76,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import app.cash.tanvir.info.R
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.util.HapticHelper
@@ -303,7 +305,10 @@ fun AboutScreen(
 
     // Hidden easter egg — 7 quick taps on the Version row, one random message per reveal
     easterEggMessage?.let { message ->
-        Dialog(onDismissRequest = { easterEggMessage = null }) {
+        Dialog(
+            onDismissRequest = { easterEggMessage = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
             val scale = remember { Animatable(0.6f) }
             val alphaAnim = remember { Animatable(0f) }
             LaunchedEffect(Unit) {
@@ -319,6 +324,9 @@ fun AboutScreen(
             }
             Card(
                 modifier = Modifier
+                    .widthIn(max = 380.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
                     .graphicsLayer {
                         scaleX = scale.value
                         scaleY = scale.value
@@ -334,7 +342,7 @@ fun AboutScreen(
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(28.dp),
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 28.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(
@@ -342,10 +350,20 @@ fun AboutScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         listOf("💵", "💸", "🏦", "💳", "🪙").forEach { emoji ->
-                            Text(text = emoji, fontSize = 30.sp)
+                            Box(
+                                modifier = Modifier
+                                    .size(44.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
+                                        shape = RoundedCornerShape(14.dp)
+                                    ),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = emoji, fontSize = 24.sp)
+                            }
                         }
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = "Money Master",
                         style = MaterialTheme.typography.titleMedium,
@@ -359,13 +377,7 @@ fun AboutScreen(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Tap anywhere to exit",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -379,13 +391,25 @@ fun AboutScreen(
                         ) {
                             Text("Open", fontWeight = FontWeight.Bold)
                         }
-                        TextButton(onClick = {
-                            HapticHelper.vibrate(context)
-                            easterEggMessage = null
-                        }) {
-                            Text("Close")
+                        Button(
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                easterEggMessage = null
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        ) {
+                            Text("Close", fontWeight = FontWeight.Bold)
                         }
                     }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Tap anywhere to exit",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
                 }
             }
         }
