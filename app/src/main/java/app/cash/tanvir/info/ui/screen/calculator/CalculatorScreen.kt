@@ -131,19 +131,21 @@ fun CalculatorScreen(
         },
         contentWindowInsets = WindowInsets(0),
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onSaveClick,
-                shape = RoundedCornerShape(16.dp),
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
-            ) {
-                Icon(Icons.Default.Bookmark, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (isBangla) "সেভ করুন" else "Save",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold
-                )
+            if (uiState.grandTotal > 0L) {
+                ExtendedFloatingActionButton(
+                    onClick = onSaveClick,
+                    shape = RoundedCornerShape(16.dp),
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(Icons.Default.Bookmark, contentDescription = null)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = if (isBangla) "সেভ করুন" else "Save",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     ) { paddingValues ->
