@@ -1,6 +1,37 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.26",
+      "publishedAt": "2026-08-13T15:45:46Z",
+      "items": [
+        {
+          "title": "refactor: compact screen headers app-wide",
+          "subItems": [
+            "Add CompactBackTopBar: back arrow plus 18sp title in a 48dp band below the status bar.",
+            "Slim root headers to 36dp with an 18sp title.",
+            "Swap the six back-arrow screens to the new compact bar.",
+            "Drop the windowInsets top exclusion hack and unused imports."
+          ]
+        },
+        {
+          "title": "docs: render credits badges as html",
+          "subItems": [
+            "Convert the Credits Telegram badges to raw HTML links so GitHub renders them."
+          ]
+        },
+        {
+          "title": "fix: picker selection, clear, subtotal",
+          "subItems": [
+            "Remove the giant ripple circle from the Custom chip tap.",
+            "Close the Custom input when a preset is picked.",
+            "Keep only one chip active at a time.",
+            "Make Clear reset the pending input without closing the sheet.",
+            "Drop the duplicate quantity line below the row subtotal."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.25",
       "publishedAt": "2026-08-13T14:55:34Z",
       "items": [

@@ -1,7 +1,7 @@
 {
-  "versionCode": 69,
-  "versionName": "v4.4.25",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.25/CashFigure.apk",
-  "changelog": "* **docs: group README badges and tidy credits** (cba40fc)\n  - Split the single badge row into Project, Tech and Community groups so each wraps cleanly on narrow screens.\n  - Space out name, role and Telegram badge in the Credits section so they no longer run together.\n* **fix: import layout exclude extension for top bar insets** (2cd0c39)\n  - Add the androidx.compose.foundation.layout.exclude import to six screens.\n  - TopAppBarDefaults.windowInsets.exclude is an extension function and was unresolved without an explicit import, breaking the release build.\n* **refactor: improve screen header hierarchy** (c7ff5ba)\n  - Enlarge all top bar titles to 22sp semi-bold and move them 8dp higher.\n  - Remove duplicate screen titles under the app bar on Theme, Language, Font and Currency screens.\n  - Update section headers (Security, Preview, Backup & Restore etc.) to 16sp semi-bold with tighter spacing.\n  - Bump root screen headers (Cash Figure, Settings, History) to the same larger size.\n* **fix: stop the picker sheet from filling the screen** (9760300)\n  - Overlay the scrollbar with matchParentSize so it no longer\n    inflates the wrap-content sheet to full window height.\n  - Center the grand total words line under the preview number.\n",
-  "fileSize": 6227738
+  "versionCode": 70,
+  "versionName": "v4.4.26",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.26/CashFigure.apk",
+  "changelog": "* **refactor: compact screen headers app-wide** (650e65c)\n  - Add CompactBackTopBar: back arrow plus 18sp title in a 48dp band below the status bar.\n  - Slim root headers to 36dp with an 18sp title.\n  - Swap the six back-arrow screens to the new compact bar.\n  - Drop the windowInsets top exclusion hack and unused imports.\n* **docs: render credits badges as html** (e6ac83f)\n  - Convert the Credits Telegram badges to raw HTML links so GitHub renders them.\n* **fix: picker selection, clear, subtotal** (d156b03)\n  - Remove the giant ripple circle from the Custom chip tap.\n  - Close the Custom input when a preset is picked.\n  - Keep only one chip active at a time.\n  - Make Clear reset the pending input without closing the sheet.\n  - Drop the duplicate quantity line below the row subtotal.\n",
+  "fileSize": 6211354
 }
