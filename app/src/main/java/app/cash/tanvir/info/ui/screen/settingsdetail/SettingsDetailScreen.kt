@@ -14,6 +14,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -640,6 +641,7 @@ private fun BackupRestoreRow(
             .pressScale(interactionSource)
             .clickable(
                 interactionSource = interactionSource,
+                indication = LocalIndication.current,
                 onClick = {
                     HapticHelper.vibrate(context)
                     onClick()
@@ -741,7 +743,7 @@ private fun ThemeOptionCard(
             .clip(RoundedCornerShape(14.dp))
             .background(containerColor)
             .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable(interactionSource = interactionSource, onClick = onClick)
+            .clickable(interactionSource = interactionSource, indication = LocalIndication.current, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -944,7 +946,7 @@ private fun LanguageOptionCard(
             .clip(RoundedCornerShape(14.dp))
             .background(containerColor)
             .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable(interactionSource = interactionSource, onClick = onClick)
+            .clickable(interactionSource = interactionSource, indication = LocalIndication.current, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1358,6 +1360,7 @@ private fun ToggleRow(
             .toggleable(
                 value = checked,
                 interactionSource = interactionSource,
+                indication = LocalIndication.current,
                 role = Role.Switch,
                 onValueChange = onToggle
             )
@@ -1485,7 +1488,7 @@ private fun FontOptionCard(
             .clip(RoundedCornerShape(14.dp))
             .background(containerColor)
             .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable(interactionSource = interactionSource, onClick = onClick)
+            .clickable(interactionSource = interactionSource, indication = LocalIndication.current, onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

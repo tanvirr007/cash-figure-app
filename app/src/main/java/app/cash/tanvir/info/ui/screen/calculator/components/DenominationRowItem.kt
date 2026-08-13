@@ -3,6 +3,7 @@ package app.cash.tanvir.info.ui.screen.calculator.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -102,6 +103,7 @@ fun DenominationRowItem(
                 )
                 .clickable(
                     interactionSource = quantityInteractionSource,
+                    indication = LocalIndication.current,
                     onClick = { onOpenPicker() }
                 )
                 .padding(horizontal = 12.dp),

@@ -128,10 +128,12 @@ class UpdateRepositoryImpl @Inject constructor(
      * Downloads (`Download/CashFigure/ota/CashFigure.apk`). Called on fresh
      * installs so no update residue survives uninstall/reinstall.
      */
-    override suspend fun cleanupLegacyOtaApk() = withContext(Dispatchers.IO) {
-        try {
-            StorageUtil.deleteReportFile(context, FILE_NAME, OTA_SUBFOLDER)
-        } catch (_: Exception) {
+    override suspend fun cleanupLegacyOtaApk() {
+        withContext(Dispatchers.IO) {
+            try {
+                StorageUtil.deleteReportFile(context, FILE_NAME, OTA_SUBFOLDER)
+            } catch (_: Exception) {
+            }
         }
     }
 

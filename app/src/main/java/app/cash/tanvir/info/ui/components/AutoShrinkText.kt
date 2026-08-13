@@ -32,7 +32,7 @@ fun AutoShrinkText(
     BoxWithConstraints(modifier = modifier) {
         val availableWidthPx = with(density) { maxWidth.toPx() }
         val baseSizePx = with(density) {
-            if (style.fontSize.isSpecified) style.fontSize.toPx() else 16.sp.toPx()
+            if (style.fontSize != TextUnit.Unspecified) style.fontSize.toPx() else 16.sp.toPx()
         }
         val minSizePx = with(density) { minFontSize.toPx() }
         val estimatedWidthPx = text.length * baseSizePx * 0.62f

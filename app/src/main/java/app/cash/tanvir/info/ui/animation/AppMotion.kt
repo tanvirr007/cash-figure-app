@@ -6,6 +6,8 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -46,8 +48,8 @@ object AppMotion {
     val ExitEasing = FastOutSlowInEasing
 
     /** Quick press-down (ripple-fast), springy release. */
-    val PressDownSpec = tween(DurationFast, easing = FastOutSlowInEasing)
-    val PressUpSpec = spring(
+    val PressDownSpec: TweenSpec<Float> = tween(DurationFast, easing = FastOutSlowInEasing)
+    val PressUpSpec: SpringSpec<Float> = spring(
         dampingRatio = Spring.DampingRatioMediumBouncy,
         stiffness = Spring.StiffnessMediumLow
     )
