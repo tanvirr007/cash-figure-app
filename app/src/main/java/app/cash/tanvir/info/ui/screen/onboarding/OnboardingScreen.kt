@@ -28,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -49,7 +48,6 @@ import app.cash.tanvir.info.util.HapticHelper
 /**
  * First-launch wizard: Language (English recommended) → Font → Theme → Done.
  * Selections apply live so the wizard itself previews each choice.
- * Skip anywhere finishes the wizard with what is selected so far.
  */
 @Composable
 fun OnboardingScreen(
@@ -145,21 +143,6 @@ fun OnboardingScreen(
                     .padding(bottom = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (uiState.pageIndex < OnboardingViewModel.MAX_PAGE) {
-                    TextButton(onClick = {
-                        HapticHelper.vibrate(context)
-                        viewModel.complete(onDone)
-                    }) {
-                        Text(
-                            if (isBangla) "স্কিপ" else "Skip",
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                } else {
-                    Spacer(modifier = Modifier.width(16.dp))
-                }
                 Spacer(modifier = Modifier.weight(1f))
                 if (uiState.pageIndex > 0) {
                     OutlinedButton(
@@ -357,17 +340,6 @@ private fun DonePage(isBangla: Boolean) {
             text = if (isBangla) "সব প্রস্তুত!" else "You're all set!",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = if (isBangla) {
-                "নোটের সংখ্যায় চাপ দিয়ে ক্যাশ গোনা শুরু করুন। আরও অপশন সেটিংসে পাবেন।"
-            } else {
-                "Tap a count to start counting cash. More options are available in Settings."
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp)
         )
     }
 }

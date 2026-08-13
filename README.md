@@ -153,7 +153,8 @@ All history transactions can be exported to a JSON backup file and restored on
 the same or another device. Backups are versioned inside the database schema,
 so restoring data created by an older app version stays safe.
 
-## Bangla Translation
+<details>
+<summary>Bangla Translation (বাংলা অনুবাদ)</summary>
 
 The Bangla (বাংলা) translation of Cash Figure has been professionally revised
 to read naturally — everyday Bangla, consistent wording, and no robotic,
@@ -342,6 +343,8 @@ alone is a valuable contribution.
 
 **PR etiquette:** don't force-push to your PR branch (just add new commits),
 and keep your branch rebased on the latest `main` before opening the PR.
+
+</details>
 
 </details>
 

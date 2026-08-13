@@ -36,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
@@ -52,9 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
-import app.cash.tanvir.info.util.DateTimeFormatter
 import app.cash.tanvir.info.util.HapticHelper
-import kotlinx.coroutines.delay
 
 import app.cash.tanvir.info.ui.screen.calculator.components.DashboardCard
 import app.cash.tanvir.info.ui.screen.calculator.components.DenominationRowItem
@@ -90,15 +87,6 @@ fun CalculatorScreen(
 
     // Denomination row whose quantity picker sheet is open (null = closed)
     var pickerRowValue by remember { mutableStateOf<Int?>(null) }
-
-    // Keep "Last updated" fresh while the screen is visible
-    var lastUpdatedRefresh by remember { mutableLongStateOf(0L) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(30_000)
-            lastUpdatedRefresh = System.currentTimeMillis()
-        }
-    }
 
     val onSaveClick: () -> Unit = {
         HapticHelper.vibrate(context)
@@ -139,7 +127,8 @@ fun CalculatorScreen(
                 title = {
                     Text(
                         text = if (isBangla) "ক্যাশ ফিগার" else "Cash Figure",
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -180,18 +169,12 @@ fun CalculatorScreen(
             // Dashboard card
             item {
                 val words = if (isBangla) uiState.amountInWordsBn else uiState.amountInWordsEn
-                val lastUpdatedText = remember(uiState.lastUpdated, lastUpdatedRefresh, isBangla) {
-                    uiState.lastUpdated
-                        .takeIf { it > 0L }
-                        ?.let { DateTimeFormatter.formatTime(it, isBangla) }
-                }
                 DashboardCard(
                     grandTotal = uiState.grandTotal,
                     amountInWords = words,
                     totalPieces = uiState.totalPieces,
                     activeDenominations = uiState.activeDenominations,
                     isBangla = isBangla,
-                    lastUpdatedText = lastUpdatedText,
                     onClearAll = {
                         if (isIdle) {
                             val msg = if (isBangla) "মুছে ফেলার মতো কিছু নেই" else "Nothing to clear"

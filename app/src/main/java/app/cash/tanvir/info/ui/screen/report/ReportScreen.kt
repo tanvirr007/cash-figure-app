@@ -86,7 +86,13 @@ fun ReportScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (viewModel.fromDraft) (if (isBangla) "ড্রাফট" else "Draft") else (if (isBangla) "রিপোর্ট সেভ ও প্রিন্ট" else "Export & Print Report")) },
+                title = {
+                    Text(
+                        text = if (viewModel.fromDraft) (if (isBangla) "ড্রাফট" else "Draft") else (if (isBangla) "রিপোর্ট সেভ ও প্রিন্ট" else "Export & Print Report"),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.vibrate(context)

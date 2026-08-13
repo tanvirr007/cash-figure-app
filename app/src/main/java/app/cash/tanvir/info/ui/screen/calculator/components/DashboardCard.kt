@@ -47,7 +47,6 @@ fun DashboardCard(
     totalPieces: Long,
     activeDenominations: Int,
     isBangla: Boolean = false,
-    lastUpdatedText: String? = null,
     onClearAll: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
@@ -115,17 +114,6 @@ fun DashboardCard(
                         StatItem(
                             value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(activeDenominations) else activeDenominations.toString(),
                             label = if (isBangla) "ধরণের নোট" else "denominations"
-                        )
-                    }
-
-                    // Last updated caption
-                    if (lastUpdatedText != null) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = if (isBangla) "শেষ আপডেট: $lastUpdatedText" else "Last updated: $lastUpdatedText",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
-                            textAlign = TextAlign.Center
                         )
                     }
                 }

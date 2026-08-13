@@ -2,6 +2,7 @@ package app.cash.tanvir.info.ui.screen.draft
 
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -82,7 +85,13 @@ fun DraftScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isBangla) "ড্রাফট" else "Draft") },
+                title = {
+                    Text(
+                        text = if (isBangla) "ড্রাফট" else "Draft",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.vibrate(context)
@@ -139,41 +148,51 @@ fun DraftScreen(
                 )
             }
         } else {
-            LazyColumn(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(padding)
             ) {
-                item {
-                    val savedCount = uiState.drafts.size
-                    Text(
-                        text = if (isBangla) {
-                            "${BanglaDigitConverter.toBangla(savedCount.toLong())}টি ড্রাফট সংরক্ষিত আছে"
-                        } else {
-                            if (savedCount == 1) "1 draft saved" else "$savedCount drafts saved"
-                        },
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
+                val listState = rememberLazyListState()
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item {
+                        val savedCount = uiState.drafts.size
+                        Text(
+                            text = if (isBangla) {
+                                "${BanglaDigitConverter.toBangla(savedCount.toLong())}টি ড্রাফট সংরক্ষিত আছে"
+                            } else {
+                                if (savedCount == 1) "1 draft saved" else "$savedCount drafts saved"
+                            },
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                    }
+                    items(items = uiState.drafts, key = { it.id }) { draft ->
+                        DraftRowItem(
+                            draft = draft,
+                            isBangla = isBangla,
+                            onOpen = {
+                                HapticHelper.vibrate(context)
+                                onOpenDraft(draft.id)
+                            },
+                            onDiscard = {
+                                HapticHelper.vibrate(context)
+                                viewModel.openDiscardDraftDialog(draft.id)
+                            }
+                        )
+                    }
                 }
-                items(items = uiState.drafts, key = { it.id }) { draft ->
-                    DraftRowItem(
-                        draft = draft,
-                        isBangla = isBangla,
-                        onOpen = {
-                            HapticHelper.vibrate(context)
-                            onOpenDraft(draft.id)
-                        },
-                        onDiscard = {
-                            HapticHelper.vibrate(context)
-                            viewModel.openDiscardDraftDialog(draft.id)
-                        }
-                    )
-                }
+                VerticalScrollbar(
+                    adapter = rememberScrollbarAdapter(listState),
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
         }
     }

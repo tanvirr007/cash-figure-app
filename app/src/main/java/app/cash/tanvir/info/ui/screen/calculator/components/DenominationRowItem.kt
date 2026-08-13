@@ -1,12 +1,14 @@
 package app.cash.tanvir.info.ui.screen.calculator.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,23 +19,23 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
 
 /**
  * A single denomination row inside the Cash Breakdown card:
- * [Denomination Chip] [Read-only Quantity Field → Picker] [× qty + Subtotal] [Clear Button]
+ * [Denomination Chip] [Quantity Selector → Picker] [× qty + Subtotal] [Clear Button]
  */
 @Composable
 fun DenominationRowItem(
@@ -78,44 +80,49 @@ fun DenominationRowItem(
             )
         }
 
-        // Quantity field — read-only, opens the picker sheet on tap
-        OutlinedTextField(
-            value = displayQuantity,
-            onValueChange = {},
-            readOnly = true,
+        // Quantity selector — opens the picker sheet on tap. A plain clickable
+        // box (not a TextField) so taps are never swallowed by text-field input
+        // handling and the value is never clipped by field internals.
+        Box(
             modifier = Modifier
                 .weight(1f)
-                .clickable { onOpenPicker() },
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium
-            ),
-            placeholder = {
-                Text(
-                    text = if (isBangla) "০" else "0",
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                .height(56.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                    shape = RoundedCornerShape(12.dp)
                 )
-            },
-            trailingIcon = {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = if (isBangla) "সংখ্যা বেছে নিন" else "Pick a quantity",
-                    modifier = Modifier.size(22.dp),
-                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
-                )
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(12.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface
+                .clickable { onOpenPicker() }
+                .padding(horizontal = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = displayQuantity.ifEmpty { if (isBangla) "০" else "0" },
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = if (displayQuantity.isEmpty()) {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                } else {
+                    MaterialTheme.colorScheme.onSurface
+                },
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(end = 28.dp)
             )
-        )
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = if (isBangla) "সংখ্যা বেছে নিন" else "Pick a quantity",
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 8.dp)
+                    .size(20.dp),
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+            )
+        }
 
         // Subtotal with explicit × quantity relation
         Column(

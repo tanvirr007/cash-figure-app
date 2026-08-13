@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -36,6 +37,7 @@ import app.cash.tanvir.info.ui.screen.settings.SettingsScreen
 import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsDetailScreen
 import app.cash.tanvir.info.ui.screen.settingsdetail.SettingsSection
 import app.cash.tanvir.info.ui.screen.update.UpdateScreen
+import app.cash.tanvir.info.util.HapticHelper
 
 sealed class Screen(val route: String) {
     object Calculator : Screen("calculator?loadDraftId={loadDraftId}") {
@@ -69,6 +71,7 @@ fun NavGraph(
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
+    val context = LocalContext.current
 
     Scaffold(
         bottomBar = {
@@ -76,19 +79,28 @@ fun NavGraph(
                 NavigationBar {
                     NavigationBarItem(
                         selected = currentRoute.isCalculatorTab(),
-                        onClick = { navController.navigateToTab(Screen.Calculator.createRoute()) },
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            navController.navigateToTab(Screen.Calculator.createRoute())
+                        },
                         icon = { Icon(Icons.Filled.Calculate, contentDescription = null) },
                         label = { Text(if (isBangla) "ক্যালকুলেটর" else "Calculator") }
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.History.route,
-                        onClick = { navController.navigateToTab(Screen.History.route) },
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            navController.navigateToTab(Screen.History.route)
+                        },
                         icon = { Icon(Icons.Filled.History, contentDescription = null) },
                         label = { Text(if (isBangla) "ইতিহাস" else "History") }
                     )
                     NavigationBarItem(
                         selected = currentRoute == Screen.Settings.route,
-                        onClick = { navController.navigateToTab(Screen.Settings.route) },
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            navController.navigateToTab(Screen.Settings.route)
+                        },
                         icon = { Icon(Icons.Filled.Settings, contentDescription = null) },
                         label = { Text(if (isBangla) "সেটিংস" else "Settings") }
                     )

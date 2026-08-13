@@ -61,7 +61,13 @@ fun ChangelogScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isBangla) "আপডেটের ইতিহাস" else "Changelog") },
+                title = {
+                    Text(
+                        text = if (isBangla) "আপডেটের ইতিহাস" else "Changelog",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         HapticHelper.vibrate(context)

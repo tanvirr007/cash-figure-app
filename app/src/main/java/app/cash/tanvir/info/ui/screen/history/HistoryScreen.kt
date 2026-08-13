@@ -2,6 +2,7 @@ package app.cash.tanvir.info.ui.screen.history
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -90,7 +93,13 @@ fun HistoryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(if (isBangla) "হিসাবের ইতিহাস" else "Calculation History") },
+                title = {
+                    Text(
+                        text = if (isBangla) "হিসাবের ইতিহাস" else "Calculation History",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
@@ -154,30 +163,38 @@ fun HistoryScreen(
                     }
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(sheets, key = { it.id }) { sheet ->
-                        HistoryCard(
-                            sheet = sheet,
-                            isBangla = isBangla,
-                            modifier = Modifier.animateItem(),
-                            onClick = {
-                                HapticHelper.vibrate(context)
-                                onSelectSheet(sheet)
-                            },
-                            onRename = {
-                                HapticHelper.vibrate(context)
-                                viewModel.openRenameDialog(sheet)
-                            },
-                            onDelete = {
-                                HapticHelper.vibrate(context)
-                                viewModel.openDeleteConfirmation(sheet)
-                            }
-                        )
+                Box(modifier = Modifier.fillMaxSize()) {
+                    val listState = rememberLazyListState()
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 24.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(sheets, key = { it.id }) { sheet ->
+                            HistoryCard(
+                                sheet = sheet,
+                                isBangla = isBangla,
+                                modifier = Modifier.animateItem(),
+                                onClick = {
+                                    HapticHelper.vibrate(context)
+                                    onSelectSheet(sheet)
+                                },
+                                onRename = {
+                                    HapticHelper.vibrate(context)
+                                    viewModel.openRenameDialog(sheet)
+                                },
+                                onDelete = {
+                                    HapticHelper.vibrate(context)
+                                    viewModel.openDeleteConfirmation(sheet)
+                                }
+                            )
+                        }
                     }
+                    VerticalScrollbar(
+                        adapter = rememberScrollbarAdapter(listState),
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    )
                 }
             }
         }
