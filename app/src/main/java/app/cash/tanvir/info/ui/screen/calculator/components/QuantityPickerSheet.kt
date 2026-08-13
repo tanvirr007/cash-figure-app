@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToUp
@@ -605,7 +606,7 @@ private val NoIndication = object : IndicationNodeFactory {
 }
 
 private object NoIndicationNode : Modifier.Node(), DrawModifierNode {
-    override fun draw() {
+    override fun ContentDrawScope.draw() {
         drawContent()
     }
 }
