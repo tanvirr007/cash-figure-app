@@ -30,6 +30,8 @@ fun VerticalScrollbarIndicator(
     val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
     val trackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
     Canvas(modifier = modifier.fillMaxHeight().width(ScrollbarWidth)) {
+        // Only render when the content actually overflows (fits on big screens)
+        if (state.maxValue <= 0) return@Canvas
         val trackHeight = size.height
         val contentHeight = trackHeight + state.maxValue
         drawScrollIndicator(
@@ -54,6 +56,8 @@ fun VerticalScrollbarIndicator(
     val thumbColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
     val trackColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.08f)
     Canvas(modifier = modifier.fillMaxHeight().width(ScrollbarWidth)) {
+        // Only render when the list actually overflows (short lists stay clean)
+        if (!state.canScrollForward && !state.canScrollBackward) return@Canvas
         val info = state.layoutInfo
         val totalItems = info.totalItemsCount
         val viewportHeight = info.viewportSize.height.toFloat()

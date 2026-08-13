@@ -107,7 +107,11 @@ fun DashboardCard(
                     ) {
                         StatItem(
                             value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(totalPieces) else totalPieces.toString(),
-                            label = if (isBangla) "টি নোট" else "pieces"
+                            label = when {
+                                isBangla -> "টি নোট"
+                                totalPieces == 1L -> "piece"
+                                else -> "pieces"
+                            }
                         )
                         StatItem(
                             value = if (isBangla) app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(activeDenominations) else activeDenominations.toString(),

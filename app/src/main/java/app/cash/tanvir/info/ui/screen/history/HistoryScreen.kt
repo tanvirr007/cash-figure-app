@@ -355,7 +355,7 @@ private fun HistoryCard(
                 text = if (isBangla) {
                     "$formattedDate · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)} টি নোট · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)} ধরণের নোট"
                 } else {
-                    "$formattedDate · ${sheet.totalPieces} pieces · ${sheet.activeDenominations} denom."
+                    "$formattedDate · ${if (sheet.totalPieces == 1L) "1 piece" else "${sheet.totalPieces} pieces"} · ${sheet.activeDenominations} denom."
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)

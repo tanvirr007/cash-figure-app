@@ -73,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import app.cash.tanvir.info.R
+import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.util.HapticHelper
 import app.cash.tanvir.info.util.getInstalledVersion
 import java.util.Calendar
@@ -161,129 +162,139 @@ fun AboutScreen(
             )
         }
     ) { padding ->
-        Column(
+        val scrollState = rememberScrollState()
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 24.dp, vertical = 16.dp)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Box(
+            Column(
                 modifier = Modifier
-                    .size(104.dp)
-                    .clip(CircleShape)
-                    .border(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CircleShape),
-                contentAlignment = Alignment.Center
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.profile_avatar),
-                    contentDescription = "Tanvir Hasan",
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .size(104.dp)
                         .clip(CircleShape)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Tanvir Hasan",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f))
-            ) {
-                Text(
-                    text = "Google Play Protect may flag \"Cash Figure\" as unverified since it's not on the Play Store. The app is safe and open source — tap \"Install anyway\" if warned.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(12.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-            ) {
-                Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                    AboutLinkRow(
-                        iconRes = R.drawable.ic_globe,
-                        title = "Website",
-                        subtitle = "tanvir.info",
-                        onClick = { openUrl("https://tanvir.info") }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-                    AboutLinkRow(
-                        iconRes = R.drawable.ic_github,
-                        title = "GitHub",
-                        subtitle = "tanvirr007",
-                        onClick = { openUrl("https://github.com/tanvirr007") }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-                    AboutLinkRow(
-                        iconRes = R.drawable.ic_telegram,
-                        title = "Telegram",
-                        subtitle = "tanvirr007",
-                        onClick = { openUrl("https://t.me/tanvirr007") }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-                    AboutLinkRow(
-                        iconRes = R.drawable.ic_email,
-                        title = "Email",
-                        subtitle = "tanvirhasan2005@proton.me",
-                        onClick = { openEmail() }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-                    AboutLinkRow(
-                        iconRes = R.drawable.ic_code,
-                        title = "Source Code",
-                        subtitle = "GitHub",
-                        onClick = { openUrl("https://github.com/tanvirr007/cash-figure-app") }
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
-                    AboutLinkRow(
-                        iconRes = R.drawable.ic_code,
-                        iconVector = Icons.Rounded.NewReleases,
-                        title = "Version",
-                        subtitle = "v$installedName (Build $installedCode)",
-                        onClick = {
-                            HapticHelper.vibrate(context)
-                            val now = System.currentTimeMillis()
-                            if (now - lastVersionTap > 3000) {
-                                versionTapCount = 0
-                            }
-                            lastVersionTap = now
-                            versionTapCount++
-                            if (versionTapCount >= 7) {
-                                versionTapCount = 0
-                                easterEggMessage = easterEggMessages.random()
-                            }
-                        }
+                        .border(3.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.profile_avatar),
+                        contentDescription = "Tanvir Hasan",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
                     )
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Text(
-                text = "© ${Calendar.getInstance().get(Calendar.YEAR)} Tanvir Hasan · MIT License",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                textAlign = TextAlign.Center
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Tanvir Hasan",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f))
+                ) {
+                    Text(
+                        text = "Google Play Protect may flag \"Cash Figure\" as unverified since it's not on the Play Store. The app is safe and open source — tap \"Install anyway\" if warned.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                ) {
+                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                        AboutLinkRow(
+                            iconRes = R.drawable.ic_globe,
+                            title = "Website",
+                            subtitle = "tanvir.info",
+                            onClick = { openUrl("https://tanvir.info") }
+                        )
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                        AboutLinkRow(
+                            iconRes = R.drawable.ic_github,
+                            title = "GitHub",
+                            subtitle = "tanvirr007",
+                            onClick = { openUrl("https://github.com/tanvirr007") }
+                        )
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                        AboutLinkRow(
+                            iconRes = R.drawable.ic_telegram,
+                            title = "Telegram",
+                            subtitle = "tanvirr007",
+                            onClick = { openUrl("https://t.me/tanvirr007") }
+                        )
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                        AboutLinkRow(
+                            iconRes = R.drawable.ic_email,
+                            title = "Email",
+                            subtitle = "tanvirhasan2005@proton.me",
+                            onClick = { openEmail() }
+                        )
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                        AboutLinkRow(
+                            iconRes = R.drawable.ic_code,
+                            title = "Source Code",
+                            subtitle = "GitHub",
+                            onClick = { openUrl("https://github.com/tanvirr007/cash-figure-app") }
+                        )
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+                        AboutLinkRow(
+                            iconRes = R.drawable.ic_code,
+                            iconVector = Icons.Rounded.NewReleases,
+                            title = "Version",
+                            subtitle = "v$installedName (Build $installedCode)",
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                val now = System.currentTimeMillis()
+                                if (now - lastVersionTap > 3000) {
+                                    versionTapCount = 0
+                                }
+                                lastVersionTap = now
+                                versionTapCount++
+                                if (versionTapCount >= 7) {
+                                    versionTapCount = 0
+                                    easterEggMessage = easterEggMessages.random()
+                                }
+                            }
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+                Text(
+                    text = "© ${Calendar.getInstance().get(Calendar.YEAR)} Tanvir Hasan · MIT License",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            VerticalScrollbarIndicator(
+                state = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 

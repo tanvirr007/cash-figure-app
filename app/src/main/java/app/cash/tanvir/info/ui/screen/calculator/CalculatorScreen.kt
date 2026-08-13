@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
@@ -53,6 +54,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.util.HapticHelper
 
+import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.screen.calculator.components.DashboardCard
 import app.cash.tanvir.info.ui.screen.calculator.components.DenominationRowItem
 import app.cash.tanvir.info.ui.screen.calculator.components.QuantityPickerSheet
@@ -154,18 +156,23 @@ fun CalculatorScreen(
             }
         }
     ) { paddingValues ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(
-                start = if (isCompact) 4.dp else 8.dp,
-                end = if (isCompact) 4.dp else 8.dp,
-                top = 8.dp,
-                bottom = 96.dp
-            ),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
+                .padding(paddingValues)
         ) {
+            val listState = rememberLazyListState()
+            LazyColumn(
+                state = listState,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(
+                    start = if (isCompact) 4.dp else 8.dp,
+                    end = if (isCompact) 4.dp else 8.dp,
+                    top = 8.dp,
+                    bottom = 96.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(0.dp)
+            ) {
             // Dashboard card
             item {
                 val words = if (isBangla) uiState.amountInWordsBn else uiState.amountInWordsEn
@@ -208,7 +215,7 @@ fun CalculatorScreen(
                             text = if (isBangla) {
                                 "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(uiState.totalPieces)} টি নোট"
                             } else {
-                                "${uiState.totalPieces} pieces"
+                                if (uiState.totalPieces == 1L) "1 piece" else "${uiState.totalPieces} pieces"
                             },
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -273,6 +280,11 @@ fun CalculatorScreen(
                 }
             }
         }
+        VerticalScrollbarIndicator(
+            state = listState,
+            modifier = Modifier.align(Alignment.CenterEnd)
+        )
+    }
     }
 
     // Quantity picker sheet for the tapped row

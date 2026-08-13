@@ -109,30 +109,30 @@ app/src/test/java/app/cash/tanvir/info/util/  7 JUnit test classes
 | `ui/theme/Theme.kt` | 174 | `CashFigureTheme`, dynamic color support |
 | `ui/theme/Type.kt` | 159 | Typography with Tiro Bangla font |
 | `ui/components/AutoShrinkText.kt` | 54 | Single-line text that shrinks its font to fit (BoxWithConstraints + width estimate, no experimental APIs) |
-| `ui/components/ScrollbarIndicator.kt` | 97 | Lightweight `VerticalScrollbarIndicator` for `ScrollState` (exact) and `LazyListState` (layout-info estimate) |
+| `ui/components/ScrollbarIndicator.kt` | 101 | Lightweight `VerticalScrollbarIndicator` for `ScrollState` (exact) and `LazyListState` (layout-info estimate) — renders only when content overflows |
 
 ### ui/screen/ — Feature Screens + ViewModels
 | File | Lines | Purpose |
 |---|---|---|
-| `calculator/CalculatorScreen.kt` | 560 | Main counting UI: denomination rows, live totals, breakdown dialog, save flow, minimal back-exit "Save as Draft?" dialog (2 buttons) |
+| `calculator/CalculatorScreen.kt` | 572 | Main counting UI: denomination rows, live totals, breakdown dialog, save flow, minimal back-exit "Save as Draft?" dialog (2 buttons) — scrollbar indicator on the list |
 | `calculator/CalculatorViewModel.kt` | 332 | StateFlow of rows, live totals, save/update sheet, `saveAsDraft()`/`loadDraft()` (draft load via `loadDraftId` nav arg) |
-| `calculator/components/DashboardCard.kt` | 163 | Summary cards (grand total, pieces, words) — total auto-shrinks to fit |
+| `calculator/components/DashboardCard.kt` | 167 | Summary cards (grand total, pieces, words) — total auto-shrinks to fit |
 | `calculator/components/DenominationRowItem.kt` | 172 | Single denomination row with quantity input (auto-shrink quantity + subtotal) |
-| `calculator/components/QuantityPickerSheet.kt` | 510 | Quantity sheet: pending value edited by stepper/presets/custom input, full-width OK commits, live total preview, hold-to-repeat steppers |
+| `calculator/components/QuantityPickerSheet.kt` | 524 | Quantity sheet: pending value edited by stepper/presets/custom input, full-width OK commits, live total preview, hold-to-repeat steppers, scrollbar indicator |
 | `history/HistoryScreen.kt` | 388 | History list: search, rename, duplicate, pin, favorite, restore deleted, stats |
 | `history/HistoryViewModel.kt` | 123 | History state, filters, actions |
-| `changelog/ChangelogScreen.kt` | 248 | Full-screen changelog: TopAppBar, release cards, Latest badge, loading/error/empty states |
+| `changelog/ChangelogScreen.kt` | 261 | Full-screen changelog: TopAppBar, release cards, Latest badge, loading/error/empty states — scrollbar indicator |
 | `changelog/ChangelogViewModel.kt` | 67 | Changelog state (`ChangelogStatus`), language flow, `loadChangelog()` fetch |
-| `update/UpdateScreen.kt` | 733 | Full-screen Pixel-style updater: checking / up-to-date (green check) / available (name, version, build, size, changelog) / downloading ("Getting file…" + bytes + cancel) / ready / error; shares `SettingsViewModel` via `activityViewModels()` |
-| `about/AboutScreen.kt` | 552 | Full-screen about (English-only content): bundled GitHub avatar, author name, tagline + brief, links (website/github/telegram/email/source code), dynamic-year footer, 7-tap easter egg ("Money Master" dialog → full-screen money animation) |
-| `settingsdetail/SettingsDetailScreen.kt` | 1580 | Full-page Theme / Language / Currency / Miscellaneous detail view (shared `SettingsViewModel`, live updates, biometric toggle for App Lock — fingerprint or device screen lock) |
+| `update/UpdateScreen.kt` | 756 | Full-screen Pixel-style updater: checking / up-to-date (green check) / available (name, version, build, size, changelog) / downloading ("Getting file…" + bytes + cancel) / ready / error; shares `SettingsViewModel` via `activityViewModels()`; scrollbar indicator on every scrollable state |
+| `about/AboutScreen.kt` | 563 | Full-screen about (English-only content): bundled GitHub avatar, author name, tagline + brief, links (website/github/telegram/email/source code), dynamic-year footer, 7-tap easter egg ("Money Master" dialog → full-screen money animation), scrollbar indicator |
+| `settingsdetail/SettingsDetailScreen.kt` | 1591 | Full-page Theme / Language / Currency / Miscellaneous detail view (shared `SettingsViewModel`, live updates, biometric toggle for App Lock — fingerprint or device screen lock) — scrollbar indicator |
 | `settingsdetail/SettingsSection.kt` | 17 | `SettingsSection` enum (THEME/LANGUAGE/CURRENCY/MISCELLANEOUS) with route params |
-| `report/ReportScreen.kt` | 482 | Report view: sheet summary, notes, export (PDF/CSV/TXT), print, share; draft mode shows "Load into Calculator" |
+| `report/ReportScreen.kt` | 493 | Report view: sheet summary, notes, export (PDF/CSV/TXT), print, share; draft mode shows "Load into Calculator" — scrollbar indicator |
 | `report/ReportViewModel.kt` | 137 | Report state, export/print/share orchestration; `fromDraft` loads via `getDraftById` |
 | `draft/DraftScreen.kt` | 322 | Saved-draft list (top-right discard per card, "In Words" line), discard-confirmation dialog, tap card → report |
 | `settings/SettingsScreen.kt` | 361 | Compact card list: Theme / Language / Currency / Miscellaneous (→ full-page, rows show current selection), Backup & Restore, Updates (→ Update screen), Changelog (→ full-page), Reset All, About (→ full-page) — restore dialog with 15s countdown; Draft row (→ draft page) |
 | `settings/SettingsViewModel.kt` | 679 | All settings state + backup/restore/reset actions (15s restore countdown) + OTA state machine (`UpdateStatus`, check/download/cancel/dismiss) + draft state (`getAllDrafts` collect, `saveDraftToHistory`, discard dialog) + drafts in backup (v2) / restore |
-| `onboarding/OnboardingScreen.kt` | 427 | First-launch wizard (language, feature tour, lock prompt) |
+| `onboarding/OnboardingScreen.kt` | 439 | First-launch wizard (language, feature tour, lock prompt) — scrollbar indicator on the page content |
 | `onboarding/OnboardingViewModel.kt` | 89 | Onboarding state + completion persistence |
 
 ### util/ — Pure Helpers

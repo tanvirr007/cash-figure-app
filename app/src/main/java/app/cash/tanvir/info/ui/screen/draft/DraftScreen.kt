@@ -289,7 +289,7 @@ private fun DraftRowItem(
                     "${BanglaDigitConverter.toBangla(draft.totalPieces)}টি নোট • " +
                         DateTimeFormatter.format(draft.updatedAt, isBangla = true)
                 } else {
-                    "${draft.totalPieces} pieces • ${DateTimeFormatter.format(draft.updatedAt, isBangla = false)}"
+                    "${if (draft.totalPieces == 1L) "1 piece" else "${draft.totalPieces} pieces"} • ${DateTimeFormatter.format(draft.updatedAt, isBangla = false)}"
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)

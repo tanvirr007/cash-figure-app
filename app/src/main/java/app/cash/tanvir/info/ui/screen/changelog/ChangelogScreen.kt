@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -40,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.domain.model.ChangelogItem
 import app.cash.tanvir.info.domain.model.ReleaseChangelog
+import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.DateTimeFormatter
 import app.cash.tanvir.info.util.HapticHelper
@@ -130,34 +133,44 @@ fun ChangelogScreen(
                 }
             }
             ChangelogStatus.LOADED -> {
-                LazyColumn(
+                val listState = rememberLazyListState()
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(padding),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(padding)
                 ) {
-                    if (uiState.changelog.isEmpty()) {
-                        item {
-                            Text(
-                                text = if (isBangla) "কোনো রিলিজ পাওয়া যায়নি।" else "No releases found.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 32.dp),
-                                textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                            )
-                        }
-                    } else {
-                        itemsIndexed(uiState.changelog) { index, release ->
-                            ReleaseChangelogCard(
-                                isBangla = isBangla,
-                                release = release,
-                                isLatest = index == 0
-                            )
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        if (uiState.changelog.isEmpty()) {
+                            item {
+                                Text(
+                                    text = if (isBangla) "কোনো রিলিজ পাওয়া যায়নি।" else "No releases found.",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 32.dp),
+                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                )
+                            }
+                        } else {
+                            itemsIndexed(uiState.changelog) { index, release ->
+                                ReleaseChangelogCard(
+                                    isBangla = isBangla,
+                                    release = release,
+                                    isLatest = index == 0
+                                )
+                            }
                         }
                     }
+                    VerticalScrollbarIndicator(
+                        state = listState,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    )
                 }
             }
         }

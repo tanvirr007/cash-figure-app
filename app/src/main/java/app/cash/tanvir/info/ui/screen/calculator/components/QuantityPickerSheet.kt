@@ -63,6 +63,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.cash.tanvir.info.ui.components.AutoShrinkText
+import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.screen.calculator.CalculatorViewModel
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
@@ -124,254 +125,267 @@ fun QuantityPickerSheet(
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(start = 20.dp, end = 20.dp, bottom = 32.dp)
+        val scrollState = rememberScrollState()
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            // Header: denomination + Clear
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(scrollState)
+                    .padding(start = 20.dp, end = 20.dp, bottom = 32.dp)
             ) {
-                Text(
-                    text = denominationLabel,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = {
-                    HapticHelper.vibrate(context)
-                    onQuantityChange("")
-                    focusManager.clearFocus()
-                    onDismiss()
-                }) {
-                    Text(
-                        text = if (isBangla) "মুছুন" else "Clear",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(4.dp))
-
-            // Stepper with hold-to-repeat
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                HoldToRepeatButton(
-                    icon = Icons.Rounded.Remove,
-                    contentDescription = if (isBangla) "এক কম করুন" else "Decrease by one",
-                    enabled = (pendingValue ?: 0) > 1,
-                    onPress = {
-                        HapticHelper.vibrate(context)
-                        setPending(((pendingValue ?: 0) - 1).coerceAtLeast(1).toString())
-                    },
-                    onRepeat = { setPending(((pendingValue ?: 0) - 1).coerceAtLeast(1).toString()) }
-                )
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                // Header: denomination + Clear
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    AutoShrinkText(
-                        text = if (isBangla) BanglaDigitConverter.toBangla(pendingValue ?: 0) else (pendingValue ?: 0).toString(),
-                        style = MaterialTheme.typography.displayMedium.copy(
-                            fontSize = 44.sp,
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = if (pendingValue != null) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
-                        },
-                        minFontSize = 26.sp,
-                        modifier = Modifier.fillMaxWidth()
-                    )
                     Text(
-                        text = if (isBangla) "টি নোট" else "pieces",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        text = denominationLabel,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(onClick = {
+                        HapticHelper.vibrate(context)
+                        onQuantityChange("")
+                        focusManager.clearFocus()
+                        onDismiss()
+                    }) {
+                        Text(
+                            text = if (isBangla) "মুছুন" else "Clear",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+
+                // Stepper with hold-to-repeat
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    HoldToRepeatButton(
+                        icon = Icons.Rounded.Remove,
+                        contentDescription = if (isBangla) "এক কম করুন" else "Decrease by one",
+                        enabled = (pendingValue ?: 0) > 1,
+                        onPress = {
+                            HapticHelper.vibrate(context)
+                            setPending(((pendingValue ?: 0) - 1).coerceAtLeast(1).toString())
+                        },
+                        onRepeat = { setPending(((pendingValue ?: 0) - 1).coerceAtLeast(1).toString()) }
+                    )
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AutoShrinkText(
+                            text = if (isBangla) BanglaDigitConverter.toBangla(pendingValue ?: 0) else (pendingValue ?: 0).toString(),
+                            style = MaterialTheme.typography.displayMedium.copy(
+                                fontSize = 44.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = if (pendingValue != null) {
+                                MaterialTheme.colorScheme.onSurface
+                            } else {
+                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
+                            },
+                            minFontSize = 26.sp,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Text(
+                            text = when {
+                                isBangla -> "টি নোট"
+                                pendingValue == 1 -> "piece"
+                                else -> "pieces"
+                            },
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    HoldToRepeatButton(
+                        icon = Icons.Rounded.Add,
+                        contentDescription = if (isBangla) "এক বেশি করুন" else "Increase by one",
+                        enabled = (pendingValue ?: 0) < CalculatorViewModel.MAX_QUANTITY,
+                        onPress = {
+                            HapticHelper.vibrate(context)
+                            setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString())
+                        },
+                        onRepeat = { setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString()) }
                     )
                 }
-                HoldToRepeatButton(
-                    icon = Icons.Rounded.Add,
-                    contentDescription = if (isBangla) "এক বেশি করুন" else "Increase by one",
-                    enabled = (pendingValue ?: 0) < CalculatorViewModel.MAX_QUANTITY,
-                    onPress = {
-                        HapticHelper.vibrate(context)
-                        setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString())
-                    },
-                    onRepeat = { setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString()) }
-                )
-            }
-            Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-            // Preset grid (4 per row) + Custom
-            FlowRow(
-                maxItemsInEachRow = 4,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CalculatorViewModel.QUANTITY_PRESETS.forEach { preset ->
+                // Preset grid (4 per row) + Custom
+                FlowRow(
+                    maxItemsInEachRow = 4,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CalculatorViewModel.QUANTITY_PRESETS.forEach { preset ->
+                        PresetChip(
+                            label = if (isBangla) BanglaDigitConverter.toBangla(preset) else preset.toString(),
+                            selected = pendingValue == preset,
+                            modifier = Modifier.weight(1f),
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                if (pendingValue == preset) {
+                                    setPending("")
+                                } else {
+                                    setPending(preset.toString())
+                                }
+                            }
+                        )
+                    }
                     PresetChip(
-                        label = if (isBangla) BanglaDigitConverter.toBangla(preset) else preset.toString(),
-                        selected = pendingValue == preset,
+                        label = if (isBangla) "নিজের সংখ্যা" else "Custom",
+                        selected = showCustom,
                         modifier = Modifier.weight(1f),
                         onClick = {
                             HapticHelper.vibrate(context)
-                            if (pendingValue == preset) {
-                                setPending("")
-                            } else {
-                                setPending(preset.toString())
+                            showCustom = !showCustom
+                            if (showCustom) {
+                                // Pre-fill with the current pending value for quick tweaks
+                                customInput = if (pendingValue != null) pendingValue.toString() else ""
                             }
                         }
                     )
                 }
-                PresetChip(
-                    label = if (isBangla) "নিজের সংখ্যা" else "Custom",
-                    selected = showCustom,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        HapticHelper.vibrate(context)
-                        showCustom = !showCustom
-                        if (showCustom) {
-                            // Pre-fill with the current pending value for quick tweaks
-                            customInput = if (pendingValue != null) pendingValue.toString() else ""
-                        }
-                    }
-                )
-            }
 
-            // Inline custom input
-            if (showCustom) {
-                Spacer(modifier = Modifier.height(16.dp))
-                OutlinedTextField(
-                    value = customInput,
-                    onValueChange = { input ->
-                        val western = BanglaDigitConverter.toWestern(input)
-                        val filtered = western.filter { it.isDigit() }
-                        if (filtered.length <= 5) {
-                            setPending(filtered)
+                // Inline custom input
+                if (showCustom) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    OutlinedTextField(
+                        value = customInput,
+                        onValueChange = { input ->
+                            val western = BanglaDigitConverter.toWestern(input)
+                            val filtered = western.filter { it.isDigit() }
+                            if (filtered.length <= 5) {
+                                setPending(filtered)
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(customFocusRequester),
+                        label = { Text(if (isBangla) "নিজের সংখ্যা লিখুন" else "Type a number") },
+                        placeholder = {
+                            Text(
+                                text = if (isBangla) "যেমন: ৭৩" else "e.g. 73",
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(14.dp),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                focusManager.clearFocus()
+                            }
+                        ),
+                        supportingText = {
+                            Text(
+                                text = if (isBangla) "সর্বনিম্ন ১, সর্বোচ্চ ৯৯,৯৯৯" else "Min 1, max 99,999",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
-                    },
+                    )
+                }
+
+                // Live breakdown footer — previews what OK will commit
+                Spacer(modifier = Modifier.height(20.dp))
+                val pendingRow = pendingValue ?: 0
+                val rowTotal = denominationValue.toLong() * pendingRow
+                val previewGrandTotal = grandTotal - denominationValue.toLong() * currentQty + rowTotal
+                val rowTotalFormatted = CurrencyFormatter.format(rowTotal, useBengaliDigits = isBangla)
+                val previewGrandFormatted = CurrencyFormatter.format(previewGrandTotal, useBengaliDigits = isBangla)
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .focusRequester(customFocusRequester),
-                    label = { Text(if (isBangla) "নিজের সংখ্যা লিখুন" else "Type a number") },
-                    placeholder = {
-                        Text(
-                            text = if (isBangla) "যেমন: ৭৩" else "e.g. 73",
-                            style = MaterialTheme.typography.bodyMedium
+                        .background(
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                            shape = RoundedCornerShape(16.dp)
                         )
-                    },
-                    singleLine = true,
-                    shape = RoundedCornerShape(14.dp),
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            focusManager.clearFocus()
-                        }
-                    ),
-                    supportingText = {
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         Text(
-                            text = if (isBangla) "সর্বনিম্ন ১, সর্বোচ্চ ৯৯,৯৯৯" else "Min 1, max 99,999",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = if (isBangla) {
+                                "$denominationLabel × ${BanglaDigitConverter.toBangla(pendingRow)}"
+                            } else {
+                                "$denominationLabel × $pendingRow"
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        AutoShrinkText(
+                            text = rowTotalFormatted,
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface,
+                            textAlign = TextAlign.End,
+                            minFontSize = 10.sp,
+                            modifier = Modifier.weight(1f)
                         )
                     }
-                )
-            }
-
-            // Live breakdown footer — previews what OK will commit
-            Spacer(modifier = Modifier.height(20.dp))
-            val pendingRow = pendingValue ?: 0
-            val rowTotal = denominationValue.toLong() * pendingRow
-            val previewGrandTotal = grandTotal - denominationValue.toLong() * currentQty + rowTotal
-            val rowTotalFormatted = CurrencyFormatter.format(rowTotal, useBengaliDigits = isBangla)
-            val previewGrandFormatted = CurrencyFormatter.format(previewGrandTotal, useBengaliDigits = isBangla)
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-                        shape = RoundedCornerShape(16.dp)
-                    )
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if (isBangla) {
-                            "$denominationLabel × ${BanglaDigitConverter.toBangla(pendingRow)}"
-                        } else {
-                            "$denominationLabel × $pendingRow"
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    AutoShrinkText(
-                        text = rowTotalFormatted,
-                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        textAlign = TextAlign.End,
-                        minFontSize = 10.sp,
-                        modifier = Modifier.weight(1f)
-                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (isBangla) "সর্বমোট" else "Grand Total",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        AutoShrinkText(
+                            text = previewGrandFormatted,
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.End,
+                            minFontSize = 10.sp,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+
+                // Commit button — the only way pending becomes the row value
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        commit()
+                    },
+                    enabled = pendingValue != null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     Text(
-                        text = if (isBangla) "সর্বমোট" else "Grand Total",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    AutoShrinkText(
-                        text = previewGrandFormatted,
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.End,
-                        minFontSize = 10.sp,
-                        modifier = Modifier.weight(1f)
+                        text = if (isBangla) "ঠিক আছে" else "OK",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
-
-            // Commit button — the only way pending becomes the row value
-            Spacer(modifier = Modifier.height(24.dp))
-            Button(
-                onClick = {
-                    HapticHelper.vibrate(context)
-                    commit()
-                },
-                enabled = pendingValue != null,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp),
-                shape = RoundedCornerShape(14.dp)
-            ) {
-                Text(
-                    text = if (isBangla) "ঠিক আছে" else "OK",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            VerticalScrollbarIndicator(
+                state = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
         }
     }
 }

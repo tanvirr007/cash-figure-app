@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
+import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.theme.fontFamilyFor
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.HapticHelper
@@ -103,38 +104,49 @@ fun OnboardingScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            Column(
+            val scrollState = rememberScrollState()
+            Box(
                 modifier = Modifier
                     .weight(1f)
-                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
             ) {
-                when (uiState.pageIndex) {
-                    0 -> LanguagePage(
-                        isBangla = isBangla,
-                        selected = uiState.language,
-                        onSelect = { lang ->
-                            HapticHelper.vibrate(context)
-                            viewModel.selectLanguage(lang)
-                        }
-                    )
-                    1 -> FontPage(
-                        isBangla = isBangla,
-                        selected = uiState.font,
-                        onSelect = { font ->
-                            HapticHelper.vibrate(context)
-                            viewModel.selectFont(font)
-                        }
-                    )
-                    2 -> ThemePage(
-                        isBangla = isBangla,
-                        selected = uiState.theme,
-                        onSelect = { theme ->
-                            HapticHelper.vibrate(context)
-                            viewModel.selectTheme(theme)
-                        }
-                    )
-                    else -> DonePage(isBangla = isBangla)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                ) {
+                    when (uiState.pageIndex) {
+                        0 -> LanguagePage(
+                            isBangla = isBangla,
+                            selected = uiState.language,
+                            onSelect = { lang ->
+                                HapticHelper.vibrate(context)
+                                viewModel.selectLanguage(lang)
+                            }
+                        )
+                        1 -> FontPage(
+                            isBangla = isBangla,
+                            selected = uiState.font,
+                            onSelect = { font ->
+                                HapticHelper.vibrate(context)
+                                viewModel.selectFont(font)
+                            }
+                        )
+                        2 -> ThemePage(
+                            isBangla = isBangla,
+                            selected = uiState.theme,
+                            onSelect = { theme ->
+                                HapticHelper.vibrate(context)
+                                viewModel.selectTheme(theme)
+                            }
+                        )
+                        else -> DonePage(isBangla = isBangla)
+                    }
                 }
+                VerticalScrollbarIndicator(
+                    state = scrollState,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                )
             }
 
             Row(

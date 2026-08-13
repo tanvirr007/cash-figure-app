@@ -87,6 +87,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppFont
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.data.local.preferences.AppTheme
+import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
 import app.cash.tanvir.info.ui.theme.cashFigureColorScheme
 import app.cash.tanvir.info.ui.theme.fontFamilyFor
@@ -266,116 +267,126 @@ fun SettingsDetailScreen(
             }
         }
     ) { padding ->
-        Column(
+        val scrollState = rememberScrollState()
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
         ) {
-            when (section) {
-                SettingsSection.THEME -> {
-                    SectionHeader(
-                        title = if (isBangla) "অ্যাপের থিম" else "App Theme",
-                        subtitle = if (isBangla) "থিম বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a theme, preview it, then apply"
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    ThemeContent(
-                        isBangla = isBangla,
-                        pendingTheme = pendingTheme,
-                        dynamicColorEnabled = uiState.dynamicColorEnabled,
-                        onSelect = { theme ->
-                            HapticHelper.vibrate(context)
-                            pendingThemeName = theme.name
-                        }
-                    )
-                }
-                SettingsSection.LANGUAGE -> {
-                    SectionHeader(
-                        title = if (isBangla) "ভাষা" else "Language",
-                        subtitle = if (isBangla) "ভাষা বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a language, preview it, then apply"
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    LanguageContent(
-                        isBangla = isBangla,
-                        pendingLang = pendingLang,
-                        onSelect = { lang ->
-                            HapticHelper.vibrate(context)
-                            pendingLangName = lang.name
-                        }
-                    )
-                }
-                SettingsSection.FONT -> {
-                    SectionHeader(
-                        title = if (isBangla) "ফন্ট" else "Font",
-                        subtitle = if (isBangla) "ফন্ট বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a font, preview it, then apply"
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    FontContent(
-                        isBangla = isBangla,
-                        pendingFont = pendingFont,
-                        onSelect = { font ->
-                            HapticHelper.vibrate(context)
-                            pendingFontName = font.name
-                        }
-                    )
-                }
-                SettingsSection.CURRENCY -> {
-                    SectionHeader(
-                        title = if (isBangla) "নোট" else "Currency",
-                        subtitle = if (isBangla) "ক্যালকুলেটরে কোন নোটগুলো দেখানো হবে তা বেছে নিন" else "Pick which notes show on the calculator homepage"
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    CurrencyContent(
-                        isBangla = isBangla,
-                        disabledDenominations = uiState.disabledDenominations,
-                        onToggle = { value, checked -> viewModel.toggleDenomination(value, checked) }
-                    )
-                }
-                SettingsSection.MISCELLANEOUS -> {
-                    MiscellaneousContent(
-                        isBangla = isBangla,
-                        biometricEnabled = uiState.biometricEnabled,
-                        screenshotBlockEnabled = uiState.screenshotBlockEnabled,
-                        keepScreenOnEnabled = uiState.keepScreenOnEnabled,
-                        dynamicColorEnabled = uiState.dynamicColorEnabled,
-                        hapticEnabled = uiState.hapticFeedbackEnabled,
-                        hapticIntensity = uiState.hapticFeedbackIntensity,
-                        onBiometricToggle = onBiometricToggle,
-                        onScreenshotToggle = { checked -> viewModel.setScreenshotBlockEnabled(checked) },
-                        onKeepScreenOnToggle = { checked ->
-                            HapticHelper.vibrate(context)
-                            viewModel.setKeepScreenOnEnabled(checked)
-                        },
-                        onDynamicColorToggle = { checked ->
-                            HapticHelper.vibrate(context)
-                            viewModel.setDynamicColorEnabled(checked)
-                        },
-                        onHapticToggle = { checked -> viewModel.setHapticFeedbackEnabled(checked) },
-                        onIntensityChange = { v -> viewModel.setHapticFeedbackIntensity(v) }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    BackupRestoreCard(
-                        isBangla = isBangla,
-                        onBackup = {
-                            HapticHelper.vibrate(context)
-                            viewModel.backupData(context)
-                        },
-                        onRestore = {
-                            HapticHelper.vibrate(context)
-                            restoreFileLauncher.launch("application/json")
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    ResetAllCard(
-                        isBangla = isBangla,
-                        onClick = {
-                            HapticHelper.vibrate(context)
-                            viewModel.openResetDialog()
-                        }
-                    )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp)
+                    .verticalScroll(scrollState)
+            ) {
+                when (section) {
+                    SettingsSection.THEME -> {
+                        SectionHeader(
+                            title = if (isBangla) "অ্যাপের থিম" else "App Theme",
+                            subtitle = if (isBangla) "থিম বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a theme, preview it, then apply"
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        ThemeContent(
+                            isBangla = isBangla,
+                            pendingTheme = pendingTheme,
+                            dynamicColorEnabled = uiState.dynamicColorEnabled,
+                            onSelect = { theme ->
+                                HapticHelper.vibrate(context)
+                                pendingThemeName = theme.name
+                            }
+                        )
+                    }
+                    SettingsSection.LANGUAGE -> {
+                        SectionHeader(
+                            title = if (isBangla) "ভাষা" else "Language",
+                            subtitle = if (isBangla) "ভাষা বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a language, preview it, then apply"
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        LanguageContent(
+                            isBangla = isBangla,
+                            pendingLang = pendingLang,
+                            onSelect = { lang ->
+                                HapticHelper.vibrate(context)
+                                pendingLangName = lang.name
+                            }
+                        )
+                    }
+                    SettingsSection.FONT -> {
+                        SectionHeader(
+                            title = if (isBangla) "ফন্ট" else "Font",
+                            subtitle = if (isBangla) "ফন্ট বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a font, preview it, then apply"
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        FontContent(
+                            isBangla = isBangla,
+                            pendingFont = pendingFont,
+                            onSelect = { font ->
+                                HapticHelper.vibrate(context)
+                                pendingFontName = font.name
+                            }
+                        )
+                    }
+                    SettingsSection.CURRENCY -> {
+                        SectionHeader(
+                            title = if (isBangla) "নোট" else "Currency",
+                            subtitle = if (isBangla) "ক্যালকুলেটরে কোন নোটগুলো দেখানো হবে তা বেছে নিন" else "Pick which notes show on the calculator homepage"
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        CurrencyContent(
+                            isBangla = isBangla,
+                            disabledDenominations = uiState.disabledDenominations,
+                            onToggle = { value, checked -> viewModel.toggleDenomination(value, checked) }
+                        )
+                    }
+                    SettingsSection.MISCELLANEOUS -> {
+                        MiscellaneousContent(
+                            isBangla = isBangla,
+                            biometricEnabled = uiState.biometricEnabled,
+                            screenshotBlockEnabled = uiState.screenshotBlockEnabled,
+                            keepScreenOnEnabled = uiState.keepScreenOnEnabled,
+                            dynamicColorEnabled = uiState.dynamicColorEnabled,
+                            hapticEnabled = uiState.hapticFeedbackEnabled,
+                            hapticIntensity = uiState.hapticFeedbackIntensity,
+                            onBiometricToggle = onBiometricToggle,
+                            onScreenshotToggle = { checked -> viewModel.setScreenshotBlockEnabled(checked) },
+                            onKeepScreenOnToggle = { checked ->
+                                HapticHelper.vibrate(context)
+                                viewModel.setKeepScreenOnEnabled(checked)
+                            },
+                            onDynamicColorToggle = { checked ->
+                                HapticHelper.vibrate(context)
+                                viewModel.setDynamicColorEnabled(checked)
+                            },
+                            onHapticToggle = { checked -> viewModel.setHapticFeedbackEnabled(checked) },
+                            onIntensityChange = { v -> viewModel.setHapticFeedbackIntensity(v) }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        BackupRestoreCard(
+                            isBangla = isBangla,
+                            onBackup = {
+                                HapticHelper.vibrate(context)
+                                viewModel.backupData(context)
+                            },
+                            onRestore = {
+                                HapticHelper.vibrate(context)
+                                restoreFileLauncher.launch("application/json")
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        ResetAllCard(
+                            isBangla = isBangla,
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                viewModel.openResetDialog()
+                            }
+                        )
+                    }
                 }
             }
+            VerticalScrollbarIndicator(
+                state = scrollState,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
         }
     }
 

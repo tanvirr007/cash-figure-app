@@ -59,6 +59,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.domain.model.DownloadedUpdate
 import app.cash.tanvir.info.domain.model.UpdateManifest
+import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.screen.settings.SettingsViewModel
 import app.cash.tanvir.info.ui.screen.settings.UpdateErrorType
 import app.cash.tanvir.info.ui.screen.settings.UpdateStatus
@@ -231,47 +232,54 @@ fun UpdateScreen(
                         }
 
                         else -> {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .verticalScroll(rememberScrollState())
-                            ) {
-                                when (uiState.updateStatus) {
-                                    UpdateStatus.IDLE, UpdateStatus.CHECKING -> {
-                                        CheckingContent(isBangla = isBangla)
-                                    }
+                            val scrollState = rememberScrollState()
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .verticalScroll(scrollState)
+                                ) {
+                                    when (uiState.updateStatus) {
+                                        UpdateStatus.IDLE, UpdateStatus.CHECKING -> {
+                                            CheckingContent(isBangla = isBangla)
+                                        }
 
-                                    UpdateStatus.UPDATE_AVAILABLE -> {
-                                        uiState.updateManifest?.let { manifest ->
-                                            UpdateAvailableContent(
+                                        UpdateStatus.UPDATE_AVAILABLE -> {
+                                            uiState.updateManifest?.let { manifest ->
+                                                UpdateAvailableContent(
+                                                    isBangla = isBangla,
+                                                    manifest = manifest,
+                                                    onDownload = {
+                                                        HapticHelper.vibrate(context)
+                                                        viewModel.downloadUpdate()
+                                                    }
+                                                )
+                                            }
+                                        }
+
+                                        UpdateStatus.INSTALLING -> {
+                                            InstallingContent(isBangla = isBangla)
+                                        }
+
+                                        UpdateStatus.ERROR -> {
+                                            ErrorContent(
                                                 isBangla = isBangla,
-                                                manifest = manifest,
-                                                onDownload = {
+                                                errorType = uiState.updateErrorType,
+                                                errorReason = uiState.updateErrorReason,
+                                                onRetry = {
                                                     HapticHelper.vibrate(context)
-                                                    viewModel.downloadUpdate()
+                                                    viewModel.checkForUpdate(installedName = installedName, installedCode = installedCode, fromManualCheck = true)
                                                 }
                                             )
                                         }
-                                    }
-
-                                    UpdateStatus.INSTALLING -> {
-                                        InstallingContent(isBangla = isBangla)
-                                    }
-
-                                    UpdateStatus.ERROR -> {
-                                        ErrorContent(
-                                            isBangla = isBangla,
-                                            errorType = uiState.updateErrorType,
-                                            errorReason = uiState.updateErrorReason,
-                                            onRetry = {
-                                                HapticHelper.vibrate(context)
-                                                viewModel.checkForUpdate(installedName = installedName, installedCode = installedCode, fromManualCheck = true)
-                                            }
-                                        )
-                                    }
 
                                     else -> Unit
                                 }
+                                }
+                                VerticalScrollbarIndicator(
+                                    state = scrollState,
+                                    modifier = Modifier.align(Alignment.CenterEnd)
+                                )
                             }
                         }
                     }
@@ -331,11 +339,12 @@ private fun UpToDateContent(
     lastSuccessfulCheck: Long?,
     onCheckAgain: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(bottom = 80.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
@@ -393,6 +402,10 @@ private fun UpToDateContent(
                 fontWeight = FontWeight.SemiBold
             )
         }
+        VerticalScrollbarIndicator(
+            state = scrollState,
+            modifier = Modifier.align(Alignment.CenterEnd)
+        )
     }
 }
 
@@ -530,11 +543,12 @@ private fun DownloadingContent(
     progress: Float,
     onCancel: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(bottom = 80.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
@@ -578,6 +592,10 @@ private fun DownloadingContent(
                 fontWeight = FontWeight.SemiBold
             )
         }
+        VerticalScrollbarIndicator(
+            state = scrollState,
+            modifier = Modifier.align(Alignment.CenterEnd)
+        )
     }
 }
 
@@ -587,11 +605,12 @@ private fun DownloadReadyContent(
     versionName: String,
     onInstall: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(bottom = 80.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
@@ -626,6 +645,10 @@ private fun DownloadReadyContent(
                 fontWeight = FontWeight.SemiBold
             )
         }
+        VerticalScrollbarIndicator(
+            state = scrollState,
+            modifier = Modifier.align(Alignment.CenterEnd)
+        )
     }
 }
 
