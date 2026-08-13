@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.domain.model.ChangelogItem
 import app.cash.tanvir.info.domain.model.ReleaseChangelog
@@ -67,7 +69,7 @@ fun ChangelogScreen(
                 title = {
                     Text(
                         text = if (isBangla) "আপডেটের ইতিহাস" else "Changelog",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp),
                         fontWeight = FontWeight.SemiBold
                     )
                 },
@@ -84,7 +86,8 @@ fun ChangelogScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
-                )
+                ),
+                windowInsets = TopAppBarDefaults.windowInsets.exclude(WindowInsets(top = 8.dp))
             )
         }
     ) { padding ->

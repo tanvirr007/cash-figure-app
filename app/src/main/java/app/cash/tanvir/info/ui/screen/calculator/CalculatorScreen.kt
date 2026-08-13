@@ -216,7 +216,7 @@ fun CalculatorScreen(
                     Text(
                         text = if (isBangla) "নোটের হিসাব" else "Cash Breakdown",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.SemiBold
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     if (uiState.totalPieces > 0) {

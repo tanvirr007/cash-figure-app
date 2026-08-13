@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
@@ -92,7 +94,7 @@ fun ReportScreen(
                 title = {
                     Text(
                         text = if (viewModel.fromDraft) (if (isBangla) "ড্রাফট" else "Draft") else (if (isBangla) "রিপোর্ট সেভ ও প্রিন্ট" else "Export & Print Report"),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp),
                         fontWeight = FontWeight.SemiBold
                     )
                 },
@@ -106,7 +108,8 @@ fun ReportScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
-                )
+                ),
+                windowInsets = TopAppBarDefaults.windowInsets.exclude(WindowInsets(top = 8.dp))
             )
         }
     ) { padding ->
@@ -374,7 +377,7 @@ fun ReportScreen(
 
                     // Export / Print / Share only apply to saved History reports, not drafts
                     if (!viewModel.fromDraft) {
-                        Text(if (isBangla) "রিপোর্ট সেভের অপশন" else "Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Text(if (isBangla) "রিপোর্ট সেভের অপশন" else "Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),

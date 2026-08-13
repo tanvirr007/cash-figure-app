@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -84,6 +85,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -225,7 +227,7 @@ fun SettingsDetailScreen(
                 title = {
                     Text(
                         text = title,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp),
                         fontWeight = FontWeight.SemiBold
                     )
                 },
@@ -242,7 +244,8 @@ fun SettingsDetailScreen(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
-                )
+                ),
+                windowInsets = TopAppBarDefaults.windowInsets.exclude(WindowInsets(top = 8.dp))
             )
         },
         bottomBar = {
@@ -289,11 +292,10 @@ fun SettingsDetailScreen(
             ) {
                 when (section) {
                     SettingsSection.THEME -> {
-                        SectionHeader(
-                            title = if (isBangla) "অ্যাপের থিম" else "App Theme",
+                        SectionSubtitle(
                             subtitle = if (isBangla) "থিম বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a theme, preview it, then apply"
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         ThemeContent(
                             isBangla = isBangla,
                             pendingTheme = pendingTheme,
@@ -305,11 +307,10 @@ fun SettingsDetailScreen(
                         )
                     }
                     SettingsSection.LANGUAGE -> {
-                        SectionHeader(
-                            title = if (isBangla) "ভাষা" else "Language",
+                        SectionSubtitle(
                             subtitle = if (isBangla) "ভাষা বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a language, preview it, then apply"
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         LanguageContent(
                             isBangla = isBangla,
                             pendingLang = pendingLang,
@@ -320,11 +321,10 @@ fun SettingsDetailScreen(
                         )
                     }
                     SettingsSection.FONT -> {
-                        SectionHeader(
-                            title = if (isBangla) "ফন্ট" else "Font",
+                        SectionSubtitle(
                             subtitle = if (isBangla) "ফন্ট বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a font, preview it, then apply"
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         FontContent(
                             isBangla = isBangla,
                             pendingFont = pendingFont,
@@ -335,11 +335,10 @@ fun SettingsDetailScreen(
                         )
                     }
                     SettingsSection.CURRENCY -> {
-                        SectionHeader(
-                            title = if (isBangla) "নোট" else "Currency",
+                        SectionSubtitle(
                             subtitle = if (isBangla) "ক্যালকুলেটরে কোন নোটগুলো দেখানো হবে তা বেছে নিন" else "Pick which notes show on the calculator homepage"
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         CurrencyContent(
                             isBangla = isBangla,
                             disabledDenominations = uiState.disabledDenominations,
@@ -606,8 +605,8 @@ private fun BackupRestoreCard(
     SettingsCard {
         Text(
             if (isBangla) "ব্যাকআপ ও পুনরুদ্ধার" else "Backup & Restore",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(6.dp))
         BackupRestoreRow(
@@ -795,8 +794,8 @@ private fun ThemePreviewCard(
     SettingsCard {
         Text(
             if (isBangla) "দেখুন" else "Preview",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(8.dp))
         Column(
@@ -996,9 +995,9 @@ private fun LanguageSampleCard(
     }
     SettingsCard {
         Text(
-            if (isBangla) "নমুনা" else "Sample",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold
+            if (isBangla) "দেখুন" else "Preview",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(8.dp))
         LanguageSampleRow(
@@ -1165,8 +1164,8 @@ private fun CurrencySummaryCard(
     SettingsCard {
         Text(
             if (isBangla) "সারসংক্ষেপ" else "Summary",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(10.dp))
         Text(
@@ -1215,14 +1214,8 @@ private fun CurrencySummaryCard(
 }
 
 @Composable
-private fun SectionHeader(title: String, subtitle: String) {
+private fun SectionSubtitle(subtitle: String) {
     Column(modifier = Modifier.padding(horizontal = 4.dp)) {
-        Text(
-            title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-        Spacer(modifier = Modifier.height(2.dp))
         Text(
             subtitle,
             style = MaterialTheme.typography.bodySmall,
@@ -1336,10 +1329,10 @@ private fun MiscellaneousContent(
 private fun GroupLabel(text: String) {
     Text(
         text = text,
-        style = MaterialTheme.typography.bodySmall,
+        style = MaterialTheme.typography.titleMedium,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
     )
 }
 
@@ -1536,8 +1529,8 @@ private fun FontPreviewCard(
     SettingsCard {
         Text(
             if (isBangla) "দেখুন" else "Preview",
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold
         )
         Spacer(modifier = Modifier.height(8.dp))
         Column(
