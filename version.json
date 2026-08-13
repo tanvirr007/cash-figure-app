@@ -1,7 +1,7 @@
 {
-  "versionCode": 72,
-  "versionName": "v4.4.27",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.27/CashFigure.apk",
-  "changelog": "* **fix: draw app bars behind status bar** (953d009)\n  - Stop the outer nav scaffold padding the host below the status bar.\n  - Apply edge-to-edge once in onCreate before setContent.\n  - App bar surfaces now extend behind the status bar on every screen.\n* **docs: shorten play protect notice in about** (9488ce9)\n  - Trim the Play Protect warning so it fits in three lines.\n  - Keep the same meaning in a natural voice.\n* **fix: drop custom chip ripple for good** (7a58496)\n  - Replace the custom chip clickable with plain tap detection so no\n    ripple indication node exists at all.\n  - Keep button semantics for TalkBack on the custom chip.\n  - Preset chips keep their normal ripple.\n* **fix: hide clear all when calculator is empty** (c56c767)\n  - Hide Clear All icon on total card when there is nothing to clear.\n  - Remove unused idle check and dead nothing-to-clear toast branch.\n",
+  "versionCode": 73,
+  "versionName": "v4.4.28",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.28/CashFigure.apk",
+  "changelog": "* **docs: badge-only credits, add DrDisagree** (307e44d)\n* **feat: show scrollbar only while scrolling** (63387f8)\n  - Scrollbar (track + thumb) now fades in on drag/fling and fades out ~1s after scrolling stops\n  - Applies to all screens via the shared VerticalScrollbarIndicator\n  - Non-scrolling overflow content still hides the bar\n  TEST: not run — visual-only change; build on Windows (gradlew.bat assembleDebug)\n* **docs: drop tagline from release title** (96f31c2)\n* **fix: drop ripple from quantity presets** (bcb8150)\n  - Quantity preset chips now use the same ripple-free tap path (detectTapGestures + semantics) as the Custom chip\n  - Selection highlight via background/border is unchanged\n  TEST: not run — visual-only change\n",
   "fileSize": 6211354
 }

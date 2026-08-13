@@ -1,6 +1,35 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.28",
+      "publishedAt": "2026-08-13T18:44:39Z",
+      "items": [
+        {
+          "title": "docs: badge-only credits, add DrDisagree",
+          "subItems": []
+        },
+        {
+          "title": "feat: show scrollbar only while scrolling",
+          "subItems": [
+            "Scrollbar (track + thumb) now fades in on drag/fling and fades out ~1s after scrolling stops",
+            "Applies to all screens via the shared VerticalScrollbarIndicator",
+            "Non-scrolling overflow content still hides the bar"
+          ]
+        },
+        {
+          "title": "docs: drop tagline from release title",
+          "subItems": []
+        },
+        {
+          "title": "fix: drop ripple from quantity presets",
+          "subItems": [
+            "Quantity preset chips now use the same ripple-free tap path (detectTapGestures + semantics) as the Custom chip",
+            "Selection highlight via background/border is unchanged"
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.27",
       "publishedAt": "2026-08-13T18:13:08Z",
       "items": [
