@@ -1,6 +1,24 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.21",
+      "publishedAt": "2026-08-13T04:00:27Z",
+      "items": [
+        {
+          "title": "feat: persistent bottom tabs and draft-style history cards",
+          "subItems": [
+            "Add a single outer scaffold with a persistent bottom tab bar for Calculator, History, and Settings.",
+            "Switch tabs with popUpTo, launchSingleTop, and saved state so nothing stacks twice.",
+            "Drop the redundant back arrows on History and Settings.",
+            "Fix the notes field so the whole input is tappable and selectable.",
+            "Add an idle hint to the cash breakdown card and keep last-updated fresh.",
+            "Long-press a preset chip to apply it without closing the picker.",
+            "Redesign history cards like draft cards with corner actions and amounts in words."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.20",
       "publishedAt": "2026-08-13T03:27:05Z",
       "items": [

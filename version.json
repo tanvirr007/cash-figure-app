@@ -1,7 +1,7 @@
 {
-  "versionCode": 60,
-  "versionName": "v4.4.20",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.20/CashFigure.apk",
-  "changelog": "* **fix: resolve release build compile errors** (3000506)\n  - Use the Calculate icon name instead of the nonexistent Calculator.\n  - Add the missing Spacer and height imports to the dashboard card.\n  - Add the missing Column import to the denomination row item.\n  - Rework stepper semantics onto clickable with a repeat-suppression flag.\n* **feat: redesign home screen and add onboarding for 4.4.20** (3118b70)\n  - Add bottom navigation bar with Calculator, History, and Settings.\n  - Add smart quantity picker sheet with presets, stepper, custom input, and live breakdown.\n  - Turn denomination rows into one connected Cash Breakdown card.\n  - Add grand total dashboard with last-updated time and corner clear.\n  - Move Save into a floating action button and drop the redundant breakdown dialog.\n  - Add first-launch onboarding wizard for language, font, and theme.\n  - Harden light/dark themes with neutral ramps and contained dynamic color.\n  - Add hidden Android-style easter egg to the About version row.\n  - Bump app version to 4.4.20.\n",
+  "versionCode": 61,
+  "versionName": "v4.4.21",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.21/CashFigure.apk",
+  "changelog": "* **feat: persistent bottom tabs and draft-style history cards** (423353b)\n  - Add a single outer scaffold with a persistent bottom tab bar for Calculator, History, and Settings.\n  - Switch tabs with popUpTo, launchSingleTop, and saved state so nothing stacks twice.\n  - Drop the redundant back arrows on History and Settings.\n  - Fix the notes field so the whole input is tappable and selectable.\n  - Add an idle hint to the cash breakdown card and keep last-updated fresh.\n  - Long-press a preset chip to apply it without closing the picker.\n  - Redesign history cards like draft cards with corner actions and amounts in words.\n",
   "fileSize": 6211374
 }
