@@ -78,7 +78,6 @@ fun CalculatorScreen(
     val context = LocalContext.current
     val isCompact = LocalConfiguration.current.screenWidthDp < 360
     val isBangla = uiState.currentLanguage == AppLanguage.BANGLA
-    val isIdle = uiState.quantities.values.all { it.isEmpty() }
     var showClearAllConfirmation by remember { mutableStateOf(false) }
     var showAddNotesDialog by remember { mutableStateOf(false) }
     var showExitWithDraftDialog by remember { mutableStateOf(false) }
@@ -191,15 +190,7 @@ fun CalculatorScreen(
                     totalPieces = uiState.totalPieces,
                     activeDenominations = uiState.activeDenominations,
                     isBangla = isBangla,
-                    onClearAll = {
-                        if (isIdle) {
-                            val msg = if (isBangla) "মুছে ফেলার মতো কিছু নেই" else "Nothing to clear"
-                            activeToast?.cancel()
-                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
-                        } else {
-                            showClearAllConfirmation = true
-                        }
-                    },
+                    onClearAll = { showClearAllConfirmation = true },
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 )
                 Spacer(modifier = Modifier.height(12.dp))

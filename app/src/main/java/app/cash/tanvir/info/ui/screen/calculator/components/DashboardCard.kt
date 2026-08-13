@@ -135,8 +135,8 @@ fun DashboardCard(
                 }
             }
 
-            // Corner Clear All action
-            if (onClearAll != null) {
+            // Corner Clear All action — only when there is something to clear
+            if (onClearAll != null && totalPieces > 0) {
                 Icon(
                     imageVector = Icons.Default.DeleteSweep,
                     contentDescription = if (isBangla) "সব মুছুন" else "Clear All",
@@ -150,11 +150,7 @@ fun DashboardCard(
                             onClearAll()
                         }
                         .padding(8.dp),
-                    tint = if (totalPieces > 0) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.25f)
-                    }
+                    tint = MaterialTheme.colorScheme.error
                 )
             }
         }
