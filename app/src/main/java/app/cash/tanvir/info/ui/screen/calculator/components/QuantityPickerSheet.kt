@@ -8,6 +8,7 @@ import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -57,6 +58,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -507,6 +510,8 @@ private fun HoldToRepeatButton(
 /**
  * Preset chip: rounded tile, highlighted when it matches the pending value.
  * Tap selects/deselects the pending quantity; OK commits.
+ * When [indication] is null the tap has NO ripple at all — plain gesture
+ * detection instead of clickable's indication node.
  */
 @Composable
 private fun PresetChip(
@@ -526,19 +531,29 @@ private fun PresetChip(
     } else {
         MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
     }
+    val chipModifier = modifier
+        .height(48.dp)
+        .clip(RoundedCornerShape(14.dp))
+        .background(background)
+        .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
+    val chipOnClick = onClick
     Box(
-        modifier = modifier
-            .height(48.dp)
-            .clip(RoundedCornerShape(14.dp))
-            .background(background)
-            .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-            .clickable(
+        modifier = if (indication == null) {
+            chipModifier
+                .pointerInput(Unit) { detectTapGestures { chipOnClick() } }
+                .semantics(mergeDescendants = true) {
+                    this.selected = selected
+                    role = Role.Button
+                    onClick { chipOnClick(); true }
+                }
+        } else {
+            chipModifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = indication,
                 role = Role.Button,
                 onClick = onClick
             )
-            .semantics { this.selected = selected },
+        },
         contentAlignment = Alignment.Center
     ) {
         Text(
