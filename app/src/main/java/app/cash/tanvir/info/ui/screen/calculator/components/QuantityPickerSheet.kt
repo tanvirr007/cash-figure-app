@@ -130,7 +130,8 @@ fun QuantityPickerSheet(
     ) {
         val scrollState = rememberScrollState()
         Box(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
         ) {
             Column(
                 modifier = Modifier
@@ -376,7 +377,7 @@ fun QuantityPickerSheet(
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         ),
-                        textAlign = TextAlign.End,
+                        textAlign = TextAlign.Center,
                         minFontSize = 9.sp,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -407,7 +408,7 @@ fun QuantityPickerSheet(
             }
             VerticalScrollbarIndicator(
                 state = scrollState,
-                modifier = Modifier.align(Alignment.CenterEnd)
+                modifier = Modifier.matchParentSize()
             )
         }
     }
