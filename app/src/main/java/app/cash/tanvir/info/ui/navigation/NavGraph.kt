@@ -1,5 +1,6 @@
 package app.cash.tanvir.info.ui.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Calculate
@@ -79,6 +80,7 @@ fun NavGraph(
     val reducedMotion = shouldReduceMotion()
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0),
         bottomBar = {
             if (currentRoute.isMainTab()) {
                 NavigationBar {

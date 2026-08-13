@@ -69,6 +69,16 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            ),
+            navigationBarStyle = SystemBarStyle.auto(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            )
+        )
 
         if (savedInstanceState != null) {
             isAppLocked = savedInstanceState.getBoolean("is_app_locked", false)
@@ -169,22 +179,6 @@ class MainActivity : FragmentActivity() {
                     }
                     preferencesManager.setLastKnownVersion(installedCode)
                 }
-            }
-
-            DisposableEffect(isDark) {
-                enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.auto(
-                        android.graphics.Color.TRANSPARENT,
-                        android.graphics.Color.TRANSPARENT,
-                        detectDarkMode = { isDark }
-                    ),
-                    navigationBarStyle = SystemBarStyle.auto(
-                        android.graphics.Color.TRANSPARENT,
-                        android.graphics.Color.TRANSPARENT,
-                        detectDarkMode = { isDark }
-                    )
-                )
-                onDispose {}
             }
 
             CashFigureTheme(
