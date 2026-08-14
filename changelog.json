@@ -1,6 +1,37 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.32",
+      "publishedAt": "2026-08-14T07:07:05Z",
+      "items": [
+        {
+          "title": "fix: import animateColorAsState from the correct package",
+          "subItems": [
+            "Move the import from animation.core to androidx.compose.animation.",
+            "Unblock compileReleaseKotlin after the quantity box modernization."
+          ]
+        },
+        {
+          "title": "fix: keep custom input above the keyboard",
+          "subItems": [
+            "Scroll the focused custom field into view when the sheet opens.",
+            "Consume the IME inset once so sheet content scrolls instead of collapsing.",
+            "Exclude the IME inset from the sheet's content insets to avoid double padding."
+          ]
+        },
+        {
+          "title": "feat: modernize quantity input box",
+          "subItems": [
+            "Rework the calculator quantity box into a filled, state-aware field.",
+            "Show a soft neutral fill when empty and a teal primary fill when a count exists.",
+            "Animate container and border colors between the two states.",
+            "Pop in the new count with a fade-plus-scale transition.",
+            "Add @NebbaGiveUp to the Credits middle row in the README."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.31",
       "publishedAt": "2026-08-14T05:19:21Z",
       "items": [
