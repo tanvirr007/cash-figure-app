@@ -1,6 +1,56 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.35",
+      "publishedAt": "2026-08-14T09:15:10Z",
+      "items": [
+        {
+          "title": "feat: preset-only breakdown card in quantity sheet",
+          "subItems": [
+            "Show the selected preset count's amount and its words on the card.",
+            "Prefix the words line with \"In words:\" and keep it centered.",
+            "Show a hint asking to select a quantity when nothing is pending.",
+            "Hide the amount again once the stepper or the custom field is used.",
+            "Drop the grand total preview from the sheet.",
+            "Remove the now-unused grand total parameter from the sheet."
+          ]
+        },
+        {
+          "title": "style: match denomination chip to quantity box",
+          "subItems": [
+            "Use the same 16dp corner radius on the denomination chip as the quantity box.",
+            "Add the same 1dp outline border the quantity box shows in its empty state.",
+            "Keep the teal secondary container fill and its label color."
+          ]
+        },
+        {
+          "title": "fix: drop duplicate pieces counter",
+          "subItems": [
+            "Remove the total pieces text from the right side of the Cash Breakdown header.",
+            "The pieces stat still lives on the dashboard card so it is no longer shown twice.",
+            "Leave the section header with its title only."
+          ]
+        },
+        {
+          "title": "fix: center row count in the quantity box",
+          "subItems": [
+            "Move the weight modifier from the count text to the animated content that holds it so the row layout honors it.",
+            "Keep the count full-width and center-aligned inside that space.",
+            "The empty 0 placeholder and any selected count now share the same centered position."
+          ]
+        },
+        {
+          "title": "fix: stop sheet scrollbar stretching",
+          "subItems": [
+            "Replace matchParentSize with an end alignment so the scrollbar canvas stays 4dp wide and never fills the whole sheet.",
+            "Re-measure the indicator against the shrunken viewport when the soft keyboard appears.",
+            "Guard the draw logic against stretched canvases so no giant rounded track can render.",
+            "Document that callers must pass positioning-only modifiers."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.34",
       "publishedAt": "2026-08-14T08:14:30Z",
       "items": [
