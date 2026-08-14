@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.onSizeChanged
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -67,6 +68,7 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -78,6 +80,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toDp
 import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.ui.components.AutoShrinkText
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
@@ -105,6 +108,8 @@ fun QuantityPickerSheet(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
+    val density = LocalDensity.current
+    var sheetContentHeight by remember { mutableStateOf(0) }
     var showCustom by remember { mutableStateOf(false) }
     var customInput by remember { mutableStateOf("") }
     var pendingQty by remember { mutableStateOf(quantityText) }
@@ -163,7 +168,8 @@ fun QuantityPickerSheet(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clipToBounds(),
+                .clipToBounds()
+                .onSizeChanged { sheetContentHeight = it.height },
             contentAlignment = Alignment.CenterEnd
         ) {
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
@@ -172,7 +178,7 @@ fun QuantityPickerSheet(
                         .fillMaxWidth()
                         .verticalScroll(scrollState)
                         .clipToBounds()
-                        .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp)
+                        .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp)
                 ) {
                     // Header: denomination + Clear
                     Row(
@@ -376,7 +382,9 @@ fun QuantityPickerSheet(
             }
             VerticalScrollbarIndicator(
                 state = scrollState,
-                modifier = Modifier.align(Alignment.CenterEnd)
+                modifier = Modifier
+                    .height(with(density) { sheetContentHeight.toDp() })
+                    .align(Alignment.CenterEnd)
             )
         }
     }
