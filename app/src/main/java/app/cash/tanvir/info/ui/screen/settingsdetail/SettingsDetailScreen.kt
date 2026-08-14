@@ -440,7 +440,7 @@ fun SettingsDetailScreen(
             text = {
                 Text(
                     if (isBangla) "পুরোনো ডেটা পুনরুদ্ধার করলে আপনার বর্তমান ডেটা নষ্ট বা মুছে যেতে পারে।"
-                    else "Restoring outdated/old data might corrupt or overwrite your present data."
+                    else "Restoring outdated/old data might corrupt or overwrite your present data"
                 )
             },
             confirmButton = {
@@ -492,7 +492,7 @@ fun SettingsDetailScreen(
             text = {
                 Text(
                     if (isBangla) "আপনার করা পরিবর্তনগুলো এখনো সেভ হয়নি।"
-                    else "Your selection has not been applied yet."
+                    else "Your selection has not been applied yet"
                 )
             },
             confirmButton = {

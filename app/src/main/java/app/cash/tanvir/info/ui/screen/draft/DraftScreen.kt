@@ -192,7 +192,18 @@ fun DraftScreen(
                 viewModel.dismissDiscardDraftDialog()
             },
             title = { Text(if (isBangla) "ড্রাফটটি বাতিল করবেন?" else "Discard Draft?") },
-            text = {},
+            text = {
+                val draftName = uiState.drafts
+                    .find { it.id == uiState.pendingDiscardDraftId }
+                    ?.name
+                    ?.takeIf { it.isNotBlank() }
+                    ?: if (isBangla) "ড্রাফট" else "Draft"
+                Text(
+                    text = if (isBangla)
+                        "আপনি কি \"$draftName\" স্থায়ীভাবে বাতিল করতে চান?"
+                        else "Are you sure you want to discard \"$draftName\" permanently?"
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = {
