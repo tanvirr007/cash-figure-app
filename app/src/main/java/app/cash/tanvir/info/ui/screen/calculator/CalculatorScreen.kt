@@ -198,30 +198,14 @@ fun CalculatorScreen(
 
             // Cash Breakdown section header
             item {
-                Row(
+                Text(
+                    text = if (isBangla) "নোটের হিসাব" else "Cash Breakdown",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = if (isBangla) "নোটের হিসাব" else "Cash Breakdown",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    if (uiState.totalPieces > 0) {
-                        Text(
-                            text = if (isBangla) {
-                                "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(uiState.totalPieces)} টি নোট"
-                            } else {
-                                if (uiState.totalPieces == 1L) "1 piece" else "${uiState.totalPieces} pieces"
-                            },
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                )
             }
 
             // Denomination rows — one connected card, dividers between rows
