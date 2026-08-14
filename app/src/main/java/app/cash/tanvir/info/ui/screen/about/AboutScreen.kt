@@ -196,7 +196,7 @@ fun AboutScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f))
                 ) {
                     Text(
-                        text = "Google Play Protect may flag this app as unverified since it's not on the Play Store. It's safe and open source — tap \"Install anyway\" if warned.",
+                        text = "Due to Google's new policy, third-party apps are marked as a risk by default. This app is open source and completely safe.",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer,
                         textAlign = TextAlign.Center,
