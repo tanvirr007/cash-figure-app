@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -41,7 +40,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -62,8 +60,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.util.HapticHelper
@@ -453,35 +449,25 @@ fun CalculatorScreen(
                 keyboardController?.show()
             }
         }
-        Dialog(
+        AlertDialog(
             onDismissRequest = {
                 HapticHelper.vibrate(context)
                 showDiscardNoteConfirmation = true
             },
-            properties = DialogProperties(
-                dismissOnBackPress = true,
-                dismissOnClickOutside = true,
-                usePlatformDefaultWidth = false
-            )
-        ) {
-            Surface(
-                modifier = Modifier.requiredWidth(280.dp),
-                shape = RoundedCornerShape(28.dp),
-                color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 6.dp,
-                shadowElevation = 6.dp
-            ) {
+            title = {
+                Text(
+                    text = if (isBangla) "মন্তব্য যোগ করুন" else "Add Notes",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp),
+                        .padding(vertical = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text(
-                        text = if (isBangla) "মন্তব্য যোগ করুন" else "Add Notes",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
                     Text(
                         text = if (isBangla)
                             "রিপোর্ট তৈরি করতে একটি মন্তব্য যোগ করুন (যেমন ব্যাংকের নাম বা উদ্দেশ্য)ঃ"
@@ -537,55 +523,51 @@ fun CalculatorScreen(
                             }
                         }
                     )
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(top = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        OutlinedButton(
-                            onClick = {
-                                HapticHelper.vibrate(context)
-                                showAddNotesDialog = false
-                            },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            )
-                        ) {
-                            Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        showAddNotesDialog = false
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    Text(if (isBangla) "বাতিল" else "Cancel")
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        if (notesInputText.trim().isBlank()) {
+                            val msg = if (isBangla) "মন্তব্য ছাড়া সেভ করা যাবে না" else "Cannot save without a note"
+                            activeToast?.cancel()
+                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+                            return@Button
                         }
-                        Button(
-                            onClick = {
-                                HapticHelper.vibrate(context)
-                                if (notesInputText.trim().isBlank()) {
-                                    val msg = if (isBangla) "মন্তব্য ছাড়া সেভ করা যাবে না" else "Cannot save without a note"
-                                    activeToast?.cancel()
-                                    activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
-                                    return@Button
-                                }
-                                viewModel.saveToHistory(remark = notesInputText.trim()) { savedId, savedAmount ->
-                                    val msg = if (isBangla) "হিসাব সেভ হয়েছেঃ $savedAmount" else "Transaction saved: $savedAmount"
-                                    activeToast?.cancel()
-                                    activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
-                                    onNavigateToReport(savedId, false)
-                                }
-                                showAddNotesDialog = false
-                            },
-                            enabled = notesInputText.isNotBlank(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary
-                            )
-                        ) {
-                            Text(if (isBangla) "সেভ করুন" else "Save", fontWeight = FontWeight.Bold)
+                        viewModel.saveToHistory(remark = notesInputText.trim()) { savedId, savedAmount ->
+                            val msg = if (isBangla) "হিসাব সেভ হয়েছেঃ $savedAmount" else "Transaction saved: $savedAmount"
+                            activeToast?.cancel()
+                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+                            onNavigateToReport(savedId, false)
                         }
-                    }
+                        showAddNotesDialog = false
+                    },
+                    enabled = notesInputText.isNotBlank(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                ) {
+                    Text(if (isBangla) "সেভ করুন" else "Save", fontWeight = FontWeight.Bold)
                 }
             }
-        }
+        )
     }
 
     // Discard note confirmation — always shown on back press / outside tap
@@ -604,7 +586,7 @@ fun CalculatorScreen(
             },
             text = {
                 Text(
-                    text = if (isBangla) "আপনার লেখা মন্তব্যটি মুছে ফেলা হবে।" else "Your typed note will be discarded."
+                    text = if (isBangla) "আপনার লেখা মন্তব্যটি মুছে ফেলা হবে।" else "The note dialog will be discarded"
                 )
             },
             confirmButton = {
