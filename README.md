@@ -82,7 +82,9 @@ optional in-app update check.
 - **Live Calculation** — instant row totals, grand total, total cash pieces, and
   active denomination count — no calculate button needed.
 - **Amount in Words (100% Offline)** — converts grand totals to words in English
-  and Bangla up to 999 Crore using the Bangladeshi Lakh/Crore numbering system.
+  and Bangla up to 999 Crore (9,99,99,99,999) using the Bangladeshi Lakh/Crore
+  numbering system. The quantity picker caps each denomination at 99,999 notes,
+  so the largest reachable total (~18.9 Crore) always stays comfortably in range.
 - **Bangladeshi Currency Formatting** — native digit grouping and Bengali numerals.
 - **History and Auto-Save** — every calculation is persisted to a local Room
   database with search, rename, duplicate, pin, favorite, and restore-deleted.
