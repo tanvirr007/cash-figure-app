@@ -1,7 +1,7 @@
 {
-  "versionCode": 91,
-  "versionName": "v4.4.40",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.40/CashFigure.apk",
-  "changelog": "* **docs: split README screenshots into two rows** (5404b43)\n  - Move the two update screenshots to their own row above the app screens.\n  - Keep the Calculator, Report, and History screenshots in one row below.\n  - Drop the caption under the update row since both shots are self-explanatory.\n",
+  "versionCode": 92,
+  "versionName": "v4.4.41",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.41/CashFigure.apk",
+  "changelog": "* **docs: use table grid for README screenshots** (eec7d75)\n  - Replace the inline image rows with a two-row HTML table.\n  - Table cells keep the grid on narrow screens where plain inline\n    images wrap into a vertical stack.\n  - Drop the captions under the screenshots entirely.\n",
   "fileSize": 6323712
 }

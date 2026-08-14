@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.41",
+      "publishedAt": "2026-08-14T14:58:23Z",
+      "items": [
+        {
+          "title": "docs: use table grid for README screenshots",
+          "subItems": [
+            "Replace the inline image rows with a two-row HTML table.",
+            "Table cells keep the grid on narrow screens where plain inline",
+            "Drop the captions under the screenshots entirely."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.40",
       "publishedAt": "2026-08-14T14:53:38Z",
       "items": [
