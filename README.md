@@ -188,9 +188,9 @@ table first, then grep for `isBangla` to see the exact context.
 | Calculation History | হিসাবের ইতিহাস |
 | Saved Sheet | সেভ করা হিসাব |
 | Sheet Name | শিটের নাম |
-| Rename Sheet | শিটের নাম পরিবর্তন |
+| Rename Sheet | শিটের নাম বদলান |
 | Sheet deleted | শিটটি মুছে ফেলা হয়েছে |
-| Undo | পূর্বাবস্থায় আনুন |
+| Undo | ফিরিয়ে আনুন |
 | Cash Breakdown | বিস্তারিত হিসাব |
 | Subtotal | সাবটোটাল |
 | Grand Total | সর্বমোট |
@@ -213,6 +213,14 @@ Two rules from the translation rewrite: **নোট always means banknote** — 
 remarks field (Add Notes / Notes:) is **মন্তব্য**. And keep everyday loanwords
 that native speakers actually use (আপডেট, ডাউনলোড, রিপোর্ট, থিম, সেভ, ড্রাফট,
 ব্যাকআপ, রিসেট, ক্যাশ) — avoid robotic ones (ডাটা, ভার্সন, রিস্টোর, প্রিভিউ).
+Spelling follows the standard forms (ধরন, not ধরণ).
+
+One rendering rule: Bangla keyboards and IMEs (Avro, Bijoy, …) turn the ":" key
+into the visarga sign "ঃ" by design. User-typed text (remarks, notes) is
+sanitized through `util/BanglaTextSanitizer.kt` so a colon-usage "ঃ" is shown
+and exported as a real colon ":" — while genuine in-word visargas (দুঃখ,
+নিঃশব্দ) are preserved. Never put "ঃ" in a static string where ":" is meant;
+always write the ASCII colon.
 
 If you believe a settled term itself is wrong, suggest the change in the PR —
 but keep every other string consistent with the table.

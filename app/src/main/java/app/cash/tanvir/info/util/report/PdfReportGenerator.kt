@@ -83,7 +83,7 @@ object PdfReportGenerator {
         y += 20f
         canvas.drawText(
             if (isBangla) {
-                "মোট নোট: ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)}  |  নোটের ধরণ: ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)}"
+                "মোট নোট: ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)}  |  নোটের ধরন: ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)}"
             } else {
                 "Total Pieces: ${sheet.totalPieces}  |  Active Denominations: ${sheet.activeDenominations}"
             },
@@ -191,7 +191,7 @@ object PdfReportGenerator {
         
         paint.isFakeBoldText = false
         val notesText = if (sheet.remark.isNotBlank()) {
-            sheet.remark.replace("\n", " ").replace("\r", " ")
+            app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(sheet.remark.replace("\n", " ").replace("\r", " "))
         } else {
             "N/A"
         }

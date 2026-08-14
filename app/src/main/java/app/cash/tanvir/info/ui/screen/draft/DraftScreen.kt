@@ -151,7 +151,7 @@ fun DraftScreen(
                         val savedCount = uiState.drafts.size
                         Text(
                             text = if (isBangla) {
-                                "${BanglaDigitConverter.toBangla(savedCount.toLong())}টি ড্রাফট সংরক্ষিত আছে"
+                                "${BanglaDigitConverter.toBangla(savedCount.toLong())}টি ড্রাফট সেভ করা আছে"
                             } else {
                                 if (savedCount == 1) "1 draft saved" else "$savedCount drafts saved"
                             },

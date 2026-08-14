@@ -223,14 +223,14 @@ private fun ReleaseChangelogCard(
 private fun ChangelogItemRow(item: ChangelogItem) {
     Column {
         Text(
-            text = "• ${item.title}",
+            text = "• ${app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(item.title)}",
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold
         )
         item.subItems.forEach { sub ->
             Spacer(modifier = Modifier.height(3.dp))
             Text(
-                text = "◦ $sub",
+                text = "◦ ${app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(sub)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 16.dp)

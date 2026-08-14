@@ -224,7 +224,7 @@ fun CalculatorScreen(
                         // First-time hint: point at the tap-to-count interaction when idle
                         if (uiState.totalPieces == 0L) {
                             Text(
-                                text = if (isBangla) "শুরু করতে নোটের সংখ্যায় চাপ দিন" else "Tap a note's count to begin",
+                                text = if (isBangla) "হিসাব শুরু করতে নোটের সংখ্যায় চাপ দিন" else "Tap a note's count to begin",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
                                 textAlign = TextAlign.Center,
@@ -472,7 +472,9 @@ fun CalculatorScreen(
                         OutlinedTextField(
                             value = notesInputText,
                             onValueChange = { input ->
-                                val sanitized = input.replace("\n", " ").replace("\r", " ")
+                                val sanitized = app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(
+                                    input.replace("\n", " ").replace("\r", " ")
+                                )
                                 if (sanitized.length <= 30) {
                                     notesInputText = sanitized
                                 }

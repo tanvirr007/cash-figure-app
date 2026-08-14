@@ -147,15 +147,15 @@ fun SettingsDetailScreen(
         when (section) {
             SettingsSection.THEME -> {
                 viewModel.setTheme(pendingTheme)
-                Toast.makeText(context, if (isBangla) "থিম সেট করা হয়েছে" else "Theme applied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, if (isBangla) "থিম বদলানো হয়েছে" else "Theme applied", Toast.LENGTH_SHORT).show()
             }
             SettingsSection.LANGUAGE -> {
                 viewModel.setLanguage(pendingLang)
-                Toast.makeText(context, if (isBangla) "ভাষা পরিবর্তন হয়েছে" else "Language applied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, if (isBangla) "ভাষা বদলানো হয়েছে" else "Language applied", Toast.LENGTH_SHORT).show()
             }
             SettingsSection.FONT -> {
                 viewModel.setFont(pendingFont)
-                Toast.makeText(context, if (isBangla) "ফন্ট প্রয়োগ করা হয়েছে" else "Font applied", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, if (isBangla) "ফন্ট বদলানো হয়েছে" else "Font applied", Toast.LENGTH_SHORT).show()
             }
             else -> Unit
         }
@@ -199,7 +199,7 @@ fun SettingsDetailScreen(
             }
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                 if (checked) {
-                    val msg = if (isBangla) "অ্যাপ লক চালু করতে ডিভাইসের সেটিংসে গিয়ে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক (PIN/প্যাটার্ন/পাসওয়ার্ড) সেটআপ করুন।" else "Please set up a screen lock (PIN/pattern/password) or fingerprint in your device settings."
+                    val msg = if (isBangla) "অ্যাপ লক চালু করতে ফোনের সেটিংসে গিয়ে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক (PIN/প্যাটার্ন/পাসওয়ার্ড) সেট করুন।" else "Please set up a screen lock (PIN/pattern/password) or fingerprint in your device settings."
                     Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                 } else {
                     viewModel.setBiometricEnabled(false)
@@ -207,7 +207,7 @@ fun SettingsDetailScreen(
             }
             else -> {
                 if (checked) {
-                    val msg = if (isBangla) "এই ডিভাইসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ করা নেই।" else "No fingerprint or screen lock set up on this device."
+                    val msg = if (isBangla) "এই ফোনে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেট করা নেই।" else "No fingerprint or screen lock set up on this device."
                     Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                 } else {
                     viewModel.setBiometricEnabled(false)
@@ -247,7 +247,7 @@ fun SettingsDetailScreen(
                         shape = RoundedCornerShape(14.dp)
                     ) {
                         Text(
-                            text = if (isBangla) "প্রয়োগ করুন" else "Apply",
+                            text = if (isBangla) "সেট করুন" else "Apply",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -271,7 +271,7 @@ fun SettingsDetailScreen(
                 when (section) {
                     SettingsSection.THEME -> {
                         SectionSubtitle(
-                            subtitle = if (isBangla) "থিম বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a theme, preview it, then apply"
+                            subtitle = if (isBangla) "থিম বেছে নিয়ে দেখুন, পছন্দ হলে সেট করুন" else "Pick a theme, preview it, then apply"
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         ThemeContent(
@@ -286,7 +286,7 @@ fun SettingsDetailScreen(
                     }
                     SettingsSection.LANGUAGE -> {
                         SectionSubtitle(
-                            subtitle = if (isBangla) "ভাষা বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a language, preview it, then apply"
+                            subtitle = if (isBangla) "ভাষা বেছে নিয়ে দেখুন, পছন্দ হলে সেট করুন" else "Pick a language, preview it, then apply"
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         LanguageContent(
@@ -300,7 +300,7 @@ fun SettingsDetailScreen(
                     }
                     SettingsSection.FONT -> {
                         SectionSubtitle(
-                            subtitle = if (isBangla) "ফন্ট বেছে নিয়ে দেখুন, পছন্দ হলে প্রয়োগ করুন" else "Pick a font, preview it, then apply"
+                            subtitle = if (isBangla) "ফন্ট বেছে নিয়ে দেখুন, পছন্দ হলে সেট করুন" else "Pick a font, preview it, then apply"
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         FontContent(
@@ -386,7 +386,7 @@ fun SettingsDetailScreen(
             title = { Text(if (isBangla) "সব ডেটা রিসেট করবেন?" else "Reset All Data?") },
             text = {
                 Text(
-                    if (isBangla) "এটি সব সেভ করা হিসাব, ইতিহাস ও সেটিংস স্থায়ীভাবে মুছে ফেলবে। এই কাজটি আর পূর্বাবস্থায় ফেরানো যাবে না।"
+                    if (isBangla) "এটি সব সেভ করা হিসাব, ইতিহাস ও সেটিংস স্থায়ীভাবে মুছে ফেলবে। এই কাজটা আর ফেরানো যাবে না।"
                     else "This will permanently delete all saved calculations, history, and user settings. This action cannot be undone."
                 )
             },
@@ -491,7 +491,7 @@ fun SettingsDetailScreen(
             title = { Text(if (isBangla) "পরিবর্তন বাতিল করবেন?" else "Discard changes?") },
             text = {
                 Text(
-                    if (isBangla) "আপনার করা পরিবর্তনগুলো এখনো প্রয়োগ করা হয়নি।"
+                    if (isBangla) "আপনার করা পরিবর্তনগুলো এখনো সেভ হয়নি।"
                     else "Your selection has not been applied yet."
                 )
             },
@@ -1252,15 +1252,15 @@ private fun MiscellaneousContent(
         ToggleRow(
             icon = { Icon(Icons.Rounded.Palette, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp)) },
             title = if (isBangla) "ডায়নামিক কালার" else "Dynamic Color",
-            subtitle = if (isBangla) "ম্যাটেরিয়াল ইউ-এর কালার ব্যবহার করুন" else "Use Material You colors",
+            subtitle = if (isBangla) "ম্যাটেরিয়াল ইউ রঙ ব্যবহার করুন" else "Use Material You colors",
             checked = dynamicColorEnabled,
             onToggle = onDynamicColorToggle
         )
         HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
         ToggleRow(
             icon = { Icon(Icons.Rounded.Vibration, contentDescription = null, tint = MaterialTheme.colorScheme.secondary, modifier = Modifier.size(20.dp)) },
-            title = if (isBangla) "হ্যাপটিক ফিডব্যাক" else "Haptic Feedback",
-            subtitle = if (isBangla) "বাটন ও টগল চাপলে কম্পন দিন" else "Vibrate on interactions",
+            title = if (isBangla) "কম্পন ফিডব্যাক" else "Haptic Feedback",
+            subtitle = if (isBangla) "বাটন বা টগল চাপলে কম্পন হবে" else "Vibrate on interactions",
             checked = hapticEnabled,
             onToggle = onHapticToggle
         )
@@ -1479,7 +1479,7 @@ private fun FontOptionCard(
                 text = when (font) {
                     AppFont.DEFAULT -> if (isBangla) "ডিভাইসের সিস্টেম ফন্ট ব্যবহার করুন" else "Use your device's system font"
                     AppFont.GOOGLE_SANS_ROUNDED -> if (isBangla) "গোলাকার ও আধুনিক চেহারা" else "Rounded, modern look"
-                    AppFont.GOOGLE_SANS_FLEX -> if (isBangla) "নমনীয় ও ভার্সেটাইল স্টাইল" else "Flexible, versatile style"
+                    AppFont.GOOGLE_SANS_FLEX -> if (isBangla) "নমনীয় ও বহুমুখী স্টাইল" else "Flexible, versatile style"
                     AppFont.VOLTE_ROUND -> if (isBangla) "পরিষ্কার ও গোলাকার ডিজাইন" else "Clean, rounded design"
                 },
                 style = MaterialTheme.typography.bodySmall,

@@ -355,7 +355,7 @@ private fun UpToDateContent(
             CheckIcon()
             Spacer(modifier = Modifier.height(28.dp))
             Text(
-                if (isBangla) "আপনার অ্যাপটি এখন সর্বশেষ সংস্করণে আছে" else "You're already up to date",
+                if (isBangla) "আপনার অ্যাপ এখন সর্বশেষ সংস্করণে আছে" else "You're already up to date",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Medium
             )
@@ -385,7 +385,7 @@ private fun UpToDateContent(
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = if (isBangla) {
-                        "সর্বশেষ সফল আপডেট চেক: ${DateTimeFormatter.formatTime(timestamp, isBangla = true)}"
+                        "শেষ সফল আপডেট চেক: ${DateTimeFormatter.formatTime(timestamp, isBangla = true)}"
                     } else {
                         "Last successful check for update: ${DateTimeFormatter.formatTime(timestamp, isBangla = false)}"
                     },
@@ -426,7 +426,7 @@ private fun UpdateAvailableContent(
     UpdateIcon()
     Spacer(modifier = Modifier.height(28.dp))
     Text(
-        if (isBangla) "আপডেট উপলব্ধ" else "Update Available",
+        if (isBangla) "নতুন আপডেট আছে" else "Update Available",
         style = MaterialTheme.typography.headlineMedium,
         fontWeight = FontWeight.Medium
     )
@@ -443,11 +443,11 @@ private fun UpdateAvailableContent(
                 append(if (isBangla) "আকার: ${BanglaDigitConverter.toBangla(sizeText)}" else "Size: $sizeText")
             }
             append("\n")
-            append(if (isBangla) "উপলব্ধ সংস্করণ: $versionDisplay" else "Available version: $versionDisplay")
+            append(if (isBangla) "নতুন সংস্করণ: $versionDisplay" else "Available version: $versionDisplay")
             append("\n\n")
             append(
                 if (isBangla) {
-                    "নতুন ফিচার ও বাগ ফিক্সের জন্য এখনই আপডেট করুন"
+                    "নতুন ফিচার ও বাগ ফিক্স পেতে এখনই আপডেট করুন"
                 } else {
                     "Update now for the latest features and bug fixes"
                 }
@@ -768,7 +768,7 @@ private fun openInBrowserFallback(context: Context, url: String, isBangla: Boole
     } catch (_: Exception) {
         Toast.makeText(
             context,
-            if (isBangla) "ডাউনলোড লিংকটি খোলা যায়নি" else "Couldn't open the download link",
+            if (isBangla) "ডাউনলোড লিংক খোলা যায়নি" else "Couldn't open the download link",
             Toast.LENGTH_SHORT
         ).show()
     }

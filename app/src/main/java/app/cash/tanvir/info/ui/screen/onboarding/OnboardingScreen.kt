@@ -284,7 +284,7 @@ private fun LanguagePage(
         OptionCard(
             title = "English",
             subtitle = if (isBangla) "পুরো অ্যাপে ইংরেজি ব্যবহার করুন" else "Use English throughout the app",
-            badge = if (isBangla) "সুপারিশকৃত" else "Recommended",
+            badge = if (isBangla) "সেরা পছন্দ" else "Recommended",
             selected = selected == AppLanguage.ENGLISH,
             onClick = { onSelect(AppLanguage.ENGLISH) }
         )
@@ -321,7 +321,7 @@ private fun FontPage(
                 subtitle = when (font) {
                     AppFont.DEFAULT -> if (isBangla) "ডিভাইসের সিস্টেম ফন্ট ব্যবহার করুন" else "Use your device's system font"
                     AppFont.GOOGLE_SANS_ROUNDED -> if (isBangla) "গোলাকার ও আধুনিক চেহারা" else "Rounded, modern look"
-                    AppFont.GOOGLE_SANS_FLEX -> if (isBangla) "নমনীয় ও ভার্সেটাইল স্টাইল" else "Flexible, versatile style"
+                    AppFont.GOOGLE_SANS_FLEX -> if (isBangla) "নমনীয় ও বহুমুখী স্টাইল" else "Flexible, versatile style"
                     AppFont.VOLTE_ROUND -> if (isBangla) "পরিষ্কার ও গোলাকার ডিজাইন" else "Clean, rounded design"
                 },
                 badge = null,

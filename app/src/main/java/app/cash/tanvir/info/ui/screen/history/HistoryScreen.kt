@@ -80,7 +80,7 @@ fun HistoryScreen(
         if (uiState.lastDeletedSheetId != null) {
             val result = snackbarHostState.showSnackbar(
                 message = if (isBangla) "শিটটি মুছে ফেলা হয়েছে" else "Sheet deleted",
-                actionLabel = if (isBangla) "পূর্বাবস্থায় আনুন" else "Undo",
+                actionLabel = if (isBangla) "ফিরিয়ে আনুন" else "Undo",
                 duration = SnackbarDuration.Short
             )
             if (result == SnackbarResult.ActionPerformed) {
@@ -121,7 +121,7 @@ fun HistoryScreen(
                         }) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = if (isBangla) "সাফ করুন" else "Clear search"
+                                contentDescription = if (isBangla) "মুছুন" else "Clear search"
                             )
                         }
                     }
@@ -147,7 +147,7 @@ fun HistoryScreen(
                             text = if (uiState.searchQuery.isEmpty()) {
                                 if (isBangla) "এখনো কোনো হিসাব সেভ করা হয়নি" else "No saved calculations yet"
                             } else {
-                                if (isBangla) "কোনো মিলে যাওয়া হিসাব পাওয়া যায়নি" else "No matching calculations found"
+                                if (isBangla) "মিলে যাওয়া কোনো হিসাব পাওয়া যায়নি" else "No matching calculations found"
                             },
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
@@ -202,7 +202,7 @@ fun HistoryScreen(
                 HapticHelper.vibrate(context)
                 viewModel.dismissRenameDialog()
             },
-            title = { Text(if (isBangla) "শিটের নাম পরিবর্তন" else "Rename Sheet") },
+            title = { Text(if (isBangla) "শিটের নাম বদলান" else "Rename Sheet") },
             text = {
                 OutlinedTextField(
                     value = renameText,
@@ -320,7 +320,7 @@ private fun HistoryCard(
                 IconButton(onClick = onRename, modifier = Modifier.size(32.dp)) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = if (isBangla) "নাম পরিবর্তন" else "Rename",
+                        contentDescription = if (isBangla) "নাম বদলান" else "Rename",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp)
                     )
@@ -349,7 +349,7 @@ private fun HistoryCard(
 
             Text(
                 text = if (isBangla) {
-                    "$formattedDate · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)} টি নোট · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)} ধরণের নোট"
+                    "$formattedDate · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)} টি নোট · ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)} ধরনের নোট"
                 } else {
                     "$formattedDate · ${if (sheet.totalPieces == 1L) "1 piece" else "${sheet.totalPieces} pieces"} · ${sheet.activeDenominations} denom."
                 },
@@ -372,7 +372,9 @@ private fun HistoryCard(
 
             if (!sheet.remark.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(6.dp))
-                val sanitizedRemark = sheet.remark.replace("\n", " ").replace("\r", " ")
+                val sanitizedRemark = app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(
+                    sheet.remark.replace("\n", " ").replace("\r", " ")
+                )
                 Text(
                     text = if (isBangla) "মন্তব্য: $sanitizedRemark" else "Notes: $sanitizedRemark",
                     style = MaterialTheme.typography.bodySmall,

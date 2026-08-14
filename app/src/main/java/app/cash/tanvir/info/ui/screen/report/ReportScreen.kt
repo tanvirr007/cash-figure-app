@@ -102,7 +102,7 @@ fun ReportScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text(if (isBangla) "রিপোর্ট করার জন্য কোনো শিট লোড করা হয়নি" else "No sheet loaded for reporting")
+                Text(if (isBangla) "রিপোর্ট করার মতো কোনো শিট নেই" else "No sheet loaded for reporting")
             }
         } else {
             val scrollState = rememberScrollState()
@@ -293,7 +293,7 @@ fun ReportScreen(
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     ) {
-                                        append(sheet.remark.ifBlank { "N/A" })
+                                        append(app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(sheet.remark.ifBlank { "N/A" }))
                                     }
                                 },
                                 style = MaterialTheme.typography.bodyMedium
@@ -343,7 +343,7 @@ fun ReportScreen(
                                 Spacer(modifier = Modifier.height(8.dp))
                                 Text(
                                     text = if (isBangla) {
-                                        "ড্রাফটে হিসাব সংরক্ষণ করে পরে আবার চালিয়ে যেতে পারেন। " +
+                                        "ড্রাফটে হিসাব সেভ করে পরে আবার চালিয়ে যেতে পারেন। " +
                                             "ক্যালকুলেটরে লোড করলে সংখ্যাগুলো ফিরে আসে — হিসাবটি ইতিহাসে সেভ না হওয়া পর্যন্ত ড্রাফট তালিকায় থাকে।"
                                     } else {
                                         "Drafts let you pause a count and continue later. " +
@@ -358,7 +358,7 @@ fun ReportScreen(
 
                     // Export / Print / Share only apply to saved History reports, not drafts
                     if (!viewModel.fromDraft) {
-                        Text(if (isBangla) "রিপোর্ট সেভের অপশন" else "Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text(if (isBangla) "রিপোর্ট সেভ করার অপশন" else "Export Options", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),

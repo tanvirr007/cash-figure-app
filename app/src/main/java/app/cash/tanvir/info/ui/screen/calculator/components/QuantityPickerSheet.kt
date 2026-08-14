@@ -285,7 +285,7 @@ fun QuantityPickerSheet(
                             )
                         }
                         PresetChip(
-                            label = if (isBangla) "নিজের" else "Custom",
+                            label = if (isBangla) "নিজের সংখ্যা" else "Custom",
                             selected = showCustom,
                             modifier = Modifier.weight(1f),
                             onClick = {
@@ -383,7 +383,7 @@ fun QuantityPickerSheet(
             },
             title = {
                 Text(
-                    text = if (isBangla) "সংরক্ষণ হয়নি" else "Unsaved changes",
+                    text = if (isBangla) "আনসেভ করা পরিবর্তন আছে" else "Unsaved changes",
                     fontWeight = FontWeight.Bold
                 )
             },

@@ -321,7 +321,7 @@ class MainActivity : FragmentActivity() {
             BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED,
             BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
                 val msg = if (isBangla)
-                    "এই ডিভাইসে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেটআপ করা নেই।"
+                    "এই ফোনে ফিঙ্গারপ্রিন্ট বা স্ক্রিন লক সেট করা নেই।"
                 else
                     "No fingerprint or screen lock set up on this device."
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
@@ -331,7 +331,7 @@ class MainActivity : FragmentActivity() {
             BiometricManager.BIOMETRIC_SUCCESS -> Unit
             else -> {
                 val msg = if (isBangla)
-                    "বায়োমেট্রিক প্রমাণীকরণ এই মুহূর্তে ব্যবহার করা যাচ্ছে না।"
+                    "বায়োমেট্রিক যাচাই এখন ব্যবহার করা যাচ্ছে না।"
                 else
                     "Biometric authentication is currently unavailable."
                 Toast.makeText(this, msg, Toast.LENGTH_LONG).show()

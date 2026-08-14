@@ -85,9 +85,9 @@ class ReportViewModel @Inject constructor(
         val savedUri = StorageUtil.saveReportFile(context, fileName, mime, data, subFolder = ext)
 
         val message = if (savedUri != null) {
-            if (isBangla) "ডাউনলোড/CashFigure/$ext/$fileName এ সেভ করা হয়েছে" else "Exported to Downloads/CashFigure/$ext/$fileName"
+            if (isBangla) "ডাউনলোড/CashFigure/$ext/$fileName-এ সেভ হয়েছে" else "Exported to Downloads/CashFigure/$ext/$fileName"
         } else {
-            if (isBangla) "রিপোর্ট সেভ করা যায়নি" else "Failed to export report"
+            if (isBangla) "রিপোর্ট সেভ হয়নি" else "Failed to export report"
         }
         _uiState.update { it.copy(exportStatusMessage = message) }
     }
@@ -123,7 +123,9 @@ class ReportViewModel @Inject constructor(
 
     fun updateSheetRemark(remark: String) {
         val currentSheet = _uiState.value.sheet ?: return
-        val sanitizedRemark = remark.replace("\n", " ").replace("\r", " ")
+        val sanitizedRemark = app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(
+            remark.replace("\n", " ").replace("\r", " ")
+        )
         val updatedSheet = currentSheet.copy(remark = sanitizedRemark)
         viewModelScope.launch {
             sheetRepository.updateSheet(updatedSheet)

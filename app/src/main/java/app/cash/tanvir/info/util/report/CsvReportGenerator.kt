@@ -18,8 +18,8 @@ object CsvReportGenerator {
         sb.append(if (isBangla) "সর্বমোট,\"${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = true)}\"\n" else "Grand Total,\"${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = false)}\"\n")
         sb.append(if (isBangla) "কথায়,\"$words\"\n" else "Amount in Words,\"$words\"\n")
         sb.append(if (isBangla) "মোট নোট,$totalPiecesStr\n" else "Total Pieces,$totalPiecesStr\n")
-        sb.append(if (isBangla) "নোটের ধরণ,$activeDenomStr\n" else "Active Denominations,$activeDenomStr\n")
-        val escapedNotes = (if (sheet.remark.isNotBlank()) sheet.remark else "N/A").replace("\"", "\"\"")
+        sb.append(if (isBangla) "নোটের ধরন,$activeDenomStr\n" else "Active Denominations,$activeDenomStr\n")
+        val escapedNotes = (if (sheet.remark.isNotBlank()) app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(sheet.remark) else "N/A").replace("\"", "\"\"")
         sb.append(if (isBangla) "মন্তব্য,\"$escapedNotes\"\n\n" else "Notes,\"$escapedNotes\"\n\n")
 
         sb.append(if (isBangla) "নোটের মান,সংখ্যা,সাবটোটাল\n" else "Denomination,Quantity,Subtotal\n")

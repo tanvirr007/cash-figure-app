@@ -49,7 +49,8 @@ class CsvReportGeneratorTest {
             grandTotal = 100000L,
             totalPieces = 100L,
             activeDenominations = 1,
-            updatedAt = 1786270304000L
+            updatedAt = 1786270304000L,
+            remark = "ব্যাংক হিসাবঃ ৫০০"
         )
 
         val csvBytes = CsvReportGenerator.generateCsv(sheet, isBangla = true)
@@ -60,5 +61,6 @@ class CsvReportGeneratorTest {
         val csvText = String(csvBytes.drop(3).toByteArray(), Charsets.UTF_8)
         assertTrue(csvText.contains("ক্যাশ রিপোর্ট"))
         assertTrue(csvText.contains("\"সর্বমোট\",,\"৳১,০০,০০০/-\""))
+        assertTrue(csvText.contains("মন্তব্য,\"ব্যাংক হিসাব: ৫০০\""))
     }
 }
