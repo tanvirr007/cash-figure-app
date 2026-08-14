@@ -1,6 +1,61 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.38",
+      "publishedAt": "2026-08-14T11:49:59Z",
+      "items": [
+        {
+          "title": "fix: resolve Compose API compile errors",
+          "subItems": [
+            "Use ui.layout.onSizeChanged instead of missing foundation.layout one.",
+            "Drop invalid ui.unit.toDp import; toDp resolves inside Density scope.",
+            "Replace padding(horizontal, bottom) with start/end/bottom named args."
+          ]
+        },
+        {
+          "title": "style: flush updater scrollbar to screen right edge",
+          "subItems": [
+            "Remove the 24dp horizontal padding from the updater content box so the scrollbar track spans full screen width.",
+            "Keep the content inset by moving the horizontal padding onto the four scrollable columns.",
+            "Add end padding to the floating Check again, Cancel, and Install buttons so they stay clear of the edge."
+          ]
+        },
+        {
+          "title": "fix: keep quantity picker sheet compact",
+          "subItems": [
+            "Bound the scrollbar canvas height to the measured sheet content height so the internal fillMaxHeight can no longer stretch the sheet to full screen.",
+            "Keep the end alignment on the scrollbar and trim the column top padding."
+          ]
+        },
+        {
+          "title": "feat: warn before clearing quantity in picker",
+          "subItems": [
+            "Show the same Unsaved Changes dialog when the Clear button is",
+            "Track the discard trigger (Close vs Clear) with a DiscardTrigger",
+            "Confirm on the Clear flow resets the pending quantity instead of"
+          ]
+        },
+        {
+          "title": "fix: rename discard dialog button to Close",
+          "subItems": [
+            "Rename the Unsaved Changes dialog confirm button from",
+            "Drop the trailing full stop from \"Closing now will discard"
+          ]
+        },
+        {
+          "title": "fix: naturalize Bangla text and render colons properly",
+          "subItems": [
+            "Rewrite stiff Bangla strings app-wide to everyday spoken Bangla.",
+            "Replace robotic phrasing: সেটআপ→সেট, প্রয়োগ→সেট, সুপারিশকৃত→সেরা পছন্দ,",
+            "Add util/BanglaTextSanitizer to convert colon-usage \"ঃ\" (typed by Bangla",
+            "Apply the sanitizer to remarks on input, display, changelog, and all",
+            "Add BanglaTextSanitizerTest and extend CsvReportGeneratorTest with a",
+            "Update the README settled-terms table and document the colon rule."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.37",
       "publishedAt": "2026-08-14T10:20:49Z",
       "items": [
