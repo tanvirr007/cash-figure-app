@@ -112,7 +112,6 @@ fun QuantityPickerSheet(
     var sheetContentHeight by remember { mutableStateOf(0) }
     var showCustom by remember { mutableStateOf(false) }
     var customInput by remember { mutableStateOf("") }
-    var maxDigitsError by remember { mutableStateOf(false) }
     var pendingQty by remember { mutableStateOf(quantityText) }
     var presetActive by remember { mutableStateOf(false) }
     var discardTrigger by remember { mutableStateOf<DiscardTrigger?>(null) }
@@ -201,7 +200,6 @@ fun QuantityPickerSheet(
                                 pendingQty = ""
                                 customInput = ""
                                 presetActive = false
-                                maxDigitsError = false
                                 focusManager.clearFocus()
                             }
                         }) {
@@ -311,7 +309,6 @@ fun QuantityPickerSheet(
                                 HapticHelper.vibrate(context)
                                 showCustom = !showCustom
                                 presetActive = false
-                                maxDigitsError = false
                                 if (showCustom) {
                                     customInput = if (pendingValue != null) pendingValue.toString() else ""
                                 }
@@ -327,14 +324,8 @@ fun QuantityPickerSheet(
                             onValueChange = { input ->
                                 val western = BanglaDigitConverter.toWestern(input)
                                 val filtered = western.filter { it.isDigit() }
-                                if (filtered.length > 5) {
-                                    maxDigitsError = true
-                                    setPending(filtered.take(5))
-                                } else {
-                                    maxDigitsError = false
-                                    presetActive = false
-                                    setPending(filtered)
-                                }
+                                presetActive = false
+                                setPending(filtered.take(5))
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -360,11 +351,24 @@ fun QuantityPickerSheet(
                                 }
                             ),
                             supportingText = {
-                                if (maxDigitsError) {
+                                if (customInput.isNotEmpty()) {
+                                    val remaining = 5 - customInput.length
                                     Text(
-                                        text = if (isBangla) "সর্বোচ্চ ৫ সংখ্যা (৯৯,৯৯৯)" else "Max 5 digits (99,999)",
+                                        text = if (remaining > 0) {
+                                            if (isBangla) {
+                                                "${BanglaDigitConverter.toBangla(remaining)}টি সংখ্যা বাকি"
+                                            } else {
+                                                "$remaining digit${if (remaining == 1) "" else "s"} left"
+                                            }
+                                        } else {
+                                            if (isBangla) "সর্বোচ্চ ৫ সংখ্যা (৯৯,৯৯৯)" else "Max 5 digits (99,999)"
+                                        },
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.error
+                                        color = if (remaining > 0) {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        } else {
+                                            MaterialTheme.colorScheme.error
+                                        }
                                     )
                                 }
                             }
@@ -436,7 +440,6 @@ fun QuantityPickerSheet(
                             pendingQty = ""
                             customInput = ""
                             presetActive = false
-                            maxDigitsError = false
                             focusManager.clearFocus()
                         } else {
                             onDismiss()
