@@ -1,6 +1,31 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.44",
+      "publishedAt": "2026-08-14T18:51:30Z",
+      "items": [
+        {
+          "title": "feat: auto keyboard on notes dialog",
+          "subItems": [
+            "Focus the notes field and raise the keyboard when the dialog opens.",
+            "Convert notes dialog to a custom Dialog so outside taps are caught.",
+            "Show Discard note confirmation on back press or outside tap.",
+            "Re-focus and raise the keyboard again after Keep editing.",
+            "Discard clears the typed note and closes the dialog."
+          ]
+        },
+        {
+          "title": "fix: clear all survives process kill",
+          "subItems": [
+            "Extract shared persistNow helper from flushDraft.",
+            "Persist working sheet synchronously after every quantity update.",
+            "Persist the empty sheet on clear all so kills cannot restore it.",
+            "Keep ON_STOP flush as a harmless backstop write."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.43",
       "publishedAt": "2026-08-14T18:14:53Z",
       "items": [
