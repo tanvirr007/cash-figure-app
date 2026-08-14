@@ -160,10 +160,15 @@ class CalculatorViewModel @Inject constructor(
 
     /**
      * Persist the current state to the draft row immediately (synchronous).
-     * Used only on exit paths (back-exit dialog, ON_STOP) and discard.
+     * Called on exit paths (back-exit dialog, ON_STOP), discard, and after every
+     * mutation so a later force-kill can never resurrect stale quantities.
      * Blocking is intentional: the write must complete before the app process dies.
      */
     fun flushDraft() {
+        persistNow()
+    }
+
+    private fun persistNow() {
         val state = _uiState.value
         runBlocking {
             sheetRepository.saveCurrentSheet(
@@ -214,7 +219,8 @@ class CalculatorViewModel @Inject constructor(
 
     /**
      * Update the quantity for a specific denomination.
-     * Recalculates all totals instantly.
+     * Recalculates all totals instantly and persists the working sheet,
+     * so the change survives any process kill.
      */
     fun updateQuantity(denominationValue: Int, input: String) {
         _uiState.update { state ->
@@ -227,6 +233,7 @@ class CalculatorViewModel @Inject constructor(
                 )
             )
         }
+        persistNow()
     }
 
     /**
@@ -238,6 +245,8 @@ class CalculatorViewModel @Inject constructor(
 
     /**
      * Clear all denomination quantities.
+     * The empty working sheet is persisted immediately so a later
+     * force-kill can never resurrect the cleared count.
      */
     fun clearAll() {
         _uiState.update { state ->
@@ -249,6 +258,7 @@ class CalculatorViewModel @Inject constructor(
                 )
             )
         }
+        persistNow()
     }
 
     /**
