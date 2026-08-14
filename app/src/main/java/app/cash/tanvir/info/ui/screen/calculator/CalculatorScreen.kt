@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -40,21 +41,29 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.util.HapticHelper
@@ -82,6 +91,13 @@ fun CalculatorScreen(
     var showAddNotesDialog by remember { mutableStateOf(false) }
     var showExitWithDraftDialog by remember { mutableStateOf(false) }
     var notesInputText by remember { mutableStateOf("") }
+    // Discard-note confirmation: shown on back press / outside tap while the
+    // notes dialog is open, so a typed note is never lost silently.
+    var showDiscardNoteConfirmation by remember { mutableStateOf(false) }
+    // Auto-focuses the note field so the keyboard is already up when the dialog opens.
+    val notesFocusRequester = remember { FocusRequester() }
+    @Suppress("DEPRECATION")
+    val keyboardController = LocalSoftwareKeyboardController.current
     val fullPlaceholder = "BRAC BANK PLC"
 
     // Denomination value pending single-row clear confirmation (null = no dialog)
@@ -425,34 +441,53 @@ fun CalculatorScreen(
         )
     }
 
-    // Add Notes Dialog on Save
+    // Add Notes Dialog on Save — opens with the keyboard already up; back press
+    // or outside tap asks for confirmation before discarding the typed note.
     if (showAddNotesDialog) {
-        AlertDialog(
+        // Focus the note field and raise the keyboard on open, and again
+        // whenever the discard confirmation returns ("Keep editing").
+        LaunchedEffect(showDiscardNoteConfirmation) {
+            if (!showDiscardNoteConfirmation) {
+                withFrameNanos { }
+                notesFocusRequester.requestFocus()
+                keyboardController?.show()
+            }
+        }
+        Dialog(
             onDismissRequest = {
                 HapticHelper.vibrate(context)
-                showAddNotesDialog = false
+                showDiscardNoteConfirmation = true
             },
-            title = {
-                Text(
-                    text = if (isBangla) "মন্তব্য যোগ করুন" else "Add Notes",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = false
+            )
+        ) {
+            Surface(
+                modifier = Modifier.requiredWidth(280.dp),
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 6.dp,
+                shadowElevation = 6.dp
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                        .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text(
-                        text = if (isBangla) 
-                            "রিপোর্ট তৈরি করতে একটি মন্তব্য যোগ করুন (যেমন ব্যাংকের নাম বা উদ্দেশ্য)ঃ" 
+                        text = if (isBangla) "মন্তব্য যোগ করুন" else "Add Notes",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = if (isBangla)
+                            "রিপোর্ট তৈরি করতে একটি মন্তব্য যোগ করুন (যেমন ব্যাংকের নাম বা উদ্দেশ্য)ঃ"
                             else "Please add a note to generate the report (e.g. bank name or purpose):",
                         style = MaterialTheme.typography.bodyMedium
                     )
-
                     val isLimitReached = notesInputText.length == 30
                     val interactionSource = remember { MutableInteractionSource() }
                     val isNotesFocused by interactionSource.collectIsFocusedAsState()
@@ -466,7 +501,9 @@ fun CalculatorScreen(
                                 notesInputText = sanitized
                             }
                         },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(notesFocusRequester),
                         label = {
                             if (notesInputText.isNotEmpty() || isNotesFocused) {
                                 Text(if (isBangla) "মন্তব্য" else "Notes")
@@ -500,48 +537,98 @@ fun CalculatorScreen(
                             }
                         }
                     )
+                    Row(
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                showAddNotesDialog = false
+                            },
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = MaterialTheme.colorScheme.primary
+                            )
+                        ) {
+                            Text(if (isBangla) "বাতিল" else "Cancel")
+                        }
+                        Button(
+                            onClick = {
+                                HapticHelper.vibrate(context)
+                                if (notesInputText.trim().isBlank()) {
+                                    val msg = if (isBangla) "মন্তব্য ছাড়া সেভ করা যাবে না" else "Cannot save without a note"
+                                    activeToast?.cancel()
+                                    activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+                                    return@Button
+                                }
+                                viewModel.saveToHistory(remark = notesInputText.trim()) { savedId, savedAmount ->
+                                    val msg = if (isBangla) "হিসাব সেভ হয়েছেঃ $savedAmount" else "Transaction saved: $savedAmount"
+                                    activeToast?.cancel()
+                                    activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
+                                    onNavigateToReport(savedId, false)
+                                }
+                                showAddNotesDialog = false
+                            },
+                            enabled = notesInputText.isNotBlank(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
+                            )
+                        ) {
+                            Text(if (isBangla) "সেভ করুন" else "Save", fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
+            }
+        }
+    }
+
+    // Discard note confirmation — always shown on back press / outside tap
+    // while the notes dialog is open, mirroring the Clear All confirmation.
+    if (showDiscardNoteConfirmation) {
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                showDiscardNoteConfirmation = false
             },
-            dismissButton = {
-                OutlinedButton(
-                    onClick = {
-                        HapticHelper.vibrate(context)
-                        showAddNotesDialog = false
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Text(if (isBangla) "বাতিল" else "Cancel")
-                }
+            title = {
+                Text(
+                    text = if (isBangla) "মন্তব্য বাদ দেবেন?" else "Discard note?",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = if (isBangla) "আপনার লেখা মন্তব্যটি মুছে ফেলা হবে।" else "Your typed note will be discarded."
+                )
             },
             confirmButton = {
                 Button(
                     onClick = {
                         HapticHelper.vibrate(context)
-                        if (notesInputText.trim().isBlank()) {
-                            val msg = if (isBangla) "মন্তব্য ছাড়া সেভ করা যাবে না" else "Cannot save without a note"
-                            activeToast?.cancel()
-                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
-                            return@Button
-                        }
-                        viewModel.saveToHistory(remark = notesInputText.trim()) { savedId, savedAmount ->
-                            val msg = if (isBangla) "হিসাব সেভ হয়েছেঃ $savedAmount" else "Transaction saved: $savedAmount"
-                            activeToast?.cancel()
-                            activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
-                            onNavigateToReport(savedId, false)
-                        }
+                        showDiscardNoteConfirmation = false
                         showAddNotesDialog = false
+                        notesInputText = ""
                     },
-                    enabled = notesInputText.isNotBlank(),
-                    shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
                     )
                 ) {
-                    Text(if (isBangla) "সেভ করুন" else "Save", fontWeight = FontWeight.Bold)
+                    Text(if (isBangla) "বাদ দিন" else "Discard", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    showDiscardNoteConfirmation = false
+                }) {
+                    Text(if (isBangla) "চালিয়ে যান" else "Keep editing", fontWeight = FontWeight.SemiBold)
                 }
             }
         )
