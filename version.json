@@ -1,7 +1,7 @@
 {
-  "versionCode": 78,
-  "versionName": "v4.4.30",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.30/CashFigure.apk",
-  "changelog": "* **fix: disable crashing lint check for Kotlin 2.1** (698079a)\n  - disable NullSafeMutableLiveData lint check, whose detector crashes\n    (IncompatibleClassChangeError) against Kotlin 2.1.0 analysis API\n  - crash was failing :app:lintVitalAnalyzeRelease on release builds\n  - check only warns on non-nullable MutableLiveData; low value, no\n    real issues lost\n  TEST: not run — Gradle unavailable on dev machine; build on Windows\n        (gradlew.bat assembleRelease) or via CI\n* **build: upgrade compose BOM and material3 for sheet+IME fix** (1a42248)\n  - composeBom 2024.12.01 -> 2025.07.00 (ui/foundation 1.8.3), fixing IME\n    insets delivery to edge-to-edge dialog windows\n  - material3 1.3.2 -> 1.4.0 explicit version, adding sheet window-inset\n    consumption (consumeWindowInsets) for the ModalBottomSheet\n  - Fixes the grey scrim artifact and sheet bottom insets when the soft\n    keyboard opens inside the quantity picker sheet\n  TEST: not run — dependency bump; build on Windows (gradlew.bat assembleDebug)\n",
+  "versionCode": 79,
+  "versionName": "v4.4.31",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.31/CashFigure.apk",
+  "changelog": "* **fix: grey artifact in quantity sheet** (ca6063c)\n  - stop window resize (adjustNothing) on API 30+ so the sheet's built-in\n    imePadding alone lifts content above the keyboard; keep adjustResize on\n    API 24-29 where androidx.core synthesizes IME insets only from resize\n  - defer custom-field focus by one frame (withFrameNanos) so the IME opens\n    after the field is laid out, not mid-sheet-relayout\n  - simplify preset chips to plain clickable with indication = null and\n    delete the custom NoIndication / pointerInput-detectTapGestures machinery\n",
   "fileSize": 6323716
 }

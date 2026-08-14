@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.31",
+      "publishedAt": "2026-08-14T05:19:21Z",
+      "items": [
+        {
+          "title": "fix: grey artifact in quantity sheet",
+          "subItems": [
+            "stop window resize (adjustNothing) on API 30+ so the sheet's built-in",
+            "defer custom-field focus by one frame (withFrameNanos) so the IME opens",
+            "simplify preset chips to plain clickable with indication = null and"
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.30",
       "publishedAt": "2026-08-14T04:13:17Z",
       "items": [
