@@ -78,6 +78,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import app.cash.tanvir.info.ui.animation.pressScale
@@ -111,6 +112,7 @@ fun QuantityPickerSheet(
     var sheetContentHeight by remember { mutableStateOf(0) }
     var showCustom by remember { mutableStateOf(false) }
     var customInput by remember { mutableStateOf("") }
+    var maxDigitsError by remember { mutableStateOf(false) }
     var pendingQty by remember { mutableStateOf(quantityText) }
     var presetActive by remember { mutableStateOf(false) }
     var discardTrigger by remember { mutableStateOf<DiscardTrigger?>(null) }
@@ -199,6 +201,7 @@ fun QuantityPickerSheet(
                                 pendingQty = ""
                                 customInput = ""
                                 presetActive = false
+                                maxDigitsError = false
                                 focusManager.clearFocus()
                             }
                         }) {
@@ -308,6 +311,7 @@ fun QuantityPickerSheet(
                                 HapticHelper.vibrate(context)
                                 showCustom = !showCustom
                                 presetActive = false
+                                maxDigitsError = false
                                 if (showCustom) {
                                     customInput = if (pendingValue != null) pendingValue.toString() else ""
                                 }
@@ -323,7 +327,11 @@ fun QuantityPickerSheet(
                             onValueChange = { input ->
                                 val western = BanglaDigitConverter.toWestern(input)
                                 val filtered = western.filter { it.isDigit() }
-                                if (filtered.length <= 5) {
+                                if (filtered.length > 5) {
+                                    maxDigitsError = true
+                                    setPending(filtered.take(5))
+                                } else {
+                                    maxDigitsError = false
                                     presetActive = false
                                     setPending(filtered)
                                 }
@@ -349,7 +357,16 @@ fun QuantityPickerSheet(
                                 onDone = {
                                     focusManager.clearFocus()
                                 }
-                            )
+                            ),
+                            supportingText = {
+                                if (maxDigitsError) {
+                                    Text(
+                                        text = if (isBangla) "সর্বোচ্চ ৫ সংখ্যা (৯৯,৯৯৯)" else "Max 5 digits (99,999)",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
                         )
                     }
 
@@ -418,6 +435,7 @@ fun QuantityPickerSheet(
                             pendingQty = ""
                             customInput = ""
                             presetActive = false
+                            maxDigitsError = false
                             focusManager.clearFocus()
                         } else {
                             onDismiss()
