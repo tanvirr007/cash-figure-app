@@ -28,7 +28,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,11 +62,19 @@ fun DashboardCard(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    // Count-up animation: 0 -> grandTotal whenever the total changes
-    val countUpProgress = remember { Animatable(1f) }
+    // Count-up animation: 0 -> grandTotal whenever the total changes. The last
+    // animated total survives LazyColumn item disposal (scroll away/back) and
+    // nav tab switches, so returning to this card does not replay the count-up.
+    var lastAnimatedTotal by rememberSaveable { mutableStateOf(0L) }
+    val countUpProgress = remember { Animatable(if (lastAnimatedTotal == grandTotal) 1f else 0f) }
     LaunchedEffect(grandTotal) {
-        countUpProgress.snapTo(0f)
-        countUpProgress.animateTo(1f, tween(durationMillis = 600, easing = AppMotion.EnterEasing))
+        if (lastAnimatedTotal != grandTotal) {
+            countUpProgress.snapTo(0f)
+            countUpProgress.animateTo(1f, tween(durationMillis = 600, easing = AppMotion.EnterEasing))
+            lastAnimatedTotal = grandTotal
+        } else {
+            countUpProgress.snapTo(1f)
+        }
     }
     val animatedTotal = (grandTotal.toDouble() * countUpProgress.value).toLong()
     val grandTotalFormatted = CurrencyFormatter.format(animatedTotal, useBengaliDigits = isBangla)
