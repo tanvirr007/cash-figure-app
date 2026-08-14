@@ -349,14 +349,7 @@ fun QuantityPickerSheet(
                                 onDone = {
                                     focusManager.clearFocus()
                                 }
-                            ),
-                            supportingText = {
-                                Text(
-                                    text = if (isBangla) "সর্বনিম্ন ১, সর্বোচ্চ ৯৯,৯৯৯" else "Min 1, max 99,999",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            )
                         )
                     }
 
