@@ -1,5 +1,9 @@
 package app.cash.tanvir.info.ui.screen.calculator.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,7 +38,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.cash.tanvir.info.ui.animation.AppMotion
+import app.cash.tanvir.info.ui.animation.contentEnterTransition
+import app.cash.tanvir.info.ui.animation.contentExitTransition
 import app.cash.tanvir.info.ui.animation.pressScale
+import app.cash.tanvir.info.ui.animation.shouldReduceMotion
 import app.cash.tanvir.info.ui.components.AutoShrinkText
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
@@ -88,19 +97,38 @@ fun DenominationRowItem(
         // Quantity selector — opens the picker sheet on tap. A plain clickable
         // box (not a TextField) so taps are never swallowed by text-field input
         // handling and the value is never clipped by field internals.
+        // Filled + state-aware: soft neutral field when empty, teal primary
+        // container when it holds a value; colors morph between states.
         val quantityInteractionSource = remember { MutableInteractionSource() }
+        val reducedMotion = shouldReduceMotion()
+        val hasValue = quantityText.isNotEmpty()
+        val boxShape = RoundedCornerShape(16.dp)
+        val containerColor by animateColorAsState(
+            targetValue = if (hasValue) {
+                MaterialTheme.colorScheme.primaryContainer
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerHighest
+            },
+            animationSpec = tween(AppMotion.DurationNormal, easing = AppMotion.EnterEasing),
+            label = "qtyBoxContainer"
+        )
+        val borderColor by animateColorAsState(
+            targetValue = if (hasValue) {
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
+            } else {
+                MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+            },
+            animationSpec = tween(AppMotion.DurationNormal, easing = AppMotion.EnterEasing),
+            label = "qtyBoxBorder"
+        )
         Box(
             modifier = Modifier
                 .weight(1f)
                 .height(56.dp)
                 .pressScale(quantityInteractionSource)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
-                    shape = RoundedCornerShape(12.dp)
-                )
+                .clip(boxShape)
+                .background(containerColor)
+                .border(width = 1.dp, color = borderColor, shape = boxShape)
                 .clickable(
                     interactionSource = quantityInteractionSource,
                     indication = LocalIndication.current,
@@ -109,20 +137,29 @@ fun DenominationRowItem(
                 .padding(horizontal = 12.dp),
             contentAlignment = Alignment.Center
         ) {
-            AutoShrinkText(
-                text = displayQuantity.ifEmpty { if (isBangla) "০" else "0" },
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
-                ),
-                color = if (displayQuantity.isEmpty()) {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                } else {
-                    MaterialTheme.colorScheme.onSurface
+            AnimatedContent(
+                targetState = displayQuantity,
+                contentAlignment = Alignment.Center,
+                transitionSpec = {
+                    contentEnterTransition(reducedMotion) togetherWith contentExitTransition(reducedMotion)
                 },
-                minFontSize = 12.sp,
-                modifier = Modifier.padding(end = 28.dp)
-            )
+                label = "qtyValue"
+            ) { current ->
+                AutoShrinkText(
+                    text = current.ifEmpty { if (isBangla) "০" else "0" },
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = if (current.isEmpty()) {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                    } else {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    },
+                    minFontSize = 12.sp,
+                    modifier = Modifier.padding(end = 28.dp)
+                )
+            }
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = if (isBangla) "সংখ্যা বেছে নিন" else "Pick a quantity",
@@ -130,7 +167,11 @@ fun DenominationRowItem(
                     .align(Alignment.CenterEnd)
                     .padding(end = 8.dp)
                     .size(20.dp),
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f)
+                tint = if (hasValue) {
+                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.65f)
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
+                }
             )
         }
 
