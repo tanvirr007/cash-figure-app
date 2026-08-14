@@ -76,6 +76,7 @@ fun shouldReduceMotion(): Boolean {
 fun screenEnterTransition(reducedMotion: Boolean): EnterTransition {
     if (reducedMotion) return EnterTransition.None
     return slideInHorizontally(
+        initialOffsetX = { it },
         animationSpec = tween(AppMotion.DurationMedium, easing = AppMotion.EnterEasing)
     ) + fadeIn(tween(AppMotion.DurationMedium, easing = AppMotion.EnterEasing))
 }
