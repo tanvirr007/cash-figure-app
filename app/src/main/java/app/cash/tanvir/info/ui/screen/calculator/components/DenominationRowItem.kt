@@ -172,7 +172,7 @@ fun DenominationRowItem(
                             fontWeight = FontWeight.SemiBold
                         ),
                         color = if (current.isEmpty()) {
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                            MaterialTheme.colorScheme.onSurfaceVariant
                         } else {
                             MaterialTheme.colorScheme.onPrimaryContainer
                         },
@@ -188,7 +188,7 @@ fun DenominationRowItem(
                         imageVector = Icons.Rounded.KeyboardArrowDown,
                         contentDescription = if (isBangla) "সংখ্যা বেছে নিন" else "Pick a quantity",
                         modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                     )
                 }
             }
@@ -207,7 +207,7 @@ fun DenominationRowItem(
                 color = if (rowTotal > 0)
                     MaterialTheme.colorScheme.onSurface
                 else
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f),
+                    MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.End,
                 minFontSize = 10.sp
             )
