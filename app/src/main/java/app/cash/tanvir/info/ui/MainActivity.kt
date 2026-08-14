@@ -79,6 +79,19 @@ class MainActivity : FragmentActivity() {
                 android.graphics.Color.TRANSPARENT
             )
         )
+        // Compose (Material3 ModalBottomSheet) handles IME insets natively. Letting
+        // the window ALSO resize (adjustResize) double-handles the keyboard and
+        // relayouts the sheet mid-IME-animation, painting its shadow as a giant
+        // grey artifact. API < 30 has no first-class IME insets — androidx.core
+        // synthesizes them only from the adjustResize path — so the resize path
+        // must stay there for the keyboard to remain visible.
+        window.setSoftInputMode(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+            } else {
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+            }
+        )
 
         if (savedInstanceState != null) {
             isAppLocked = savedInstanceState.getBoolean("is_app_locked", false)

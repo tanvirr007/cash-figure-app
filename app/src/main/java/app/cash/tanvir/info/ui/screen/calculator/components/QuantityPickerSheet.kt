@@ -3,15 +3,10 @@ package app.cash.tanvir.info.ui.screen.calculator.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.IndicationNodeFactory
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -50,22 +45,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.node.DelegatableNode
-import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -132,9 +124,13 @@ fun QuantityPickerSheet(
         onDismiss()
     }
 
-    // Auto-open the keyboard when the custom input appears
+    // Auto-open the keyboard when the custom input appears.
+    // Defer by one frame so the field is laid out before focus lands on it —
+    // requesting focus in the same pass the field is inserted opens the IME
+    // during the sheet's relayout.
     LaunchedEffect(showCustom) {
         if (showCustom) {
+            withFrameNanos { }
             customFocusRequester.requestFocus()
         }
     }
@@ -168,20 +164,18 @@ fun QuantityPickerSheet(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.weight(1f))
-                        CompositionLocalProvider(LocalIndication provides NoIndication) {
-                            TextButton(onClick = {
-                                HapticHelper.vibrate(context)
-                                pendingQty = ""
-                                customInput = ""
-                                focusManager.clearFocus()
-                            }) {
-                                Text(
-                                    text = if (isBangla) "মুছুন" else "Clear",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.error
-                                )
-                            }
+                        TextButton(onClick = {
+                            HapticHelper.vibrate(context)
+                            pendingQty = ""
+                            customInput = ""
+                            focusManager.clearFocus()
+                        }) {
+                            Text(
+                                text = if (isBangla) "মুছুন" else "Clear",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.error
+                            )
                         }
                     }
                     Spacer(modifier = Modifier.height(4.dp))
@@ -254,7 +248,6 @@ fun QuantityPickerSheet(
                                 label = if (isBangla) BanglaDigitConverter.toBangla(preset) else preset.toString(),
                                 selected = !showCustom && pendingValue == preset,
                                 modifier = Modifier.weight(1f),
-                                indication = null,
                                 onClick = {
                                     HapticHelper.vibrate(context)
                                     showCustom = false
@@ -272,7 +265,6 @@ fun QuantityPickerSheet(
                             label = if (isBangla) "নিজের সংখ্যা" else "Custom",
                             selected = showCustom,
                             modifier = Modifier.weight(1f),
-                            indication = null,
                             onClick = {
                                 HapticHelper.vibrate(context)
                                 showCustom = !showCustom
@@ -410,26 +402,24 @@ fun QuantityPickerSheet(
                     // Commit button — the only way pending becomes the row value
                     Spacer(modifier = Modifier.height(16.dp))
                     val okInteractionSource = remember { MutableInteractionSource() }
-                    CompositionLocalProvider(LocalIndication provides NoIndication) {
-                        Button(
-                            onClick = {
-                                HapticHelper.vibrate(context)
-                                commit()
-                            },
-                            interactionSource = okInteractionSource,
-                            enabled = pendingValue != null,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(52.dp)
-                                .pressScale(okInteractionSource),
-                            shape = RoundedCornerShape(14.dp)
-                        ) {
-                            Text(
-                                text = if (isBangla) "ঠিক আছে" else "OK",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
+                    Button(
+                        onClick = {
+                            HapticHelper.vibrate(context)
+                            commit()
+                        },
+                        interactionSource = okInteractionSource,
+                        enabled = pendingValue != null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp)
+                            .pressScale(okInteractionSource),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Text(
+                            text = if (isBangla) "ঠিক আছে" else "OK",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -530,15 +520,13 @@ private fun HoldToRepeatButton(
 /**
  * Preset chip: rounded tile, highlighted when it matches the pending value.
  * Tap selects/deselects the pending quantity; OK commits.
- * When [indication] is null the tap has NO ripple at all — plain gesture
- * detection instead of clickable's indication node.
+ * Plain clickable with a null indication — no ripple, no custom gesture path.
  */
 @Composable
 private fun PresetChip(
     label: String,
     selected: Boolean,
     modifier: Modifier = Modifier,
-    indication: Indication? = LocalIndication.current,
     onClick: () -> Unit
 ) {
     val background = if (selected) {
@@ -551,29 +539,21 @@ private fun PresetChip(
     } else {
         MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
     }
-    val chipModifier = modifier
-        .height(48.dp)
-        .clip(RoundedCornerShape(14.dp))
-        .background(background)
-        .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
-    val chipOnClick = onClick
     Box(
-        modifier = if (indication == null) {
-            chipModifier
-                .pointerInput(Unit) { detectTapGestures { chipOnClick() } }
-                .semantics(mergeDescendants = true) {
-                    this.selected = selected
-                    role = Role.Button
-                    onClick { chipOnClick(); true }
-                }
-        } else {
-            chipModifier.clickable(
+        modifier = modifier
+            .height(48.dp)
+            .clip(RoundedCornerShape(14.dp))
+            .background(background)
+            .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
+            .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = indication,
+                indication = null,
                 role = Role.Button,
                 onClick = onClick
             )
-        },
+            .semantics(mergeDescendants = true) {
+                this.selected = selected
+            },
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -588,25 +568,5 @@ private fun PresetChip(
             textAlign = TextAlign.Center,
             maxLines = 1
         )
-    }
-}
-
-/**
- * Indication that draws nothing — the ripple-free stand-in for
- * [androidx.compose.foundation.LocalIndication]. [LocalIndication] is non-nullable,
- * so a null provider is a compile error; this factory renders no visual effects
- * while keeping clickable/surface semantics fully intact.
- */
-private val NoIndication = object : IndicationNodeFactory {
-    override fun create(interactionSource: InteractionSource): DelegatableNode = NoIndicationNode
-
-    override fun hashCode(): Int = 0
-
-    override fun equals(other: Any?): Boolean = this === other
-}
-
-private object NoIndicationNode : Modifier.Node(), DrawModifierNode {
-    override fun ContentDrawScope.draw() {
-        drawContent()
     }
 }
