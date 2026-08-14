@@ -91,12 +91,19 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    fun undoDelete() {
-        val deletedId = _uiState.value.lastDeletedSheetId ?: return
+    fun undoDelete(sheetId: Long) {
         viewModelScope.launch {
-            sheetRepository.restoreSheet(deletedId)
+            sheetRepository.restoreSheet(sheetId)
             _uiState.update { it.copy(lastDeletedSheetId = null) }
         }
+    }
+
+    /**
+     * Consume the delete flag once the undo snackbar is about to be shown,
+     * so a tab switch away and back can never replay a stale "Sheet deleted" toast.
+     */
+    fun consumeLastDeleted() {
+        _uiState.update { it.copy(lastDeletedSheetId = null) }
     }
 
     fun openRenameDialog(sheet: Sheet) {

@@ -75,18 +75,19 @@ fun HistoryScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val isBangla = uiState.currentLanguage == app.cash.tanvir.info.data.local.preferences.AppLanguage.BANGLA
 
-    // Show undo snackbar when item is deleted
+    // Show undo snackbar when item is deleted. The flag is consumed immediately
+    // so a tab switch away and back can never replay a stale "Sheet deleted" toast.
     LaunchedEffect(uiState.lastDeletedSheetId) {
-        if (uiState.lastDeletedSheetId != null) {
-            val result = snackbarHostState.showSnackbar(
-                message = if (isBangla) "শিটটি মুছে ফেলা হয়েছে" else "Sheet deleted",
-                actionLabel = if (isBangla) "ফিরিয়ে আনুন" else "Undo",
-                duration = SnackbarDuration.Short
-            )
-            if (result == SnackbarResult.ActionPerformed) {
-                HapticHelper.vibrate(context)
-                viewModel.undoDelete()
-            }
+        val deletedId = uiState.lastDeletedSheetId ?: return@LaunchedEffect
+        viewModel.consumeLastDeleted()
+        val result = snackbarHostState.showSnackbar(
+            message = if (isBangla) "শিটটি মুছে ফেলা হয়েছে" else "Sheet deleted",
+            actionLabel = if (isBangla) "ফিরিয়ে আনুন" else "Undo",
+            duration = SnackbarDuration.Short
+        )
+        if (result == SnackbarResult.ActionPerformed) {
+            HapticHelper.vibrate(context)
+            viewModel.undoDelete(deletedId)
         }
     }
 
