@@ -75,13 +75,19 @@ fun DenominationRowItem(
         horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // Denomination chip
+        val chipShape = RoundedCornerShape(16.dp)
         Box(
             modifier = Modifier
                 .width(if (isCompact) 68.dp else 84.dp)
                 .height(selectorHeight)
                 .background(
                     color = MaterialTheme.colorScheme.secondaryContainer,
-                    shape = RoundedCornerShape(12.dp)
+                    shape = chipShape
+                )
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                    shape = chipShape
                 )
                 .padding(horizontal = 4.dp),
             contentAlignment = Alignment.Center
