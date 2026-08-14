@@ -426,7 +426,7 @@ fun QuantityPickerSheet(
             }
             VerticalScrollbarIndicator(
                 state = scrollState,
-                modifier = Modifier.matchParentSize()
+                modifier = Modifier.align(Alignment.CenterEnd)
             )
         }
     }

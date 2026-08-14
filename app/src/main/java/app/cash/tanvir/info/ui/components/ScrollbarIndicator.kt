@@ -34,6 +34,11 @@ private const val ScrollbarFadeMillis = 200
  * Exact for plain scroll states, approximated from layout info for lazy lists.
  * Only appears while the content is being scrolled (drag or fling) and fades
  * out shortly after it stops.
+ *
+ * Callers must pass a positioning-only modifier (e.g. `Modifier.align(...)`).
+ * The track width and height are applied internally; size-overriding
+ * modifiers such as `matchParentSize()` stretch the canvas and must not
+ * be used.
  */
 @Composable
 fun VerticalScrollbarIndicator(
@@ -71,6 +76,11 @@ fun VerticalScrollbarIndicator(
 /**
  * Lightweight vertical scroll indicator for lazy lists, using layout info
  * to approximate the visible thumb position and size.
+ *
+ * Callers must pass a positioning-only modifier (e.g. `Modifier.align(...)`).
+ * The track width and height are applied internally; size-overriding
+ * modifiers such as `matchParentSize()` stretch the canvas and must not
+ * be used.
  */
 @Composable
 fun VerticalScrollbarIndicator(
@@ -121,6 +131,10 @@ private fun DrawScope.drawScrollIndicator(
 ) {
     val trackHeight = size.height
     if (trackHeight <= 0f) return
+    // Vertical-track invariant: a canvas wider than tall is a broken size
+    // (e.g. a caller modifier that stretched the track); never paint a shape
+    // spanning it, since the rounded corners would degenerate into an oval.
+    if (size.width <= 0f || size.width > trackHeight) return
     val radius = CornerRadius(size.width / 2f)
     drawRoundRect(color = trackColor, size = Size(size.width, trackHeight), cornerRadius = radius)
     if (contentHeight <= trackHeight) return
