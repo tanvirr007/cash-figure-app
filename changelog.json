@@ -1,6 +1,41 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.37",
+      "publishedAt": "2026-08-14T10:20:49Z",
+      "items": [
+        {
+          "title": "fix: missing imports in quantity picker sheet",
+          "subItems": [
+            "Add navigationBars import for contentWindowInsets.",
+            "Add AlertDialog import for discard warning dialog.",
+            "Resolves compileReleaseKotlin failure from unresolved references."
+          ]
+        },
+        {
+          "title": "feat: hide quantity arrow once value set",
+          "subItems": [
+            "Hide the chevron hint in the quantity field once a value is picked.",
+            "Keep the arrow only on empty fields as a tap-to-pick affordance.",
+            "Restore the arrow after the row quantity is cleared."
+          ]
+        },
+        {
+          "title": "feat: compact sheet + discard warning",
+          "subItems": [
+            "Compact the quantity picker into a wrap-content bottom popover.",
+            "Flow preset chips 5 per row at 44dp and tighten grid spacing.",
+            "Shrink stepper buttons, quantity text, and section gaps.",
+            "Drop top status-bar inset padding from the sheet content.",
+            "Shorten the Bangla custom chip label to fit the grid.",
+            "Warn before dismissing the sheet when the quantity changed.",
+            "Veto swipe-down, scrim, handle, and back-button dismissal.",
+            "Keep the OK button committing and closing silently."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.36",
       "publishedAt": "2026-08-14T09:45:30Z",
       "items": [

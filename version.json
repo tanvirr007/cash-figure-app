@@ -1,7 +1,7 @@
 {
-  "versionCode": 85,
-  "versionName": "v4.4.36",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.36/CashFigure.apk",
-  "changelog": "* **refactor: drop breakdown card from quantity sheet** (0aa4d1a)\n  - Remove the breakdown card above the OK button in the quantity sheet.\n  - Card showed the denomination x quantity total and its amount in words.\n  - Keep the OK button and its spacing untouched.\n",
+  "versionCode": 87,
+  "versionName": "v4.4.37",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.37/CashFigure.apk",
+  "changelog": "* **fix: missing imports in quantity picker sheet** (05ea9e8)\n  - Add navigationBars import for contentWindowInsets.\n  - Add AlertDialog import for discard warning dialog.\n  - Resolves compileReleaseKotlin failure from unresolved references.\n* **feat: hide quantity arrow once value set** (d2bb1a8)\n  - Hide the chevron hint in the quantity field once a value is picked.\n  - Keep the arrow only on empty fields as a tap-to-pick affordance.\n  - Restore the arrow after the row quantity is cleared.\n* **feat: compact sheet + discard warning** (f64c09c)\n  - Compact the quantity picker into a wrap-content bottom popover.\n  - Flow preset chips 5 per row at 44dp and tighten grid spacing.\n  - Shrink stepper buttons, quantity text, and section gaps.\n  - Drop top status-bar inset padding from the sheet content.\n  - Shorten the Bangla custom chip label to fit the grid.\n  - Warn before dismissing the sheet when the quantity changed.\n  - Veto swipe-down, scrim, handle, and back-button dismissal.\n  - Keep the OK button committing and closing silently.\n",
   "fileSize": 6323716
 }
