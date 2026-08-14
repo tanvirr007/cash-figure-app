@@ -1,6 +1,92 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.39",
+      "publishedAt": "2026-08-14T14:27:57Z",
+      "items": [
+        {
+          "title": "feat: easter egg is now a money game",
+          "subItems": [
+            "7 taps on the Version row open the game directly, no dialog.",
+            "Emojis are draggable; tilting drifts them and shaking scatters them.",
+            "More bank and money emojis in small, medium and large sizes.",
+            "Game screen fades in with a staggered pop-in; back button is the only exit."
+          ]
+        },
+        {
+          "title": "fix: stop ghost Sheet deleted toast",
+          "subItems": [
+            "Consume the lastDeletedSheetId flag before the undo snackbar shows, so switching tabs can never replay a stale toast.",
+            "Pass the sheet id to undoDelete explicitly instead of reading the consumed flag."
+          ]
+        },
+        {
+          "title": "fix: commit custom quantity on IME Done",
+          "subItems": [
+            "IME Done key now saves the typed value exactly like the OK button.",
+            "Removed the old behavior where Done only cleared focus."
+          ]
+        },
+        {
+          "title": "chore: align app version with released v4.4.38",
+          "subItems": [
+            "Bump versionCode from 28 to 89 and versionName from 4.4.20 to 4.4.38 to match the release shipped in version.json."
+          ]
+        },
+        {
+          "title": "docs: refresh README and codebase reference docs",
+          "subItems": [
+            "Add real screenshot files section to README and drop the placeholder TODO comment.",
+            "Correct route count (4/8 -> 9) in AGENTS.md and README project tree; add Draft route, draft/ and onboarding/ folders.",
+            "Add Save as Draft and Onboarding Wizard to the README features list.",
+            "Create ota.md design doc from current code: manifest/changelog JSON contracts, UpdateStatus state machine, download/install flows, error matrix, CI pipeline.",
+            "Refresh docs/FILES.md: script-verified line counts, versionCode 89 / versionName 4.4.38, 9-route navigation map with draft + fromDraft, BanglaTextSanitizer, 9 test classes.",
+            "Correct AGENTS.md install mechanism note (FileProvider on all API levels; MediaStore only for report exports) and fix line-count warnings.",
+            "Point the SettingsViewModel state-machine comment at ota.md section 5."
+          ]
+        },
+        {
+          "title": "docs: add real app screenshots to README",
+          "subItems": [
+            "Replace placeholder screenshots in assets/screenshots with actual app screenshots.",
+            "Cover Calculator, Report, History, Update available, and Up to date screens."
+          ]
+        },
+        {
+          "title": "feat: warn red when custom input exceeds 5 digits",
+          "subItems": [
+            "Show a red Max 5 digits (99,999) message only when typing more than 5 digits.",
+            "Keep the field capped at 5 digits and clear the warning when input is valid again.",
+            "Reset the warning when Custom is toggled off or the field is cleared."
+          ]
+        },
+        {
+          "title": "fix: drop Min 1 max 99,999 subtitle",
+          "subItems": [
+            "Remove the Min 1, max 99,999 hint under the custom number field.",
+            "The custom input box now shows no subtitle by default."
+          ]
+        },
+        {
+          "title": "style: shrink Custom chip label text",
+          "subItems": [
+            "Shrink only the English Custom word in the quantity picker so it no longer overlaps.",
+            "Keep the Bangla label and all numeric preset chips at their original size."
+          ]
+        },
+        {
+          "title": "style: render Bangla colons as bisorgo",
+          "subItems": [
+            "Flip the remark sanitizer: in Bangla mode, punctuation colons become",
+            "Skip times (রাত ১১:৩০, 10:45) and colons in English text",
+            "Drop spaces before a converted colon (\"মোট : ৫০\" → \"মোটঃ ৫০\").",
+            "Pass isBangla at all sanitizer call sites (reports, calculator,",
+            "Switch Bangla labels to ঃ in PDF (6), TXT (7), and UI screens"
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.38",
       "publishedAt": "2026-08-14T11:49:59Z",
       "items": [
