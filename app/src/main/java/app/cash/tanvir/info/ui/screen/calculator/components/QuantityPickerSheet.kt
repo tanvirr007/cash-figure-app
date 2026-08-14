@@ -15,11 +15,16 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -28,6 +33,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Remove
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -109,6 +115,7 @@ fun QuantityPickerSheet(
     var pendingQty by remember { mutableStateOf(quantityText) }
     val pendingValue = pendingQty.toIntOrNull()
     val customFocusRequester = remember { FocusRequester() }
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val focusManager = LocalFocusManager.current
 
@@ -132,13 +139,17 @@ fun QuantityPickerSheet(
         if (showCustom) {
             withFrameNanos { }
             customFocusRequester.requestFocus()
+            bringIntoViewRequester.bringIntoView()
         }
     }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.surface,
+        contentWindowInsets = {
+            BottomSheetDefaults.windowInsets.exclude(WindowInsets.ime)
+        }
     ) {
         val scrollState = rememberScrollState()
         Box(
@@ -290,7 +301,8 @@ fun QuantityPickerSheet(
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .focusRequester(customFocusRequester),
+                                .focusRequester(customFocusRequester)
+                                .bringIntoViewRequester(bringIntoViewRequester),
                             label = { Text(if (isBangla) "নিজের সংখ্যা লিখুন" else "Type a number") },
                             placeholder = {
                                 Text(
