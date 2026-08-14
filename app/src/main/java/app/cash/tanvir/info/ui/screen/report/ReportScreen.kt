@@ -135,7 +135,7 @@ fun ReportScreen(
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
                                 text = if (isBangla) {
-                                    "সর্বমোট: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = true)}"
+                                    "সর্বমোটঃ ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = true)}"
                                 } else {
                                     "Grand Total: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = false)}"
                                 },
@@ -145,7 +145,7 @@ fun ReportScreen(
                             )
                             val words = if (isBangla) NumberToWordsConverter.toBangla(sheet.grandTotal) else NumberToWordsConverter.toEnglish(sheet.grandTotal)
                             Text(
-                                text = if (isBangla) "কথায়: $words" else "Words: $words",
+                                text = if (isBangla) "কথায়ঃ $words" else "Words: $words",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                                 modifier = Modifier.fillMaxWidth()
@@ -155,7 +155,7 @@ fun ReportScreen(
                             Spacer(modifier = Modifier.height(12.dp))
 
                             Text(
-                                text = if (isBangla) "বিস্তারিত হিসাব:" else "Breakdown:",
+                                text = if (isBangla) "বিস্তারিত হিসাবঃ" else "Breakdown:",
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold
                             )
@@ -285,7 +285,7 @@ fun ReportScreen(
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.SemiBold)) {
-                                        append(if (isBangla) "মন্তব্য: " else "Notes: ")
+                                        append(if (isBangla) "মন্তব্যঃ " else "Notes: ")
                                     }
                                     withStyle(
                                         style = SpanStyle(
@@ -293,7 +293,7 @@ fun ReportScreen(
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     ) {
-                                        append(app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(sheet.remark.ifBlank { "N/A" }))
+                                        append(app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(sheet.remark.ifBlank { "N/A" }, isBangla))
                                     }
                                 },
                                 style = MaterialTheme.typography.bodyMedium

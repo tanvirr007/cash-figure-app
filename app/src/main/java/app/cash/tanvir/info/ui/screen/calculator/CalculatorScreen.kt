@@ -448,7 +448,7 @@ fun CalculatorScreen(
                 ) {
                     Text(
                         text = if (isBangla) 
-                            "রিপোর্ট তৈরি করতে একটি মন্তব্য যোগ করুন (যেমন ব্যাংকের নাম বা উদ্দেশ্য):" 
+                            "রিপোর্ট তৈরি করতে একটি মন্তব্য যোগ করুন (যেমন ব্যাংকের নাম বা উদ্দেশ্য)ঃ" 
                             else "Please add a note to generate the report (e.g. bank name or purpose):",
                         style = MaterialTheme.typography.bodyMedium
                     )
@@ -472,8 +472,8 @@ fun CalculatorScreen(
                         OutlinedTextField(
                             value = notesInputText,
                             onValueChange = { input ->
-                                val sanitized = app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(
-                                    input.replace("\n", " ").replace("\r", " ")
+                                val sanitized = app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(
+                                    input.replace("\n", " ").replace("\r", " "), isBangla
                                 )
                                 if (sanitized.length <= 30) {
                                     notesInputText = sanitized
@@ -535,7 +535,7 @@ fun CalculatorScreen(
                             return@Button
                         }
                         viewModel.saveToHistory(remark = notesInputText.trim()) { savedId, savedAmount ->
-                            val msg = if (isBangla) "হিসাব সেভ হয়েছে: $savedAmount" else "Transaction saved: $savedAmount"
+                            val msg = if (isBangla) "হিসাব সেভ হয়েছেঃ $savedAmount" else "Transaction saved: $savedAmount"
                             activeToast?.cancel()
                             activeToast = Toast.makeText(context, msg, Toast.LENGTH_SHORT).also { it.show() }
                             onNavigateToReport(savedId, false)

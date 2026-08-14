@@ -291,7 +291,7 @@ private fun DraftRowItem(
 
             Text(
                 text = if (isBangla) {
-                    "কথায়: ${NumberToWordsConverter.toBangla(draft.grandTotal)}"
+                    "কথায়ঃ ${NumberToWordsConverter.toBangla(draft.grandTotal)}"
                 } else {
                     "In Words: ${NumberToWordsConverter.toEnglish(draft.grandTotal)}"
                 },

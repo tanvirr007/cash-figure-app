@@ -61,6 +61,6 @@ class CsvReportGeneratorTest {
         val csvText = String(csvBytes.drop(3).toByteArray(), Charsets.UTF_8)
         assertTrue(csvText.contains("ক্যাশ রিপোর্ট"))
         assertTrue(csvText.contains("\"সর্বমোট\",,\"৳১,০০,০০০/-\""))
-        assertTrue(csvText.contains("মন্তব্য,\"ব্যাংক হিসাব: ৫০০\""))
+        assertTrue(csvText.contains("মন্তব্য,\"ব্যাংক হিসাবঃ ৫০০\""))
     }
 }

@@ -330,7 +330,7 @@ fun QuantityPickerSheet(
                             label = { Text(if (isBangla) "নিজের সংখ্যা লিখুন" else "Type a number") },
                             placeholder = {
                                 Text(
-                                    text = if (isBangla) "যেমন: ৭৩" else "e.g. 73",
+                                    text = if (isBangla) "যেমনঃ ৭৩" else "e.g. 73",
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             },

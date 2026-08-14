@@ -210,7 +210,7 @@ private fun ReleaseChangelogCard(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f)
             )
             release.items.forEachIndexed { index, item ->
-                ChangelogItemRow(item = item)
+                ChangelogItemRow(item = item, isBangla = isBangla)
                 if (index < release.items.lastIndex) {
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -220,17 +220,17 @@ private fun ReleaseChangelogCard(
 }
 
 @Composable
-private fun ChangelogItemRow(item: ChangelogItem) {
+private fun ChangelogItemRow(item: ChangelogItem, isBangla: Boolean) {
     Column {
         Text(
-            text = "• ${app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(item.title)}",
+            text = "• ${app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(item.title, isBangla)}",
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.SemiBold
         )
         item.subItems.forEach { sub ->
             Spacer(modifier = Modifier.height(3.dp))
             Text(
-                text = "◦ ${app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(sub)}",
+                text = "◦ ${app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(sub, isBangla)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(start = 16.dp)

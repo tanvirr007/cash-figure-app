@@ -123,8 +123,8 @@ class ReportViewModel @Inject constructor(
 
     fun updateSheetRemark(remark: String) {
         val currentSheet = _uiState.value.sheet ?: return
-        val sanitizedRemark = app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(
-            remark.replace("\n", " ").replace("\r", " ")
+        val sanitizedRemark = app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(
+            remark.replace("\n", " ").replace("\r", " "), uiState.value.isBangla
         )
         val updatedSheet = currentSheet.copy(remark = sanitizedRemark)
         viewModelScope.launch {

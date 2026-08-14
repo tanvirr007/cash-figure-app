@@ -373,7 +373,7 @@ private fun UpToDateContent(
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = if (isBangla) {
-                        "আপডেট হয়েছে: ${DateTimeFormatter.formatUpdatedOn(installedUpdatedAt, isBangla = true)}"
+                        "আপডেট হয়েছেঃ ${DateTimeFormatter.formatUpdatedOn(installedUpdatedAt, isBangla = true)}"
                     } else {
                         "Updated on: ${DateTimeFormatter.formatUpdatedOn(installedUpdatedAt, isBangla = false)}"
                     },
@@ -385,7 +385,7 @@ private fun UpToDateContent(
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
                     text = if (isBangla) {
-                        "শেষ সফল আপডেট চেক: ${DateTimeFormatter.formatTime(timestamp, isBangla = true)}"
+                        "শেষ সফল আপডেট চেকঃ ${DateTimeFormatter.formatTime(timestamp, isBangla = true)}"
                     } else {
                         "Last successful check for update: ${DateTimeFormatter.formatTime(timestamp, isBangla = false)}"
                     },
@@ -440,10 +440,10 @@ private fun UpdateAvailableContent(
             append(if (isBangla) "ক্যাশ ফিগার" else "Cash Figure")
             if (sizeText != null) {
                 append("\n")
-                append(if (isBangla) "আকার: ${BanglaDigitConverter.toBangla(sizeText)}" else "Size: $sizeText")
+                append(if (isBangla) "আকারঃ ${BanglaDigitConverter.toBangla(sizeText)}" else "Size: $sizeText")
             }
             append("\n")
-            append(if (isBangla) "নতুন সংস্করণ: $versionDisplay" else "Available version: $versionDisplay")
+            append(if (isBangla) "নতুন সংস্করণঃ $versionDisplay" else "Available version: $versionDisplay")
             append("\n\n")
             append(
                 if (isBangla) {
@@ -706,7 +706,7 @@ private fun ErrorContent(
     Text(
         text = if (isDownloadFailed) {
             errorReason?.let {
-                if (isBangla) "ডাউনলোড ব্যর্থ হয়েছে: $it" else "Download failed: $it"
+                if (isBangla) "ডাউনলোড ব্যর্থ হয়েছেঃ $it" else "Download failed: $it"
             } ?: if (isBangla) "আবার চেষ্টা করুন।" else "Please try again."
         } else {
             if (isBangla) "ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।" else "Check your internet connection and try again."

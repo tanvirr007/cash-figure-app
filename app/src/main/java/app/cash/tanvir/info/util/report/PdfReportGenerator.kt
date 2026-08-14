@@ -61,7 +61,7 @@ object PdfReportGenerator {
         paint.isFakeBoldText = false
         paint.color = Color.DKGRAY
         val dateStr = formatPdfDate(sheet.updatedAt, isBangla)
-        canvas.drawText(if (isBangla) "তারিখ: $dateStr" else "Date: $dateStr", margin, y, paint)
+        canvas.drawText(if (isBangla) "তারিখঃ $dateStr" else "Date: $dateStr", margin, y, paint)
 
         y += 20f
         canvas.drawLine(margin, y, rightMargin, y, paint)
@@ -72,18 +72,18 @@ object PdfReportGenerator {
         paint.isFakeBoldText = true
         paint.color = Color.BLACK
         val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
-        canvas.drawText(if (isBangla) "সর্বমোট: $totalFormatted" else "Grand Total: $totalFormatted", margin, y, paint)
+        canvas.drawText(if (isBangla) "সর্বমোটঃ $totalFormatted" else "Grand Total: $totalFormatted", margin, y, paint)
 
         y += 20f
         paint.textSize = 11f
         paint.isFakeBoldText = false
         val words = if (isBangla) NumberToWordsConverter.toBangla(sheet.grandTotal) else NumberToWordsConverter.toEnglish(sheet.grandTotal)
-        canvas.drawText(if (isBangla) "কথায়: $words" else "In Words: $words", margin, y, paint)
+        canvas.drawText(if (isBangla) "কথায়ঃ $words" else "In Words: $words", margin, y, paint)
 
         y += 20f
         canvas.drawText(
             if (isBangla) {
-                "মোট নোট: ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)}  |  নোটের ধরন: ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)}"
+                "মোট নোটঃ ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.totalPieces)}  |  নোটের ধরনঃ ${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(sheet.activeDenominations)}"
             } else {
                 "Total Pieces: ${sheet.totalPieces}  |  Active Denominations: ${sheet.activeDenominations}"
             },
@@ -161,7 +161,7 @@ object PdfReportGenerator {
             
             // Grand Total Row
             val totalFormatted = CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = isBangla)
-            val totalLabel = if (isBangla) "সর্বমোট:" else "Grand Total:"
+            val totalLabel = if (isBangla) "সর্বমোটঃ" else "Grand Total:"
             val totalText = "$totalLabel $totalFormatted"
             paint.textAlign = Paint.Align.CENTER
             canvas.drawText(totalText, (margin + rightMargin) / 2f, y, paint)
@@ -184,14 +184,14 @@ object PdfReportGenerator {
         // Notes section
         paint.textSize = 12f
         paint.color = Color.BLACK
-        val label = if (isBangla) "মন্তব্য: " else "Notes: "
+        val label = if (isBangla) "মন্তব্যঃ " else "Notes: "
         paint.isFakeBoldText = true
         canvas.drawText(label, margin, y, paint)
         val labelWidth = paint.measureText(label)
         
         paint.isFakeBoldText = false
         val notesText = if (sheet.remark.isNotBlank()) {
-            app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(sheet.remark.replace("\n", " ").replace("\r", " "))
+            app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(sheet.remark.replace("\n", " ").replace("\r", " "), isBangla)
         } else {
             "N/A"
         }

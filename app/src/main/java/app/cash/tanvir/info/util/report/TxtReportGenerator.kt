@@ -16,15 +16,15 @@ object TxtReportGenerator {
         sb.append("=========================================\n")
         sb.append(if (isBangla) "              ক্যাশ রিপোর্ট               \n" else "               CASH REPORT               \n")
         sb.append("=========================================\n")
-        sb.append(if (isBangla) "তারিখ: $dateStr\n" else "Date: $dateStr\n")
-        sb.append(if (isBangla) "সর্বমোট: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = true)}\n" else "Grand Total: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = false)}\n")
-        sb.append(if (isBangla) "কথায়: $words\n" else "In Words: $words\n")
-        sb.append(if (isBangla) "মোট নোট: $totalPiecesStr\n" else "Total Pieces: $totalPiecesStr\n")
-        sb.append(if (isBangla) "নোটের ধরন: $activeDenomStr\n" else "Active Denominations: $activeDenomStr\n")
-        val notesText = if (sheet.remark.isNotBlank()) app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(sheet.remark) else "N/A"
-        sb.append(if (isBangla) "মন্তব্য: $notesText\n" else "Notes: $notesText\n")
+        sb.append(if (isBangla) "তারিখঃ $dateStr\n" else "Date: $dateStr\n")
+        sb.append(if (isBangla) "সর্বমোটঃ ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = true)}\n" else "Grand Total: ${CurrencyFormatter.format(sheet.grandTotal, useBengaliDigits = false)}\n")
+        sb.append(if (isBangla) "কথায়ঃ $words\n" else "In Words: $words\n")
+        sb.append(if (isBangla) "মোট নোটঃ $totalPiecesStr\n" else "Total Pieces: $totalPiecesStr\n")
+        sb.append(if (isBangla) "নোটের ধরনঃ $activeDenomStr\n" else "Active Denominations: $activeDenomStr\n")
+        val notesText = if (sheet.remark.isNotBlank()) app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(sheet.remark, isBangla) else "N/A"
+        sb.append(if (isBangla) "মন্তব্যঃ $notesText\n" else "Notes: $notesText\n")
         sb.append("-----------------------------------------\n")
-        sb.append(if (isBangla) "বিস্তারিত হিসাব:\n" else "CASH BREAKDOWN:\n")
+        sb.append(if (isBangla) "বিস্তারিত হিসাবঃ\n" else "CASH BREAKDOWN:\n")
 
         val activeRows = sheet.rows.filter { it.quantity > 0 }
         if (activeRows.isEmpty()) {

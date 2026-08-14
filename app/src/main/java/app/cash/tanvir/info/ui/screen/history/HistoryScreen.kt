@@ -362,7 +362,7 @@ private fun HistoryCard(
             // Amount in words
             Text(
                 text = if (isBangla) {
-                    "কথায়: ${NumberToWordsConverter.toBangla(sheet.grandTotal)}"
+                    "কথায়ঃ ${NumberToWordsConverter.toBangla(sheet.grandTotal)}"
                 } else {
                     "In words: ${NumberToWordsConverter.toEnglish(sheet.grandTotal)}"
                 },
@@ -372,11 +372,11 @@ private fun HistoryCard(
 
             if (!sheet.remark.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(6.dp))
-                val sanitizedRemark = app.cash.tanvir.info.util.BanglaTextSanitizer.colonizeVisarga(
-                    sheet.remark.replace("\n", " ").replace("\r", " ")
+                val sanitizedRemark = app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(
+                    sheet.remark.replace("\n", " ").replace("\r", " "), isBangla
                 )
                 Text(
-                    text = if (isBangla) "মন্তব্য: $sanitizedRemark" else "Notes: $sanitizedRemark",
+                    text = if (isBangla) "মন্তব্যঃ $sanitizedRemark" else "Notes: $sanitizedRemark",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
                 )

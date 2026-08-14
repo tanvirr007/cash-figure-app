@@ -962,7 +962,7 @@ private fun LanguageSampleCard(
 ) {
     val previewIsBangla = previewLang == AppLanguage.BANGLA
     val amount = if (previewIsBangla) {
-        "মোট: ৳ " + CurrencyFormatter.formatNumber(12345L, useBengaliDigits = true)
+        "মোটঃ ৳ " + CurrencyFormatter.formatNumber(12345L, useBengaliDigits = true)
     } else {
         "Total: ৳ " + CurrencyFormatter.formatNumber(12345L)
     }
