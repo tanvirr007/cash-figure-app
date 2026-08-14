@@ -456,58 +456,50 @@ fun CalculatorScreen(
                     val isLimitReached = notesInputText.length == 30
                     val interactionSource = remember { MutableInteractionSource() }
                     val isNotesFocused by interactionSource.collectIsFocusedAsState()
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        // Always-visible live preview: ghost hint while the box is empty.
-                        // Drawn below the field so it never blocks taps on the input.
-                        if (notesInputText.isEmpty()) {
+                    OutlinedTextField(
+                        value = notesInputText,
+                        onValueChange = { input ->
+                            val sanitized = app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(
+                                input.replace("\n", " ").replace("\r", " "), isBangla
+                            )
+                            if (sanitized.length <= 30) {
+                                notesInputText = sanitized
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = {
+                            if (notesInputText.isNotEmpty() || isNotesFocused) {
+                                Text(if (isBangla) "মন্তব্য" else "Notes")
+                            }
+                        },
+                        placeholder = {
                             Text(
                                 text = fullPlaceholder,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                                modifier = Modifier
-                                    .align(Alignment.CenterStart)
-                                    .padding(start = 16.dp)
+                                style = MaterialTheme.typography.bodyLarge
                             )
-                        }
-                        OutlinedTextField(
-                            value = notesInputText,
-                            onValueChange = { input ->
-                                val sanitized = app.cash.tanvir.info.util.BanglaTextSanitizer.colonToVisarga(
-                                    input.replace("\n", " ").replace("\r", " "), isBangla
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        interactionSource = interactionSource,
+                        supportingText = {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                val remaining = 30 - notesInputText.length
+                                val counterText = if (isBangla) {
+                                    "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(remaining)} অবশিষ্ট"
+                                } else {
+                                    "$remaining remaining"
+                                }
+                                Text(
+                                    text = counterText,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (isLimitReached) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
-                                if (sanitized.length <= 30) {
-                                    notesInputText = sanitized
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            label = {
-                                if (notesInputText.isNotEmpty() || isNotesFocused) {
-                                    Text(if (isBangla) "মন্তব্য" else "Notes")
-                                }
-                            },
-                            singleLine = true,
-                            shape = RoundedCornerShape(12.dp),
-                            interactionSource = interactionSource,
-                            supportingText = {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.End
-                                ) {
-                                    val remaining = 30 - notesInputText.length
-                                    val counterText = if (isBangla) {
-                                        "${app.cash.tanvir.info.util.BanglaDigitConverter.toBangla(remaining)} অবশিষ্ট"
-                                    } else {
-                                        "$remaining remaining"
-                                    }
-                                    Text(
-                                        text = counterText,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = if (isLimitReached) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             },
             dismissButton = {
