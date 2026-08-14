@@ -1,7 +1,7 @@
 {
-  "versionCode": 96,
-  "versionName": "v4.4.45",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.45/CashFigure.apk",
-  "changelog": "* **fix: add description to draft discard dialog** (a741654)\n  - Add a confirmation description naming the draft being discarded.\n  - Fall back to a generic draft name when the draft is missing.\n  - Drop trailing periods from two settings detail dialog sentences.\n* **fix: notes dialog stretched look** (3c560d1)\n  - Revert notes dialog to standard Material3 AlertDialog so it keeps the\n    compact default size instead of stretching.\n  - Material3 1.4.0 already dismisses on back press and outside tap, so the\n    discard confirmation still appears for both.\n  - Keep auto keyboard focus on the note field.\n  - Rename discard message to \"The note dialog will be discarded\".\n",
+  "versionCode": 97,
+  "versionName": "v4.4.46",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.46/CashFigure.apk",
+  "changelog": "* **fix: show Clear button only when quantity selected** (1ec8a6d)\n  - Hide the Clear button in the quantity picker sheet unless a value is selected.\n  - Skip the unsaved-changes dialog when clearing an unchanged quantity.\n",
   "fileSize": 6323712
 }

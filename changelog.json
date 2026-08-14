@@ -1,6 +1,19 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.46",
+      "publishedAt": "2026-08-14T19:27:56Z",
+      "items": [
+        {
+          "title": "fix: show Clear button only when quantity selected",
+          "subItems": [
+            "Hide the Clear button in the quantity picker sheet unless a value is selected.",
+            "Skip the unsaved-changes dialog when clearing an unchanged quantity."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.45",
       "publishedAt": "2026-08-14T19:15:39Z",
       "items": [
