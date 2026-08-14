@@ -62,6 +62,7 @@ fun DenominationRowItem(
     modifier: Modifier = Modifier
 ) {
     val isCompact = LocalConfiguration.current.screenWidthDp < 360
+    val selectorHeight = 56.dp
     // Quantity input comes from the picker sheet only; Bangla mode shows Bangla digits
     val displayQuantity = if (isBangla) BanglaDigitConverter.toBengali(quantityText) else quantityText
 
@@ -76,11 +77,12 @@ fun DenominationRowItem(
         Box(
             modifier = Modifier
                 .width(if (isCompact) 68.dp else 84.dp)
+                .height(selectorHeight)
                 .background(
                     color = MaterialTheme.colorScheme.secondaryContainer,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .padding(horizontal = 4.dp, vertical = 10.dp),
+                .padding(horizontal = 4.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -93,6 +95,12 @@ fun DenominationRowItem(
                 softWrap = false
             )
         }
+
+        Text(
+            text = "×",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+        )
 
         // Quantity selector — opens the picker sheet on tap. A plain clickable
         // box (not a TextField) so taps are never swallowed by text-field input
@@ -124,7 +132,7 @@ fun DenominationRowItem(
         Box(
             modifier = Modifier
                 .weight(1f)
-                .height(56.dp)
+                .height(selectorHeight)
                 .pressScale(quantityInteractionSource)
                 .clip(boxShape)
                 .background(containerColor)
