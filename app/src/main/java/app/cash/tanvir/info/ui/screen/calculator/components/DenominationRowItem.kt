@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -142,45 +143,50 @@ fun DenominationRowItem(
                     indication = LocalIndication.current,
                     onClick = { onOpenPicker() }
                 )
-                .padding(horizontal = 12.dp),
-            contentAlignment = Alignment.Center
         ) {
-            AnimatedContent(
-                targetState = displayQuantity,
-                contentAlignment = Alignment.Center,
-                transitionSpec = {
-                    contentEnterTransition(reducedMotion) togetherWith contentExitTransition(reducedMotion)
-                },
-                label = "qtyValue"
-            ) { current ->
-                AutoShrinkText(
-                    text = current.ifEmpty { if (isBangla) "০" else "0" },
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    color = if (current.isEmpty()) {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-                    } else {
-                        MaterialTheme.colorScheme.onPrimaryContainer
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 12.dp, end = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AnimatedContent(
+                    targetState = displayQuantity,
+                    contentAlignment = Alignment.Center,
+                    transitionSpec = {
+                        contentEnterTransition(reducedMotion) togetherWith contentExitTransition(reducedMotion)
                     },
-                    minFontSize = 12.sp,
-                    modifier = Modifier.padding(end = 28.dp)
+                    label = "qtyValue"
+                ) { current ->
+                    AutoShrinkText(
+                        text = current.ifEmpty { if (isBangla) "০" else "0" },
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = if (current.isEmpty()) {
+                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                        } else {
+                            MaterialTheme.colorScheme.onPrimaryContainer
+                        },
+                        minFontSize = 10.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Rounded.KeyboardArrowDown,
+                    contentDescription = if (isBangla) "সংখ্যা বেছে নিন" else "Pick a quantity",
+                    modifier = Modifier.size(20.dp),
+                    tint = if (hasValue) {
+                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.65f)
+                    } else {
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
+                    }
                 )
             }
-            Icon(
-                imageVector = Icons.Rounded.KeyboardArrowDown,
-                contentDescription = if (isBangla) "সংখ্যা বেছে নিন" else "Pick a quantity",
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(end = 8.dp)
-                    .size(20.dp),
-                tint = if (hasValue) {
-                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.65f)
-                } else {
-                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
-                }
-            )
         }
 
         // Subtotal
