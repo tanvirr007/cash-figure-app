@@ -94,16 +94,15 @@ fun QuantityPickerSheet(
     denominationLabel: String,
     denominationValue: Int,
     quantityText: String,
-    grandTotal: Long,
     isBangla: Boolean,
     onQuantityChange: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    val currentQty = quantityText.toIntOrNull() ?: 0
     var showCustom by remember { mutableStateOf(false) }
     var customInput by remember { mutableStateOf("") }
     var pendingQty by remember { mutableStateOf(quantityText) }
+    var presetActive by remember { mutableStateOf(false) }
     val pendingValue = pendingQty.toIntOrNull()
     val customFocusRequester = remember { FocusRequester() }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -169,6 +168,7 @@ fun QuantityPickerSheet(
                             HapticHelper.vibrate(context)
                             pendingQty = ""
                             customInput = ""
+                            presetActive = false
                             focusManager.clearFocus()
                         }) {
                             Text(
@@ -193,6 +193,7 @@ fun QuantityPickerSheet(
                             enabled = (pendingValue ?: 0) > 1,
                             onPress = {
                                 HapticHelper.vibrate(context)
+                                presetActive = false
                                 setPending(((pendingValue ?: 0) - 1).coerceAtLeast(1).toString())
                             },
                             onRepeat = { setPending(((pendingValue ?: 0) - 1).coerceAtLeast(1).toString()) }
@@ -231,6 +232,7 @@ fun QuantityPickerSheet(
                             enabled = (pendingValue ?: 0) < CalculatorViewModel.MAX_QUANTITY,
                             onPress = {
                                 HapticHelper.vibrate(context)
+                                presetActive = false
                                 setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString())
                             },
                             onRepeat = { setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString()) }
@@ -255,8 +257,10 @@ fun QuantityPickerSheet(
                                     customInput = ""
                                     focusManager.clearFocus()
                                     if (pendingValue == preset) {
+                                        presetActive = false
                                         setPending("")
                                     } else {
+                                        presetActive = true
                                         setPending(preset.toString())
                                     }
                                 }
@@ -269,6 +273,7 @@ fun QuantityPickerSheet(
                             onClick = {
                                 HapticHelper.vibrate(context)
                                 showCustom = !showCustom
+                                presetActive = false
                                 if (showCustom) {
                                     customInput = if (pendingValue != null) pendingValue.toString() else ""
                                 }
@@ -285,6 +290,7 @@ fun QuantityPickerSheet(
                                 val western = BanglaDigitConverter.toWestern(input)
                                 val filtered = western.filter { it.isDigit() }
                                 if (filtered.length <= 5) {
+                                    presetActive = false
                                     setPending(filtered)
                                 }
                             },
@@ -320,18 +326,11 @@ fun QuantityPickerSheet(
                         )
                     }
 
-                    // Live breakdown footer
+                    // Breakdown card: shows the preset's amount and words, or a hint
                     Spacer(modifier = Modifier.height(16.dp))
                     val pendingRow = pendingValue ?: 0
                     val rowTotal = denominationValue.toLong() * pendingRow
-                    val previewGrandTotal = grandTotal - denominationValue.toLong() * currentQty + rowTotal
                     val rowTotalFormatted = CurrencyFormatter.format(rowTotal, useBengaliDigits = isBangla)
-                    val previewGrandFormatted = CurrencyFormatter.format(previewGrandTotal, useBengaliDigits = isBangla)
-                    val previewGrandWords = if (isBangla) {
-                        NumberToWordsConverter.toBangla(previewGrandTotal)
-                    } else {
-                        NumberToWordsConverter.toEnglish(previewGrandTotal)
-                    }
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -341,7 +340,7 @@ fun QuantityPickerSheet(
                             )
                             .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
-                        if (pendingValue != null) {
+                        if (presetActive && pendingValue != null) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically
@@ -367,37 +366,28 @@ fun QuantityPickerSheet(
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                        }
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = if (isBangla) "সর্বমোট" else "Grand Total",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
                             AutoShrinkText(
-                                text = previewGrandFormatted,
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.primary,
-                                textAlign = TextAlign.End,
-                                minFontSize = 10.sp,
-                                modifier = Modifier.weight(1f)
+                                text = if (isBangla) {
+                                    "কথায়: ${NumberToWordsConverter.toBangla(rowTotal)}"
+                                } else {
+                                    "In words: ${NumberToWordsConverter.toEnglish(rowTotal)}"
+                                },
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                ),
+                                textAlign = TextAlign.Center,
+                                minFontSize = 9.sp,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        } else {
+                            Text(
+                                text = if (isBangla) "যেকোনো সংখ্যা বেছে নিন…" else "Select any quantity…",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
                             )
                         }
-                        Spacer(modifier = Modifier.height(4.dp))
-                        AutoShrinkText(
-                            text = previewGrandWords,
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            textAlign = TextAlign.Center,
-                            minFontSize = 9.sp,
-                            modifier = Modifier.fillMaxWidth()
-                        )
                     }
 
                     // Commit button
