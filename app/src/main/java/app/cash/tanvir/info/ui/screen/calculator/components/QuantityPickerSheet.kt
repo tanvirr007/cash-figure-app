@@ -1,9 +1,9 @@
 package app.cash.tanvir.info.ui.screen.calculator.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -55,6 +55,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -73,25 +74,16 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.ui.components.AutoShrinkText
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.ui.screen.calculator.CalculatorViewModel
-import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.util.BanglaDigitConverter
 import app.cash.tanvir.info.util.CurrencyFormatter
 import app.cash.tanvir.info.util.HapticHelper
 import app.cash.tanvir.info.util.NumberToWordsConverter
 import kotlinx.coroutines.withTimeoutOrNull
 
-/**
- * Smart quantity picker for one denomination row:
- * stepper (hold-to-repeat), quick preset grid, inline custom input,
- * and a live breakdown footer (row total + grand total).
- *
- * The sheet edits a local pending quantity — presets, the stepper, and the
- * custom field only change the pending value; the full-width OK button
- * commits it to the row and closes. Swiping down or pressing back discards.
- */
 @OptIn(
     ExperimentalFoundationApi::class,
     ExperimentalMaterial3Api::class,
@@ -111,7 +103,6 @@ fun QuantityPickerSheet(
     val currentQty = quantityText.toIntOrNull() ?: 0
     var showCustom by remember { mutableStateOf(false) }
     var customInput by remember { mutableStateOf("") }
-    // Pending quantity — nothing is committed to the row until OK is pressed
     var pendingQty by remember { mutableStateOf(quantityText) }
     val pendingValue = pendingQty.toIntOrNull()
     val customFocusRequester = remember { FocusRequester() }
@@ -131,10 +122,6 @@ fun QuantityPickerSheet(
         onDismiss()
     }
 
-    // Auto-open the keyboard when the custom input appears.
-    // Defer by one frame so the field is laid out before focus lands on it —
-    // requesting focus in the same pass the field is inserted opens the IME
-    // during the sheet's relayout.
     LaunchedEffect(showCustom) {
         if (showCustom) {
             withFrameNanos { }
@@ -153,7 +140,9 @@ fun QuantityPickerSheet(
     ) {
         val scrollState = rememberScrollState()
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .clipToBounds(),
             contentAlignment = Alignment.CenterEnd
         ) {
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
@@ -161,6 +150,7 @@ fun QuantityPickerSheet(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(scrollState)
+                        .clipToBounds()
                         .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 16.dp)
                 ) {
                     // Header: denomination + Clear
@@ -280,7 +270,6 @@ fun QuantityPickerSheet(
                                 HapticHelper.vibrate(context)
                                 showCustom = !showCustom
                                 if (showCustom) {
-                                    // Pre-fill with the current pending value for quick tweaks
                                     customInput = if (pendingValue != null) pendingValue.toString() else ""
                                 }
                             }
@@ -331,7 +320,7 @@ fun QuantityPickerSheet(
                         )
                     }
 
-                    // Live breakdown footer — previews what OK will commit
+                    // Live breakdown footer
                     Spacer(modifier = Modifier.height(16.dp))
                     val pendingRow = pendingValue ?: 0
                     val rowTotal = denominationValue.toLong() * pendingRow
@@ -411,7 +400,7 @@ fun QuantityPickerSheet(
                         )
                     }
 
-                    // Commit button — the only way pending becomes the row value
+                    // Commit button
                     Spacer(modifier = Modifier.height(16.dp))
                     val okInteractionSource = remember { MutableInteractionSource() }
                     Button(
@@ -443,11 +432,6 @@ fun QuantityPickerSheet(
     }
 }
 
-/**
- * Stepper button: fires once per tap (via clickable, which also carries the
- * button semantics for TalkBack), then repeats while held
- * (400ms initial delay, 60ms between repeats).
- */
 @Composable
 private fun HoldToRepeatButton(
     icon: ImageVector,
@@ -456,11 +440,9 @@ private fun HoldToRepeatButton(
     onPress: () -> Unit,
     onRepeat: () -> Unit
 ) {
-    // Always call the latest callbacks from the gesture coroutine (they capture
-    // the live quantity from recomposition, not the stale value at gesture start)
     val latestOnRepeat by rememberUpdatedState(onRepeat)
-    // Set while a hold is repeating so the release-time click is suppressed
     var repeatActive by remember { mutableStateOf(false) }
+
     val background = if (enabled) {
         MaterialTheme.colorScheme.primaryContainer
     } else {
@@ -471,6 +453,7 @@ private fun HoldToRepeatButton(
     } else {
         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f)
     }
+
     Box(
         modifier = Modifier
             .size(52.dp)
@@ -481,6 +464,27 @@ private fun HoldToRepeatButton(
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                 shape = RoundedCornerShape(16.dp)
             )
+            .pointerInput(enabled) {
+                if (!enabled) return@pointerInput
+                awaitEachGesture {
+                    val down = awaitFirstDown(requireUnconsumed = false)
+                    var repeatDelayMillis = 400L
+                    while (true) {
+                        val event = withTimeoutOrNull(repeatDelayMillis) {
+                            awaitPointerEvent(PointerEventPass.Main)
+                        }
+                        if (event == null) {
+                            repeatActive = true
+                            latestOnRepeat()
+                            repeatDelayMillis = 60L
+                        } else {
+                            if (event.changes.any { it.changedToUp() || it.isConsumed }) {
+                                break
+                            }
+                        }
+                    }
+                }
+            }
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -492,48 +496,18 @@ private fun HoldToRepeatButton(
                     }
                     repeatActive = false
                 }
-            )
-            // Hold-to-repeat: after 400ms of holding, tick every 60ms.
-            // A quick tap never reaches the timeout, so only clickable fires.
-            .pointerInput(enabled) {
-                awaitEachGesture {
-                    awaitFirstDown(requireUnconsumed = false)
-                    if (!enabled) return@awaitEachGesture
-                    var repeatDelayMillis = 400L
-                    while (true) {
-                        val event = withTimeoutOrNull(repeatDelayMillis) {
-                            awaitPointerEvent(PointerEventPass.Main)
-                        }
-                        if (event == null) {
-                            if (enabled) {
-                                repeatActive = true
-                                latestOnRepeat()
-                                repeatDelayMillis = 60L
-                            } else {
-                                break
-                            }
-                        } else {
-                            if (event.changes.any { it.changedToUp() }) break
-                        }
-                    }
-                }
-            },
+            ),
         contentAlignment = Alignment.Center
     ) {
         Icon(
             imageVector = icon,
-            contentDescription = null,
+            contentDescription = contentDescription,
             tint = tint,
             modifier = Modifier.size(26.dp)
         )
     }
 }
 
-/**
- * Preset chip: rounded tile, highlighted when it matches the pending value.
- * Tap selects/deselects the pending quantity; OK commits.
- * Plain clickable with a null indication — no ripple, no custom gesture path.
- */
 @Composable
 private fun PresetChip(
     label: String,
