@@ -349,7 +349,7 @@ private fun UpToDateContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(horizontal = 24.dp, bottom = 80.dp)
+                .padding(start = 24.dp, end = 24.dp, bottom = 80.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
             CheckIcon()
@@ -559,7 +559,7 @@ private fun DownloadingContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(horizontal = 24.dp, bottom = 80.dp)
+                .padding(start = 24.dp, end = 24.dp, bottom = 80.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
             Text(
@@ -624,7 +624,7 @@ private fun DownloadReadyContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(horizontal = 24.dp, bottom = 80.dp)
+                .padding(start = 24.dp, end = 24.dp, bottom = 80.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
             CheckIcon()
