@@ -32,7 +32,7 @@ import org.json.JSONObject
 import javax.inject.Inject
 
 /**
- * OTA update state machine (see ota.md §11).
+ * OTA update state machine (see ota.md §5).
  */
 enum class UpdateStatus {
     IDLE,             // nothing happened yet

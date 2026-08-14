@@ -62,8 +62,6 @@ optional in-app update check.
 
 ## Screenshots
 
-<!-- TODO: replace placeholder images in assets/screenshots/ with real screenshots -->
-
 <p align="center">
   <img src="assets/screenshots/calculator.png" alt="Calculator" width="180"/>
   <img src="assets/screenshots/report.png" alt="Report" width="180"/>
@@ -87,6 +85,8 @@ optional in-app update check.
 - **Bangladeshi Currency Formatting** — native digit grouping and Bengali numerals.
 - **History and Auto-Save** — every calculation is persisted to a local Room
   database with search, rename, duplicate, pin, favorite, and restore-deleted.
+- **Save as Draft** — pause a half-finished calculation as a draft and load it
+  back into the calculator whenever you're ready.
 - **Reports and Printing** — export reports as PDF, CSV, or TXT, print via the
   native Android PrintManager, and share with one tap.
 - **JSON Backup and Restore** — back up all data to JSON and restore seamlessly
@@ -96,6 +96,8 @@ optional in-app update check.
 - **Screen On Mode** — keeps the screen awake during active counting sessions.
 - **App Lock** — lock the app with your fingerprint or device screen lock
   (PIN/pattern/password); enable/disable from settings (EN + Bangla).
+- **Onboarding Wizard** — first-launch tour covering language, feature
+  overview, and the app lock prompt.
 - **No Ads** — zero advertisements, zero in-app purchases, zero paywalls.
 - **Open Source** — full source under the MIT license; audit it, fork it, improve it.
 - **Privacy First** — 100% offline with no analytics and no tracking. The only
@@ -123,12 +125,13 @@ app/src/main/java/app/cash/tanvir/info/
 ├── data/              # Room DB, DataStore, repository implementations
 ├── di/                # Hilt modules (DatabaseModule, RepositoryModule)
 ├── ui/                # Single-activity Compose app
-│   ├── MainActivity.kt    # Splash, app lock, FLAG_SECURE, launch OTA check
-│   ├── navigation/        # NavGraph — 8 routes
-│   │                      #   (Calculator, History, Report, Settings,
+│   ├── MainActivity.kt    # Splash, onboarding, app lock, FLAG_SECURE, launch OTA check
+│   ├── navigation/        # NavGraph — 9 routes
+│   │                      #   (Calculator, History, Report, Settings, Draft,
 │   │                      #    Changelog, Update, About, Settings Detail)
+│   ├── onboarding/        # First-launch wizard (language, feature tour, lock prompt)
 │   ├── theme/             # Material 3 theme with Tiro Bangla font
-│   └── screen/            # Calculator, History, Report, Settings, Changelog, Update, About, Settings Detail (+ components)
+│   └── screen/            # Calculator, History, Report, Settings, Draft, Changelog, Update, About, Settings Detail (+ components)
 └── util/              # Pure helpers: formatters, converters, report generators
 ```
 
