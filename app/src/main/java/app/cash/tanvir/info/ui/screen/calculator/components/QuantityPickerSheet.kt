@@ -192,23 +192,25 @@ fun QuantityPickerSheet(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Spacer(modifier = Modifier.weight(1f))
-                        TextButton(onClick = {
-                            HapticHelper.vibrate(context)
-                            if (pendingQty.isNotEmpty()) {
-                                discardTrigger = DiscardTrigger.Clear
-                            } else {
-                                pendingQty = ""
-                                customInput = ""
-                                presetActive = false
-                                focusManager.clearFocus()
+                        if (pendingQty.isNotEmpty()) {
+                            TextButton(onClick = {
+                                HapticHelper.vibrate(context)
+                                if (hasChanges) {
+                                    discardTrigger = DiscardTrigger.Clear
+                                } else {
+                                    pendingQty = ""
+                                    customInput = ""
+                                    presetActive = false
+                                    focusManager.clearFocus()
+                                }
+                            }) {
+                                Text(
+                                    text = if (isBangla) "মুছুন" else "Clear",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.error
+                                )
                             }
-                        }) {
-                            Text(
-                                text = if (isBangla) "মুছুন" else "Clear",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.error
-                            )
                         }
                     }
                     // Stepper with hold-to-repeat
