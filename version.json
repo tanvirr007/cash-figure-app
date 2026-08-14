@@ -1,7 +1,7 @@
 {
-  "versionCode": 97,
-  "versionName": "v4.4.46",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.46/CashFigure.apk",
-  "changelog": "* **fix: show Clear button only when quantity selected** (1ec8a6d)\n  - Hide the Clear button in the quantity picker sheet unless a value is selected.\n  - Skip the unsaved-changes dialog when clearing an unchanged quantity.\n",
-  "fileSize": 6323712
+  "versionCode": 98,
+  "versionName": "v4.5.47",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.5.47/CashFigure.apk",
+  "changelog": "* **chore: bump version to 4.5.47** (bdc8830)\n  - Set versionCode to 98 and versionName to 4.5.47 in the app build config.\n  - CI picks this name over the latest tag so the next release ships as v4.5.47.\n* **fix: explain Play Protect warning in About** (2f446b0)\n  - Replace the install-time instruction with a plain explanation of Google's new policy marking third-party apps as a risk by default.\n  - Reassure that the app is open source and completely safe.\n* **fix: rename history delete dialog title** (e8360ef)\n  - Change the delete confirmation dialog title from 'Delete Calculation?' to 'Delete History?' to match the section name, consistent with the draft dialog pattern.\n",
+  "fileSize": 6323716
 }

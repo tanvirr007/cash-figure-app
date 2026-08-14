@@ -1,6 +1,32 @@
 {
   "releases": [
     {
+      "tagName": "v4.5.47",
+      "publishedAt": "2026-08-14T19:49:12Z",
+      "items": [
+        {
+          "title": "chore: bump version to 4.5.47",
+          "subItems": [
+            "Set versionCode to 98 and versionName to 4.5.47 in the app build config.",
+            "CI picks this name over the latest tag so the next release ships as v4.5.47."
+          ]
+        },
+        {
+          "title": "fix: explain Play Protect warning in About",
+          "subItems": [
+            "Replace the install-time instruction with a plain explanation of Google's new policy marking third-party apps as a risk by default.",
+            "Reassure that the app is open source and completely safe."
+          ]
+        },
+        {
+          "title": "fix: rename history delete dialog title",
+          "subItems": [
+            "Change the delete confirmation dialog title from 'Delete Calculation?' to 'Delete History?' to match the section name, consistent with the draft dialog pattern."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.46",
       "publishedAt": "2026-08-14T19:27:56Z",
       "items": [
