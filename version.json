@@ -1,7 +1,7 @@
 {
-  "versionCode": 95,
-  "versionName": "v4.4.44",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.44/CashFigure.apk",
-  "changelog": "* **feat: auto keyboard on notes dialog** (d3b4ed4)\n  - Focus the notes field and raise the keyboard when the dialog opens.\n  - Convert notes dialog to a custom Dialog so outside taps are caught.\n  - Show Discard note confirmation on back press or outside tap.\n  - Re-focus and raise the keyboard again after Keep editing.\n  - Discard clears the typed note and closes the dialog.\n* **fix: clear all survives process kill** (b0ac56a)\n  - Extract shared persistNow helper from flushDraft.\n  - Persist working sheet synchronously after every quantity update.\n  - Persist the empty sheet on clear all so kills cannot restore it.\n  - Keep ON_STOP flush as a harmless backstop write.\n",
+  "versionCode": 96,
+  "versionName": "v4.4.45",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.45/CashFigure.apk",
+  "changelog": "* **fix: add description to draft discard dialog** (a741654)\n  - Add a confirmation description naming the draft being discarded.\n  - Fall back to a generic draft name when the draft is missing.\n  - Drop trailing periods from two settings detail dialog sentences.\n* **fix: notes dialog stretched look** (3c560d1)\n  - Revert notes dialog to standard Material3 AlertDialog so it keeps the\n    compact default size instead of stretching.\n  - Material3 1.4.0 already dismisses on back press and outside tap, so the\n    discard confirmation still appears for both.\n  - Keep auto keyboard focus on the note field.\n  - Rename discard message to \"The note dialog will be discarded\".\n",
   "fileSize": 6323712
 }
