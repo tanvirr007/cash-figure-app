@@ -1,5 +1,6 @@
 package app.cash.tanvir.info.ui.screen.calculator.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.background
@@ -33,13 +34,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Remove
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -103,10 +105,23 @@ fun QuantityPickerSheet(
     var customInput by remember { mutableStateOf("") }
     var pendingQty by remember { mutableStateOf(quantityText) }
     var presetActive by remember { mutableStateOf(false) }
+    var showDiscardWarning by remember { mutableStateOf(false) }
     val pendingValue = pendingQty.toIntOrNull()
     val customFocusRequester = remember { FocusRequester() }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val hasChanges = pendingQty != quantityText
+    val currentHasChanges by rememberUpdatedState(hasChanges)
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { value ->
+            if (value == SheetValue.Hidden && currentHasChanges) {
+                showDiscardWarning = true
+                false
+            } else {
+                true
+            }
+        }
+    )
     val focusManager = LocalFocusManager.current
 
     fun setPending(value: String) {
@@ -134,9 +149,12 @@ fun QuantityPickerSheet(
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
         contentWindowInsets = {
-            BottomSheetDefaults.windowInsets.exclude(WindowInsets.ime)
+            WindowInsets.navigationBars.exclude(WindowInsets.ime)
         }
     ) {
+        BackHandler(enabled = hasChanges) {
+            showDiscardWarning = true
+        }
         val scrollState = rememberScrollState()
         Box(
             modifier = Modifier
@@ -150,7 +168,7 @@ fun QuantityPickerSheet(
                         .fillMaxWidth()
                         .verticalScroll(scrollState)
                         .clipToBounds()
-                        .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 16.dp)
+                        .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 12.dp)
                 ) {
                     // Header: denomination + Clear
                     Row(
@@ -179,8 +197,6 @@ fun QuantityPickerSheet(
                             )
                         }
                     }
-                    Spacer(modifier = Modifier.height(4.dp))
-
                     // Stepper with hold-to-repeat
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -205,7 +221,7 @@ fun QuantityPickerSheet(
                             AutoShrinkText(
                                 text = if (isBangla) BanglaDigitConverter.toBangla(pendingValue ?: 0) else (pendingValue ?: 0).toString(),
                                 style = MaterialTheme.typography.displayMedium.copy(
-                                    fontSize = 44.sp,
+                                    fontSize = 34.sp,
                                     fontWeight = FontWeight.Bold
                                 ),
                                 color = if (pendingValue != null) {
@@ -213,7 +229,7 @@ fun QuantityPickerSheet(
                                 } else {
                                     MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
                                 },
-                                minFontSize = 26.sp,
+                                minFontSize = 22.sp,
                                 modifier = Modifier.fillMaxWidth()
                             )
                             Text(
@@ -238,13 +254,13 @@ fun QuantityPickerSheet(
                             onRepeat = { setPending(((pendingValue ?: 0) + 1).coerceAtMost(CalculatorViewModel.MAX_QUANTITY).toString()) }
                         )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                    // Preset grid (4 per row) + Custom
+                    // Preset grid (5 per row) + Custom
                     FlowRow(
-                        maxItemsInEachRow = 4,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        maxItemsInEachRow = 5,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         CalculatorViewModel.QUANTITY_PRESETS.forEach { preset ->
                             PresetChip(
@@ -267,7 +283,7 @@ fun QuantityPickerSheet(
                             )
                         }
                         PresetChip(
-                            label = if (isBangla) "নিজের সংখ্যা" else "Custom",
+                            label = if (isBangla) "নিজের" else "Custom",
                             selected = showCustom,
                             modifier = Modifier.weight(1f),
                             onClick = {
@@ -283,7 +299,7 @@ fun QuantityPickerSheet(
 
                     // Inline custom input
                     if (showCustom) {
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
                         OutlinedTextField(
                             value = customInput,
                             onValueChange = { input ->
@@ -327,7 +343,7 @@ fun QuantityPickerSheet(
                     }
 
                     // Commit button
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                     val okInteractionSource = remember { MutableInteractionSource() }
                     Button(
                         onClick = {
@@ -338,7 +354,7 @@ fun QuantityPickerSheet(
                         enabled = pendingValue != null,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(48.dp)
                             .pressScale(okInteractionSource),
                         shape = RoundedCornerShape(14.dp)
                     ) {
@@ -355,6 +371,55 @@ fun QuantityPickerSheet(
                 modifier = Modifier.align(Alignment.CenterEnd)
             )
         }
+    }
+
+    if (showDiscardWarning) {
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                showDiscardWarning = false
+            },
+            title = {
+                Text(
+                    text = if (isBangla) "সংরক্ষণ হয়নি" else "Unsaved changes",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = if (isBangla) "বন্ধ করলে বদলগুলো হারিয়ে যাবে।" else "Closing now will discard your changes."
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        showDiscardWarning = false
+                        onDismiss()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                ) {
+                    Text(
+                        text = if (isBangla) "বন্ধ করুন" else "Discard & close",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    HapticHelper.vibrate(context)
+                    showDiscardWarning = false
+                }) {
+                    Text(
+                        text = if (isBangla) "চালিয়ে যান" else "Keep editing",
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -382,7 +447,7 @@ private fun HoldToRepeatButton(
 
     Box(
         modifier = Modifier
-            .size(52.dp)
+            .size(48.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(background)
             .border(
@@ -429,7 +494,7 @@ private fun HoldToRepeatButton(
             imageVector = icon,
             contentDescription = contentDescription,
             tint = tint,
-            modifier = Modifier.size(26.dp)
+            modifier = Modifier.size(24.dp)
         )
     }
 }
@@ -453,10 +518,10 @@ private fun PresetChip(
     }
     Box(
         modifier = modifier
-            .height(48.dp)
-            .clip(RoundedCornerShape(14.dp))
+            .height(44.dp)
+            .clip(RoundedCornerShape(12.dp))
             .background(background)
-            .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(14.dp))
+            .border(if (selected) 2.dp else 1.dp, borderColor, RoundedCornerShape(12.dp))
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
