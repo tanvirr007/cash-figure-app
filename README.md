@@ -66,6 +66,7 @@ optional in-app update check.
   <tr>
     <td align="center"><img src="assets/screenshots/update_available.png" alt="Update available" width="180"/></td>
     <td align="center"><img src="assets/screenshots/update_up_to_date.png" alt="Update up to date" width="180"/></td>
+    <td align="center"><img src="assets/screenshots/settings.png" alt="Settings" width="180"/></td>
   </tr>
   <tr>
     <td align="center"><img src="assets/screenshots/calculator.png" alt="Calculator" width="180"/></td>
