@@ -355,7 +355,8 @@ fun QuantityPickerSheet(
                             ),
                             keyboardActions = KeyboardActions(
                                 onDone = {
-                                    focusManager.clearFocus()
+                                    HapticHelper.vibrate(context)
+                                    commit()
                                 }
                             ),
                             supportingText = {
