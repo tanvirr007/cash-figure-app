@@ -246,7 +246,7 @@ fun HistoryScreen(
                 HapticHelper.vibrate(context)
                 viewModel.dismissDeleteConfirmation()
             },
-            title = { Text(if (isBangla) "হিসাবটি মুছে ফেলবেন?" else "Delete Calculation?") },
+            title = { Text(if (isBangla) "ইতিহাস থেকে মুছে ফেলবেন?" else "Delete History?") },
             text = { Text(if (isBangla) "আপনি কি \"$sheetName\" মুছে ফেলতে চান?" else "Are you sure you want to delete \"$sheetName\"?") },
             confirmButton = {
                 Button(
