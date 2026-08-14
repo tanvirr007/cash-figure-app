@@ -238,11 +238,7 @@ fun QuantityPickerSheet(
                                     fontSize = 34.sp,
                                     fontWeight = FontWeight.Bold
                                 ),
-                                color = if (pendingValue != null) {
-                                    MaterialTheme.colorScheme.onSurface
-                                } else {
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.35f)
-                                },
+                                color = MaterialTheme.colorScheme.onSurface,
                                 minFontSize = 22.sp,
                                 modifier = Modifier.fillMaxWidth()
                             )
