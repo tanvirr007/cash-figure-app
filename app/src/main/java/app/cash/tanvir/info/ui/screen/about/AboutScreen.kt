@@ -1,6 +1,11 @@
 package app.cash.tanvir.info.ui.screen.about
 
+import android.content.Context
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -15,12 +20,12 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -29,18 +34,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.NewReleases
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -50,36 +53,46 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import app.cash.tanvir.info.ui.animation.pressScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import app.cash.tanvir.info.R
+import app.cash.tanvir.info.ui.animation.pressScale
 import app.cash.tanvir.info.ui.components.CompactBackTopBar
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
 import app.cash.tanvir.info.util.HapticHelper
 import app.cash.tanvir.info.util.getInstalledVersion
 import java.util.Calendar
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
+import kotlin.math.sqrt
 import kotlin.random.Random
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -93,21 +106,11 @@ fun AboutScreen(
     val context = LocalContext.current
     val (installedName, installedCode) = remember(context) { getInstalledVersion(context) }
 
-    // Android-style hidden easter egg: tap the Version row 7 times quickly.
-    // Each reveal picks one random message from the pool; the money emoji
-    // opens a full-screen animation, just like Android's own easter eggs.
-    val easterEggMessages = remember {
-        listOf(
-            "You looked. I respect that.",
-            "This seemed like a good place to hide something.",
-            "You can leave now. Nothing happens here.",
-            "Please pretend you never saw this.",
-            "You found the secret."
-        )
-    }
+    // Android-style hidden easter egg: tap the Version row 7 times quickly
+    // to launch the Money Master game directly, just like Android's own
+    // easter eggs. The back button is the only way out.
     var versionTapCount by remember { mutableIntStateOf(0) }
     var lastVersionTap by remember { mutableLongStateOf(0L) }
-    var easterEggMessage by remember { mutableStateOf<String?>(null) }
     var showMoneyEgg by remember { mutableStateOf(false) }
 
     fun openUrl(url: String) {
@@ -261,7 +264,7 @@ fun AboutScreen(
                                 versionTapCount++
                                 if (versionTapCount >= 7) {
                                     versionTapCount = 0
-                                    easterEggMessage = easterEggMessages.random()
+                                    showMoneyEgg = true
                                 }
                             }
                         )
@@ -284,119 +287,7 @@ fun AboutScreen(
         }
     }
 
-    // Hidden easter egg — 7 quick taps on the Version row, one random message per reveal
-    easterEggMessage?.let { message ->
-        Dialog(
-            onDismissRequest = { easterEggMessage = null },
-            properties = DialogProperties(usePlatformDefaultWidth = false)
-        ) {
-            val scale = remember { Animatable(0.6f) }
-            val alphaAnim = remember { Animatable(0f) }
-            LaunchedEffect(Unit) {
-                launch {
-                    scale.animateTo(
-                        1f,
-                        spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
-                    )
-                }
-                launch {
-                    alphaAnim.animateTo(1f, tween(durationMillis = 250))
-                }
-            }
-            Card(
-                modifier = Modifier
-                    .widthIn(max = 380.dp)
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
-                    .graphicsLayer {
-                        scaleX = scale.value
-                        scaleY = scale.value
-                        alpha = alphaAnim.value
-                    }
-                    .clip(RoundedCornerShape(28.dp))
-                    .clickable {
-                        HapticHelper.vibrate(context)
-                        easterEggMessage = null
-                    },
-                shape = RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 28.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        listOf("💵", "💸", "🏦", "💳", "🪙").forEach { emoji ->
-                            Box(
-                                modifier = Modifier
-                                    .size(44.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.10f),
-                                        shape = RoundedCornerShape(14.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(text = emoji, fontSize = 24.sp)
-                            }
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "Money Master",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = message,
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(
-                            onClick = {
-                                HapticHelper.vibrate(context)
-                                easterEggMessage = null
-                                showMoneyEgg = true
-                            }
-                        ) {
-                            Text("Open", fontWeight = FontWeight.Bold)
-                        }
-                        Button(
-                            onClick = {
-                                HapticHelper.vibrate(context)
-                                easterEggMessage = null
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        ) {
-                            Text("Close", fontWeight = FontWeight.Bold)
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Tap anywhere to exit",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                    )
-                }
-            }
-        }
-    }
-
-    // Full-screen easter egg animation — floating money notes, tap anywhere to exit
+    // Full-screen easter egg game — only the back button exits
     if (showMoneyEgg) {
         MoneyEggScreen(
             onDismiss = {
@@ -407,110 +298,217 @@ fun AboutScreen(
     }
 }
 
+/** Acceleration (m/s²) that triggers the emoji scatter burst. */
+private const val EASTER_EGG_SHAKE_THRESHOLD = 14f
+
 /**
- * Full-screen Android-style easter egg: money-themed emojis drift up the
- * screen with sway and spin. Tap anywhere (or back) to dismiss.
+ * Full-screen Android-style easter egg game: money emojis you can drag
+ * anywhere, with a gentle idle sway. Tilt the device to make them drift,
+ * shake it for a scatter burst. Exit only via the back button or gesture.
  */
 @Composable
 private fun MoneyEggScreen(onDismiss: () -> Unit) {
     BackHandler(onBack = onDismiss)
+    val context = LocalContext.current
     val density = LocalDensity.current
-    val emojis = listOf("💵", "💸", "🏦", "💳", "🪙")
-    val particles = remember {
-        val random = Random(System.currentTimeMillis())
-        List(16) {
-            MoneyParticle(
-                emoji = emojis[random.nextInt(emojis.size)],
-                xFraction = random.nextFloat(),
-                size = random.nextFloat() * 24 + 28,
-                durationMillis = random.nextInt(2600, 4200),
-                delayMillis = random.nextInt(0, 1200),
-                swayAmplitude = random.nextFloat() * 40 + 20,
-                swayMillis = random.nextInt(1200, 2200),
-                rotationMillis = random.nextInt(3000, 6000)
-            )
-        }
+    val scope = rememberCoroutineScope()
+    val emojiPool = listOf("💵", "💸", "💰", "🏦", "🏧", "💳", "🪙", "🧾", "💎", "📈", "📉", "🧮", "📊")
+    val sizePool = listOf(24f, 38f, 54f)
+
+    var tiltX by remember { mutableStateOf(0f) }
+    var tiltY by remember { mutableStateOf(0f) }
+    var shakeOffsets by remember { mutableStateOf<Map<Int, Offset>>(emptyMap()) }
+    val shakeAnim = remember { Animatable(0f) }
+
+    // Entrance: whole game fades in and scales up once.
+    val screenAnim = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        screenAnim.animateTo(
+            1f,
+            spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium)
+        )
     }
 
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.88f))
-            .clickable(onClick = onDismiss)
+            .background(
+                Brush.verticalGradient(
+                    listOf(Color(0xFF0F1218), Color(0xFF1C2431))
+                )
+            )
+            .graphicsLayer {
+                alpha = screenAnim.value
+                scaleX = 0.92f + 0.08f * screenAnim.value
+                scaleY = 0.92f + 0.08f * screenAnim.value
+            }
     ) {
         val widthPx = with(density) { maxWidth.toPx() }
         val heightPx = with(density) { maxHeight.toPx() }
 
-        particles.forEach { particle ->
-            val transition = rememberInfiniteTransition(label = "money-egg")
-            val progress by transition.animateFloat(
-                initialValue = 0f,
-                targetValue = 1f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(
-                        durationMillis = particle.durationMillis,
-                        delayMillis = particle.delayMillis,
-                        easing = LinearEasing
+        val items = remember(maxWidth, maxHeight) {
+            val random = Random(System.currentTimeMillis())
+            List(16) { index ->
+                val size = sizePool[random.nextInt(sizePool.size)]
+                val sizePx = with(density) { size.sp.toPx() }
+                MoneyEggItem(
+                    id = index,
+                    emoji = emojiPool[random.nextInt(emojiPool.size)],
+                    size = size,
+                    initial = Offset(
+                        x = random.nextFloat() * (widthPx - sizePx * 1.2f).coerceAtLeast(0f),
+                        y = random.nextFloat() * (heightPx - sizePx * 1.4f).coerceAtLeast(0f)
                     ),
-                    repeatMode = RepeatMode.Restart
-                ),
-                label = "rise"
-            )
-            val sway by transition.animateFloat(
-                initialValue = -1f,
-                targetValue = 1f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = particle.swayMillis),
-                    repeatMode = RepeatMode.Reverse
-                ),
-                label = "sway"
-            )
-            val rotation by transition.animateFloat(
+                    bobMillis = random.nextInt(2600, 4200),
+                    swayMillis = random.nextInt(3800, 6400)
+                )
+            }
+        }
+
+        items.forEach { item ->
+            var position by remember(item.initial) { mutableStateOf(item.initial) }
+            val transition = rememberInfiniteTransition(label = "money-idle-${item.id}")
+            val bobPhase by transition.animateFloat(
                 initialValue = 0f,
                 targetValue = 360f,
                 animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = particle.rotationMillis),
+                    animation = tween(durationMillis = item.bobMillis, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart
                 ),
-                label = "spin"
+                label = "bob"
             )
-            val fadeIn = if (progress < 0.1f) progress / 0.1f else 1f
-            val fadeOut = if (progress > 0.85f) (1f - progress) / 0.15f else 1f
+            val swayPhase by transition.animateFloat(
+                initialValue = 0f,
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = item.swayMillis, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                ),
+                label = "sway"
+            )
+            // Staggered pop-in: each emoji springs to full size a bit after the last.
+            val popAnim = remember { Animatable(0f) }
+            LaunchedEffect(Unit) {
+                delay(item.id * 40L)
+                popAnim.animateTo(
+                    1f,
+                    spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMediumLow)
+                )
+            }
+            val sizePx = with(density) { item.size.sp.toPx() }
+            val maxX = (widthPx - sizePx * 1.2f).coerceAtLeast(0f)
+            val maxY = (heightPx - sizePx * 1.4f).coerceAtLeast(0f)
             Text(
-                text = particle.emoji,
-                fontSize = particle.size.sp,
-                modifier = Modifier.graphicsLayer {
-                    translationX = particle.xFraction * widthPx + sway * particle.swayAmplitude
-                    translationY = (heightPx + particle.size * 4f) * (1f - progress) - particle.size * 4f
-                    rotationZ = rotation
-                    alpha = fadeIn.coerceAtMost(fadeOut).coerceIn(0f, 1f)
-                }
+                text = item.emoji,
+                fontSize = item.size.sp,
+                modifier = Modifier
+                    .offset { IntOffset(position.x.roundToInt(), position.y.roundToInt()) }
+                    .pointerInput(maxX, maxY) {
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+                            position = Offset(
+                                x = (position.x + dragAmount.x).coerceIn(0f, maxX),
+                                y = (position.y + dragAmount.y).coerceIn(0f, maxY)
+                            )
+                        }
+                    }
+                    .graphicsLayer {
+                        val bobRad = bobPhase * PI.toFloat() / 180f
+                        val swayRad = swayPhase * PI.toFloat() / 180f
+                        val shake = shakeOffsets[item.id] ?: Offset.Zero
+                        translationX = sin(bobRad) * 3f + tiltX * 36f + shake.x * shakeAnim.value
+                        translationY = cos(bobRad) * 4f + tiltY * 36f + shake.y * shakeAnim.value
+                        rotationZ = sin(swayRad) * 8f
+                        val popScale = popAnim.value.coerceAtLeast(0.01f)
+                        scaleX = popScale
+                        scaleY = popScale
+                    }
             )
         }
 
         Text(
-            text = "Tap anywhere to exit",
+            text = "Press back to exit",
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.7f),
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 48.dp)
         )
+
+        // Sensors: tilt drifts the emojis, a hard shake scatters them.
+        // Missing sensors simply no-op — dragging and idle sway still work.
+        DisposableEffect(Unit) {
+            val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+            val gravitySensor = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
+            val linearAccel = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
+            var smoothX = 0f
+            var smoothY = 0f
+            var shaking = false
+
+            val gravityListener = object : SensorEventListener {
+                override fun onSensorChanged(event: SensorEvent) {
+                    val alpha = 0.18f
+                    smoothX += alpha * (event.values[0] - smoothX)
+                    smoothY += alpha * (event.values[1] - smoothY)
+                    tiltX = smoothX / SensorManager.GRAVITY_EARTH
+                    tiltY = smoothY / SensorManager.GRAVITY_EARTH
+                }
+
+                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+            }
+
+            val shakeListener = object : SensorEventListener {
+                override fun onSensorChanged(event: SensorEvent) {
+                    val x = event.values[0]
+                    val y = event.values[1]
+                    val z = event.values[2]
+                    val magnitude = sqrt(x * x + y * y + z * z)
+                    if (magnitude > EASTER_EGG_SHAKE_THRESHOLD && !shaking) {
+                        shaking = true
+                        val random = Random(System.currentTimeMillis())
+                        shakeOffsets = items.associate { item ->
+                            item.id to Offset(
+                                random.nextFloat() * 90f - 45f,
+                                random.nextFloat() * 90f - 45f
+                            )
+                        }
+                        scope.launch {
+                            shakeAnim.snapTo(1f)
+                            shakeAnim.animateTo(0f, tween(durationMillis = 550))
+                            shaking = false
+                        }
+                    }
+                }
+
+                override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit
+            }
+
+            gravitySensor?.let {
+                sensorManager.registerListener(gravityListener, it, SensorManager.SENSOR_DELAY_GAME)
+            }
+            linearAccel?.let {
+                sensorManager.registerListener(shakeListener, it, SensorManager.SENSOR_DELAY_GAME)
+            }
+
+            onDispose {
+                sensorManager.unregisterListener(gravityListener)
+                sensorManager.unregisterListener(shakeListener)
+            }
+        }
     }
 }
 
 /**
- * One floating emoji particle in the easter egg animation.
+ * One draggable emoji in the easter egg game: emoji, visual size and
+ * randomized idle-motion timings.
  */
-private data class MoneyParticle(
+private data class MoneyEggItem(
+    val id: Int,
     val emoji: String,
-    val xFraction: Float,
     val size: Float,
-    val durationMillis: Int,
-    val delayMillis: Int,
-    val swayAmplitude: Float,
-    val swayMillis: Int,
-    val rotationMillis: Int
+    val initial: Offset,
+    val bobMillis: Int,
+    val swayMillis: Int
 )
 
 @Composable
