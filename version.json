@@ -1,7 +1,7 @@
 {
-  "versionCode": 81,
-  "versionName": "v4.4.32",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.32/CashFigure.apk",
-  "changelog": "* **fix: import animateColorAsState from the correct package** (6cf520f)\n  - Move the import from animation.core to androidx.compose.animation.\n  - Unblock compileReleaseKotlin after the quantity box modernization.\n* **fix: keep custom input above the keyboard** (cf87f73)\n  - Scroll the focused custom field into view when the sheet opens.\n  - Consume the IME inset once so sheet content scrolls instead of collapsing.\n  - Exclude the IME inset from the sheet's content insets to avoid double padding.\n* **feat: modernize quantity input box** (56811b4)\n  - Rework the calculator quantity box into a filled, state-aware field.\n  - Show a soft neutral fill when empty and a teal primary fill when a count exists.\n  - Animate container and border colors between the two states.\n  - Pop in the new count with a fade-plus-scale transition.\n  - Add @NebbaGiveUp to the Credits middle row in the README.\n",
+  "versionCode": 82,
+  "versionName": "v4.4.33",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.33/CashFigure.apk",
+  "changelog": "* **fix: match chip and quantity box heights, add times sign** (0f032fe)\n  - Give the denomination chip and quantity box a shared 56dp height.\n  - Center the denomination label within the equal-height chip.\n  - Insert a multiplication sign between the chip and the quantity box.\n* **fix: use rounded chevron in quantity selector box** (6873a02)\n  - Swap the filled KeyboardArrowDown for the rounded variant.\n  - Match the app's rounded icon language in the idle picker box.\n",
   "fileSize": 6323716
 }

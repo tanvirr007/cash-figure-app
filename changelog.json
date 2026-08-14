@@ -1,6 +1,27 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.33",
+      "publishedAt": "2026-08-14T07:29:09Z",
+      "items": [
+        {
+          "title": "fix: match chip and quantity box heights, add times sign",
+          "subItems": [
+            "Give the denomination chip and quantity box a shared 56dp height.",
+            "Center the denomination label within the equal-height chip.",
+            "Insert a multiplication sign between the chip and the quantity box."
+          ]
+        },
+        {
+          "title": "fix: use rounded chevron in quantity selector box",
+          "subItems": [
+            "Swap the filled KeyboardArrowDown for the rounded variant.",
+            "Match the app's rounded icon language in the idle picker box."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.32",
       "publishedAt": "2026-08-14T07:07:05Z",
       "items": [
