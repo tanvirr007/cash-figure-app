@@ -1,6 +1,35 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.42",
+      "publishedAt": "2026-08-14T16:29:16Z",
+      "items": [
+        {
+          "title": "docs: clarify 999 crore limit in amount in words",
+          "subItems": [
+            "Add explicit 999 crore figure (9,99,99,99,999) to the README feature bullet.",
+            "Note the 99,999 per-denomination quantity cap keeps reachable totals (~18.9 crore) safely below the ceiling.",
+            "Explain the limit is generous headroom, not a practical restriction."
+          ]
+        },
+        {
+          "title": "feat: live digit counter in custom quantity input",
+          "subItems": [
+            "Show remaining digits left as user types in custom box.",
+            "Show max digits reached message when all 5 digits are entered.",
+            "Remove one-shot maxDigitsError flag and its stale resets."
+          ]
+        },
+        {
+          "title": "docs: add settings screenshot to README grid",
+          "subItems": [
+            "Fill the first row's empty third slot with the Settings screen shot.",
+            "Keeps the screenshot table a uniform three columns on both rows."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.41",
       "publishedAt": "2026-08-14T14:58:23Z",
       "items": [

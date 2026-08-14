@@ -1,7 +1,7 @@
 {
-  "versionCode": 92,
-  "versionName": "v4.4.41",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.41/CashFigure.apk",
-  "changelog": "* **docs: use table grid for README screenshots** (eec7d75)\n  - Replace the inline image rows with a two-row HTML table.\n  - Table cells keep the grid on narrow screens where plain inline\n    images wrap into a vertical stack.\n  - Drop the captions under the screenshots entirely.\n",
+  "versionCode": 93,
+  "versionName": "v4.4.42",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.42/CashFigure.apk",
+  "changelog": "* **docs: clarify 999 crore limit in amount in words** (f275d4f)\n  - Add explicit 999 crore figure (9,99,99,99,999) to the README feature bullet.\n  - Note the 99,999 per-denomination quantity cap keeps reachable totals (~18.9 crore) safely below the ceiling.\n  - Explain the limit is generous headroom, not a practical restriction.\n* **feat: live digit counter in custom quantity input** (65b2fc9)\n  - Show remaining digits left as user types in custom box.\n  - Show max digits reached message when all 5 digits are entered.\n  - Remove one-shot maxDigitsError flag and its stale resets.\n* **docs: add settings screenshot to README grid** (fda69ba)\n  - Fill the first row's empty third slot with the Settings screen shot.\n  - Keeps the screenshot table a uniform three columns on both rows.\n",
   "fileSize": 6323712
 }
