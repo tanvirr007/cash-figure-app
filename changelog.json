@@ -1,6 +1,65 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.43",
+      "publishedAt": "2026-08-14T18:14:53Z",
+      "items": [
+        {
+          "title": "fix: empty denomination rows looked disabled",
+          "subItems": [
+            "Show the ghost zero, chevron hint and zero subtotal in clear colors.",
+            "Replace 0.3f-0.45f onSurface alphas with full-alpha onSurfaceVariant.",
+            "Empty rows now read as ready to fill, not as disabled controls.",
+            "Value states keep their primary container colors unchanged."
+          ]
+        },
+        {
+          "title": "fix: misaligned notes hint in save dialog",
+          "subItems": [
+            "Replace the hand-drawn ghost hint with the field's native placeholder.",
+            "M3 lays the placeholder out in the same slot as the typed text.",
+            "Remove the Box overlay and manual 16dp offset guess.",
+            "Hint still shows while the box is empty, focused or not."
+          ]
+        },
+        {
+          "title": "fix: replaying count-up on scroll and tab switch",
+          "subItems": [
+            "Track the last animated total in rememberSaveable state.",
+            "Survives LazyColumn item disposal and nav tab state save/restore.",
+            "Count-up now runs only when the grand total actually changes.",
+            "Returning to the dashboard snaps to the current total silently."
+          ]
+        },
+        {
+          "title": "fix: quantity picker empty state looked disabled",
+          "subItems": [
+            "Show the stepper zero in full onSurface color instead of 35% alpha.",
+            "Zero is a real state (no notes counted), so it no longer reads as disabled.",
+            "Keep minus and OK buttons functionally disabled while no value is set."
+          ]
+        },
+        {
+          "title": "fix: flickering scrollbar on variable-height lists",
+          "subItems": [
+            "Derive the lazy-list thumb geometry from the real visible span.",
+            "Average item height is now the actual first..last visible item span.",
+            "Replace the viewport-height guess that resized and jumped the thumb.",
+            "Skip drawing when no items are visible.",
+            "Clamp the estimated scroll position to the valid range."
+          ]
+        },
+        {
+          "title": "fix: reversed sub-screen push-in animation",
+          "subItems": [
+            "Slide new screens in from the right edge, matching Android's push pattern.",
+            "slideInHorizontally previously used its default offset, entering from the left.",
+            "Back navigation already exits to the right, so forward/back now feel symmetric."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.42",
       "publishedAt": "2026-08-14T16:29:16Z",
       "items": [
