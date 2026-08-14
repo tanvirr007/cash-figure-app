@@ -1,6 +1,37 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.34",
+      "publishedAt": "2026-08-14T08:14:30Z",
+      "items": [
+        {
+          "title": "refactor: slim subtotal and tighten row spacing",
+          "subItems": [
+            "Narrow the subtotal column so the quantity box gets more room.",
+            "Reduce the row gap from 8dp to 6dp."
+          ]
+        },
+        {
+          "title": "fix: show full quantity and pin arrow right",
+          "subItems": [
+            "Let the row count use the full box width so long counts are never clipped.",
+            "Pin the chevron icon to the right edge of the quantity box.",
+            "Lower the count's minimum font size so 5-digit counts still fit.",
+            "Center the count in the space that remains next to the arrow."
+          ]
+        },
+        {
+          "title": "fix: clip sheet and stepper repeat logic",
+          "subItems": [
+            "Replace the quantity picker sheet with the updated implementation.",
+            "Clip sheet content to its bounds so scrolling never bleeds outside.",
+            "Stop hold-to-repeat when the button disables or the gesture is consumed.",
+            "Announce stepper button labels to TalkBack."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.33",
       "publishedAt": "2026-08-14T07:29:09Z",
       "items": [

@@ -1,7 +1,7 @@
 {
-  "versionCode": 82,
-  "versionName": "v4.4.33",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.33/CashFigure.apk",
-  "changelog": "* **fix: match chip and quantity box heights, add times sign** (0f032fe)\n  - Give the denomination chip and quantity box a shared 56dp height.\n  - Center the denomination label within the equal-height chip.\n  - Insert a multiplication sign between the chip and the quantity box.\n* **fix: use rounded chevron in quantity selector box** (6873a02)\n  - Swap the filled KeyboardArrowDown for the rounded variant.\n  - Match the app's rounded icon language in the idle picker box.\n",
+  "versionCode": 83,
+  "versionName": "v4.4.34",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.4.34/CashFigure.apk",
+  "changelog": "* **refactor: slim subtotal and tighten row spacing** (4e56e0b)\n  - Narrow the subtotal column so the quantity box gets more room.\n  - Reduce the row gap from 8dp to 6dp.\n* **fix: show full quantity and pin arrow right** (a9bd043)\n  - Let the row count use the full box width so long counts are never clipped.\n  - Pin the chevron icon to the right edge of the quantity box.\n  - Lower the count's minimum font size so 5-digit counts still fit.\n  - Center the count in the space that remains next to the arrow.\n* **fix: clip sheet and stepper repeat logic** (1b882e3)\n  - Replace the quantity picker sheet with the updated implementation.\n  - Clip sheet content to its bounds so scrolling never bleeds outside.\n  - Stop hold-to-repeat when the button disables or the gesture is consumed.\n  - Announce stepper button labels to TalkBack.\n",
   "fileSize": 6323716
 }
