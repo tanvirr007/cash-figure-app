@@ -108,10 +108,18 @@ fun VerticalScrollbarIndicator(
         val viewportHeight = info.viewportSize.height.toFloat()
         if (totalItems == 0 || viewportHeight <= 0f) return@Canvas
         val visibleItems = info.visibleItemsInfo
-        val avgItemHeight = viewportHeight / visibleItems.size.coerceAtLeast(1)
-        val first = visibleItems.firstOrNull()
+        if (visibleItems.isEmpty()) return@Canvas
+        // Average the REAL item sizes across the visible span (first..last visible
+        // item offsets) instead of guessing from the viewport height. Variable-height
+        // items then shift the average continuously while scrolling, so the thumb
+        // neither resizes nor jumps as items enter/leave the viewport.
+        val first = visibleItems.first()
+        val last = visibleItems.last()
+        val spanCount = (last.index - first.index + 1).coerceAtLeast(1)
+        val spanHeight = (last.offset + last.size - first.offset).toFloat().coerceAtLeast(1f)
+        val avgItemHeight = spanHeight / spanCount
         val contentHeight = totalItems * avgItemHeight + viewportHeight
-        val scrollPosition = (first?.index ?: 0) * avgItemHeight + (first?.offset ?: 0)
+        val scrollPosition = (first.index * avgItemHeight + first.offset).coerceAtLeast(0f)
         drawScrollIndicator(
             thumbColor = thumbColor,
             trackColor = trackColor,
