@@ -181,16 +181,16 @@ fun DenominationRowItem(
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
-                Icon(
-                    imageVector = Icons.Rounded.KeyboardArrowDown,
-                    contentDescription = if (isBangla) "সংখ্যা বেছে নিন" else "Pick a quantity",
-                    modifier = Modifier.size(20.dp),
-                    tint = if (hasValue) {
-                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.65f)
-                    } else {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
-                    }
-                )
+                // Chevron hint: shown only while the field is empty; once a
+                // quantity is confirmed via the picker, the arrow disappears.
+                if (!hasValue) {
+                    Icon(
+                        imageVector = Icons.Rounded.KeyboardArrowDown,
+                        contentDescription = if (isBangla) "সংখ্যা বেছে নিন" else "Pick a quantity",
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.45f)
+                    )
+                }
             }
         }
 
