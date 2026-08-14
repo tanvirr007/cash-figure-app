@@ -153,6 +153,7 @@ fun DenominationRowItem(
                 AnimatedContent(
                     targetState = displayQuantity,
                     contentAlignment = Alignment.Center,
+                    modifier = Modifier.weight(1f),
                     transitionSpec = {
                         contentEnterTransition(reducedMotion) togetherWith contentExitTransition(reducedMotion)
                     },
@@ -171,9 +172,7 @@ fun DenominationRowItem(
                         },
                         minFontSize = 10.sp,
                         textAlign = TextAlign.Center,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
                 Icon(
