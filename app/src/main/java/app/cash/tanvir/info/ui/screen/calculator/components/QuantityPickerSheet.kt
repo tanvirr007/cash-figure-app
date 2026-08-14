@@ -298,6 +298,11 @@ fun QuantityPickerSheet(
                         PresetChip(
                             label = if (isBangla) "নিজের সংখ্যা" else "Custom",
                             selected = showCustom,
+                            fontSize = if (isBangla) {
+                                MaterialTheme.typography.bodyLarge.fontSize
+                            } else {
+                                13.sp
+                            },
                             modifier = Modifier.weight(1f),
                             onClick = {
                                 HapticHelper.vibrate(context)
@@ -537,6 +542,7 @@ private fun PresetChip(
     label: String,
     selected: Boolean,
     modifier: Modifier = Modifier,
+    fontSize: TextUnit = MaterialTheme.typography.bodyLarge.fontSize,
     onClick: () -> Unit
 ) {
     val background = if (selected) {
@@ -568,7 +574,7 @@ private fun PresetChip(
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.copy(fontSize = fontSize),
             fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             color = if (selected) {
                 MaterialTheme.colorScheme.onPrimaryContainer
