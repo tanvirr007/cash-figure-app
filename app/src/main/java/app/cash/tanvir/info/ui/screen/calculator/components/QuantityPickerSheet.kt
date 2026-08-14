@@ -389,7 +389,7 @@ fun QuantityPickerSheet(
             },
             text = {
                 Text(
-                    text = if (isBangla) "বন্ধ করলে বদলগুলো হারিয়ে যাবে।" else "Closing now will discard your changes."
+                    text = if (isBangla) "বন্ধ করলে বদলগুলো হারিয়ে যাবে।" else "Closing now will discard your changes"
                 )
             },
             confirmButton = {
@@ -405,7 +405,7 @@ fun QuantityPickerSheet(
                     )
                 ) {
                     Text(
-                        text = if (isBangla) "বন্ধ করুন" else "Discard & close",
+                        text = if (isBangla) "বন্ধ করুন" else "Close",
                         fontWeight = FontWeight.Bold
                     )
                 }
