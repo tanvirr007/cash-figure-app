@@ -72,7 +72,7 @@ fun DenominationRowItem(
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         // Denomination chip
         Box(
@@ -191,7 +191,7 @@ fun DenominationRowItem(
 
         // Subtotal
         Column(
-            modifier = Modifier.width(if (isCompact) 88.dp else 108.dp),
+            modifier = Modifier.width(if (isCompact) 80.dp else 96.dp),
             horizontalAlignment = Alignment.End
         ) {
             AutoShrinkText(
