@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tagName": "v4.4.40",
+      "publishedAt": "2026-08-14T14:53:38Z",
+      "items": [
+        {
+          "title": "docs: split README screenshots into two rows",
+          "subItems": [
+            "Move the two update screenshots to their own row above the app screens.",
+            "Keep the Calculator, Report, and History screenshots in one row below.",
+            "Drop the caption under the update row since both shots are self-explanatory."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.4.39",
       "publishedAt": "2026-08-14T14:27:57Z",
       "items": [
