@@ -177,8 +177,7 @@ fun UpdateScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(horizontal = 24.dp),
+                    .fillMaxHeight(),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -241,6 +240,7 @@ fun UpdateScreen(
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .verticalScroll(scrollState)
+                                        .padding(horizontal = 24.dp)
                                 ) {
                                     when (uiState.updateStatus) {
                                         UpdateStatus.IDLE, UpdateStatus.CHECKING -> {
@@ -349,7 +349,7 @@ private fun UpToDateContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(bottom = 80.dp)
+                .padding(horizontal = 24.dp, bottom = 80.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
             CheckIcon()
@@ -401,7 +401,7 @@ private fun UpToDateContent(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 16.dp)
+                .padding(end = 24.dp, bottom = 16.dp)
                 .pressScale(checkInteractionSource)
         ) {
             Text(
@@ -559,7 +559,7 @@ private fun DownloadingContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(bottom = 80.dp)
+                .padding(horizontal = 24.dp, bottom = 80.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
             Text(
@@ -597,7 +597,7 @@ private fun DownloadingContent(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 16.dp)
+                .padding(end = 24.dp, bottom = 16.dp)
                 .pressScale(cancelInteractionSource)
         ) {
             Text(
@@ -624,7 +624,7 @@ private fun DownloadReadyContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .padding(bottom = 80.dp)
+                .padding(horizontal = 24.dp, bottom = 80.dp)
         ) {
             Spacer(modifier = Modifier.height(40.dp))
             CheckIcon()
@@ -653,7 +653,7 @@ private fun DownloadReadyContent(
             contentPadding = PaddingValues(horizontal = 24.dp, vertical = 10.dp),
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = 16.dp)
+                .padding(end = 24.dp, bottom = 16.dp)
                 .pressScale(installInteractionSource)
         ) {
             Text(
