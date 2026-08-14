@@ -88,6 +88,8 @@ import app.cash.tanvir.info.util.HapticHelper
 import app.cash.tanvir.info.util.NumberToWordsConverter
 import kotlinx.coroutines.withTimeoutOrNull
 
+private enum class DiscardTrigger { Close, Clear }
+
 @OptIn(
     ExperimentalFoundationApi::class,
     ExperimentalMaterial3Api::class,
@@ -107,7 +109,7 @@ fun QuantityPickerSheet(
     var customInput by remember { mutableStateOf("") }
     var pendingQty by remember { mutableStateOf(quantityText) }
     var presetActive by remember { mutableStateOf(false) }
-    var showDiscardWarning by remember { mutableStateOf(false) }
+    var discardTrigger by remember { mutableStateOf<DiscardTrigger?>(null) }
     val pendingValue = pendingQty.toIntOrNull()
     val customFocusRequester = remember { FocusRequester() }
     val bringIntoViewRequester = remember { BringIntoViewRequester() }
@@ -117,7 +119,7 @@ fun QuantityPickerSheet(
         skipPartiallyExpanded = true,
         confirmValueChange = { value ->
             if (value == SheetValue.Hidden && currentHasChanges) {
-                showDiscardWarning = true
+                discardTrigger = DiscardTrigger.Close
                 false
             } else {
                 true
@@ -155,7 +157,7 @@ fun QuantityPickerSheet(
         }
     ) {
         BackHandler(enabled = hasChanges) {
-            showDiscardWarning = true
+            discardTrigger = DiscardTrigger.Close
         }
         val scrollState = rememberScrollState()
         Box(
@@ -186,10 +188,14 @@ fun QuantityPickerSheet(
                         Spacer(modifier = Modifier.weight(1f))
                         TextButton(onClick = {
                             HapticHelper.vibrate(context)
-                            pendingQty = ""
-                            customInput = ""
-                            presetActive = false
-                            focusManager.clearFocus()
+                            if (pendingQty.isNotEmpty()) {
+                                discardTrigger = DiscardTrigger.Clear
+                            } else {
+                                pendingQty = ""
+                                customInput = ""
+                                presetActive = false
+                                focusManager.clearFocus()
+                            }
                         }) {
                             Text(
                                 text = if (isBangla) "মুছুন" else "Clear",
@@ -375,11 +381,12 @@ fun QuantityPickerSheet(
         }
     }
 
-    if (showDiscardWarning) {
+    if (discardTrigger != null) {
+        val isClearFlow = discardTrigger == DiscardTrigger.Clear
         AlertDialog(
             onDismissRequest = {
                 HapticHelper.vibrate(context)
-                showDiscardWarning = false
+                discardTrigger = null
             },
             title = {
                 Text(
@@ -389,15 +396,27 @@ fun QuantityPickerSheet(
             },
             text = {
                 Text(
-                    text = if (isBangla) "বন্ধ করলে বদলগুলো হারিয়ে যাবে।" else "Closing now will discard your changes"
+                    text = when {
+                        isBangla && isClearFlow -> "মুছলে বদলগুলো হারিয়ে যাবে।"
+                        isBangla -> "বন্ধ করলে বদলগুলো হারিয়ে যাবে।"
+                        isClearFlow -> "Clearing will discard your changes"
+                        else -> "Closing now will discard your changes"
+                    }
                 )
             },
             confirmButton = {
                 Button(
                     onClick = {
                         HapticHelper.vibrate(context)
-                        showDiscardWarning = false
-                        onDismiss()
+                        discardTrigger = null
+                        if (isClearFlow) {
+                            pendingQty = ""
+                            customInput = ""
+                            presetActive = false
+                            focusManager.clearFocus()
+                        } else {
+                            onDismiss()
+                        }
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
@@ -405,7 +424,12 @@ fun QuantityPickerSheet(
                     )
                 ) {
                     Text(
-                        text = if (isBangla) "বন্ধ করুন" else "Close",
+                        text = when {
+                            isBangla && isClearFlow -> "মুছুন"
+                            isBangla -> "বন্ধ করুন"
+                            isClearFlow -> "Clear"
+                            else -> "Close"
+                        },
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -413,7 +437,7 @@ fun QuantityPickerSheet(
             dismissButton = {
                 TextButton(onClick = {
                     HapticHelper.vibrate(context)
-                    showDiscardWarning = false
+                    discardTrigger = null
                 }) {
                     Text(
                         text = if (isBangla) "চালিয়ে যান" else "Keep editing",
