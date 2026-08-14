@@ -62,22 +62,17 @@ optional in-app update check.
 
 ## Screenshots
 
-<p align="center">
-  <img src="assets/screenshots/update_available.png" alt="Update available" width="180"/>
-  <img src="assets/screenshots/update_up_to_date.png" alt="Update up to date" width="180"/>
-</p>
-
-<br/>
-
-<p align="center">
-  <img src="assets/screenshots/calculator.png" alt="Calculator" width="180"/>
-  <img src="assets/screenshots/report.png" alt="Report" width="180"/>
-  <img src="assets/screenshots/history.png" alt="History" width="180"/>
-</p>
-
-<p align="center">
-  Calculator &nbsp;&nbsp;&nbsp; Report &nbsp;&nbsp;&nbsp; History
-</p>
+<table align="center">
+  <tr>
+    <td align="center"><img src="assets/screenshots/update_available.png" alt="Update available" width="180"/></td>
+    <td align="center"><img src="assets/screenshots/update_up_to_date.png" alt="Update up to date" width="180"/></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="assets/screenshots/calculator.png" alt="Calculator" width="180"/></td>
+    <td align="center"><img src="assets/screenshots/report.png" alt="Report" width="180"/></td>
+    <td align="center"><img src="assets/screenshots/history.png" alt="History" width="180"/></td>
+  </tr>
+</table>
 
 ## Features
 
