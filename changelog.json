@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tagName": "v4.5.48",
+      "publishedAt": "2026-08-25T14:22:13Z",
+      "items": [
+        {
+          "title": "feat: suggest typed names in notes",
+          "subItems": [
+            "Rank and suggest notes learned strictly from user history by usage frequency and recency.",
+            "Dynamically filter suggestions matching typed keystrokes with prefix priority.",
+            "Add an inline cross icon on each suggestion chip to remove unwanted suggestions.",
+            "Persist dismissed note suggestions in DataStore preferences."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.5.47",
       "publishedAt": "2026-08-14T19:49:12Z",
       "items": [
