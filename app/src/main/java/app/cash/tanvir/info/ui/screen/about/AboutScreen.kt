@@ -25,6 +25,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
@@ -337,6 +338,9 @@ private fun MoneyEggScreen(onDismiss: () -> Unit) {
                     listOf(Color(0xFF0F1218), Color(0xFF1C2431))
                 )
             )
+            .pointerInput(Unit) {
+                detectTapGestures { /* consume taps to prevent clicks falling through to underlying screen */ }
+            }
             .graphicsLayer {
                 alpha = screenAnim.value
                 scaleX = 0.92f + 0.08f * screenAnim.value
