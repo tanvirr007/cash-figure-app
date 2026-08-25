@@ -38,6 +38,8 @@ data class CalculatorUiState(
     val quantities: Map<Int, String> = Denomination.ALL.associate { it.value to "" },
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
     val disabledDenominations: Set<Int> = emptySet(),
+    val frequentRemarks: List<String> = emptyList(),
+    val hiddenNoteSuggestions: Set<String> = emptySet(),
     // Draft currently loaded into the calculator; -1 when none. Consumed only on Save to History.
     val loadedDraftId: Long = -1L,
     // Last time quantities changed (epoch millis); 0 when never edited/restored
@@ -96,6 +98,20 @@ class CalculatorViewModel @Inject constructor(
                 _uiState.update { state ->
                     recalculate(state.copy(disabledDenominations = disabled))
                 }
+            }
+        }
+
+        // Observe frequent remarks from history
+        viewModelScope.launch {
+            sheetRepository.getFrequentRemarks().collect { remarks ->
+                _uiState.update { it.copy(frequentRemarks = remarks) }
+            }
+        }
+
+        // Observe hidden note suggestions
+        viewModelScope.launch {
+            settingsRepository.getHiddenNoteSuggestions().collect { hidden ->
+                _uiState.update { it.copy(hiddenNoteSuggestions = hidden) }
             }
         }
 
@@ -305,6 +321,15 @@ class CalculatorViewModel @Inject constructor(
             onSuccess(savedId, savedAmountFormatted)
         }
         clearAll()
+    }
+
+    /**
+     * Permanently hide a note suggestion from the recommendation list.
+     */
+    fun removeSuggestedNote(suggestion: String) {
+        viewModelScope.launch {
+            settingsRepository.hideNoteSuggestion(suggestion)
+        }
     }
 
 

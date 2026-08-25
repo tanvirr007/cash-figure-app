@@ -35,6 +35,10 @@ class SheetRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun getFrequentRemarks(limit: Int): Flow<List<String>> {
+        return sheetDao.getFrequentRemarks(limit)
+    }
+
     override fun getCurrentSheet(): Flow<Sheet?> {
         return sheetDao.getCurrentSheet().map { entity ->
             entity?.toDomainModel()

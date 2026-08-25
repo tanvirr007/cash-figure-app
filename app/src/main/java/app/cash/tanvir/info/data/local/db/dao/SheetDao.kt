@@ -29,6 +29,9 @@ interface SheetDao {
     @Query("SELECT * FROM sheets WHERE id = -1 LIMIT 1")
     fun getCurrentSheet(): Flow<SheetEntity?>
 
+    @Query("SELECT remark FROM sheets WHERE isDeleted = 0 AND id != -1 AND TRIM(remark) != '' GROUP BY TRIM(remark) ORDER BY COUNT(*) DESC, MAX(updatedAt) DESC LIMIT :limit")
+    fun getFrequentRemarks(limit: Int = 30): Flow<List<String>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSheet(sheet: SheetEntity): Long
 

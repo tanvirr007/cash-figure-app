@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,7 +18,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -27,6 +31,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.History
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,10 +42,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,6 +71,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
 import app.cash.tanvir.info.util.HapticHelper
+import app.cash.tanvir.info.util.NoteSuggestionHelper
 
 import app.cash.tanvir.info.ui.components.CompactTopBar
 import app.cash.tanvir.info.ui.components.VerticalScrollbarIndicator
@@ -94,7 +103,6 @@ fun CalculatorScreen(
     val notesFocusRequester = remember { FocusRequester() }
     @Suppress("DEPRECATION")
     val keyboardController = LocalSoftwareKeyboardController.current
-    val fullPlaceholder = "BRAC BANK PLC"
 
     // Denomination value pending single-row clear confirmation (null = no dialog)
     var pendingClearDenomination by remember { mutableStateOf<Int?>(null) }
@@ -440,6 +448,23 @@ fun CalculatorScreen(
     // Add Notes Dialog on Save — opens with the keyboard already up; back press
     // or outside tap asks for confirmation before discarding the typed note.
     if (showAddNotesDialog) {
+        val noteSuggestions = remember(uiState.frequentRemarks, uiState.hiddenNoteSuggestions, notesInputText) {
+            NoteSuggestionHelper.getSuggestions(
+                history = uiState.frequentRemarks,
+                hidden = uiState.hiddenNoteSuggestions,
+                query = notesInputText,
+                limit = 15
+            )
+        }
+        val notePlaceholder = remember(uiState.frequentRemarks, uiState.hiddenNoteSuggestions, isBangla) {
+            NoteSuggestionHelper.getSuggestions(
+                history = uiState.frequentRemarks,
+                hidden = uiState.hiddenNoteSuggestions,
+                query = "",
+                limit = 1
+            ).firstOrNull() ?: if (isBangla) "ব্র্যাক ব্যাংক" else "BRAC BANK PLC"
+        }
+
         // Focus the note field and raise the keyboard on open, and again
         // whenever the discard confirmation returns ("Keep editing").
         LaunchedEffect(showDiscardNoteConfirmation) {
@@ -497,7 +522,7 @@ fun CalculatorScreen(
                         },
                         placeholder = {
                             Text(
-                                text = fullPlaceholder,
+                                text = notePlaceholder,
                                 style = MaterialTheme.typography.bodyLarge
                             )
                         },
@@ -523,6 +548,92 @@ fun CalculatorScreen(
                             }
                         }
                     )
+
+                    if (noteSuggestions.isNotEmpty()) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Rounded.History,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = if (isBangla) "পূর্বের ব্যবহৃত" else "Recent / Most used",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            LazyRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(vertical = 2.dp)
+                            ) {
+                                items(noteSuggestions, key = { it }) { suggestion ->
+                                    val isSelected = notesInputText.trim().equals(suggestion, ignoreCase = true)
+                                    Surface(
+                                        onClick = {
+                                            HapticHelper.vibrate(context)
+                                            notesInputText = suggestion.take(30)
+                                        },
+                                        shape = RoundedCornerShape(16.dp),
+                                        color = if (isSelected) {
+                                            MaterialTheme.colorScheme.primaryContainer
+                                        } else {
+                                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                                        },
+                                        border = if (isSelected) {
+                                            BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                                        } else {
+                                            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+                                        }
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                        ) {
+                                            Text(
+                                                text = suggestion,
+                                                style = MaterialTheme.typography.bodySmall,
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                color = if (isSelected) {
+                                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                                } else {
+                                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                                }
+                                            )
+                                            IconButton(
+                                                onClick = {
+                                                    HapticHelper.vibrate(context)
+                                                    viewModel.removeSuggestedNote(suggestion)
+                                                },
+                                                modifier = Modifier.size(20.dp)
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Rounded.Close,
+                                                    contentDescription = if (isBangla) "পরামর্শ সরান" else "Remove suggestion",
+                                                    modifier = Modifier.size(13.dp),
+                                                    tint = if (isSelected) {
+                                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                                    } else {
+                                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             },
             dismissButton = {

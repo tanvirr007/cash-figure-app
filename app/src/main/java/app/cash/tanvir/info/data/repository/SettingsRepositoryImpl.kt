@@ -41,6 +41,12 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override fun getLastSuccessfulCheck(): Flow<Long?> = preferencesManager.lastSuccessfulCheckFlow
 
+    override fun getHiddenNoteSuggestions(): Flow<Set<String>> = preferencesManager.hiddenNoteSuggestionsFlow
+
+    override suspend fun hideNoteSuggestion(suggestion: String) {
+        preferencesManager.hideNoteSuggestion(suggestion)
+    }
+
     override suspend fun setTheme(theme: AppTheme) {
         preferencesManager.setTheme(theme)
     }

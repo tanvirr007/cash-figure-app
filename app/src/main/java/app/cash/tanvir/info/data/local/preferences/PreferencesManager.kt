@@ -43,6 +43,11 @@ class PreferencesManager @Inject constructor(
         val LAST_KNOWN_VERSION = longPreferencesKey("last_known_version")
         val LAST_SUCCESSFUL_CHECK = longPreferencesKey("last_successful_check")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
+        val HIDDEN_NOTE_SUGGESTIONS = stringSetPreferencesKey("hidden_note_suggestions")
+    }
+
+    val hiddenNoteSuggestionsFlow: Flow<Set<String>> = context.dataStore.data.map { prefs ->
+        prefs[Keys.HIDDEN_NOTE_SUGGESTIONS] ?: emptySet()
     }
 
     val themeFlow: Flow<AppTheme> = context.dataStore.data.map { prefs ->
@@ -196,6 +201,13 @@ class PreferencesManager @Inject constructor(
     suspend fun setOnboardingCompleted(completed: Boolean) {
         context.dataStore.edit { prefs ->
             prefs[Keys.ONBOARDING_COMPLETED] = completed
+        }
+    }
+
+    suspend fun hideNoteSuggestion(suggestion: String) {
+        context.dataStore.edit { prefs ->
+            val current = prefs[Keys.HIDDEN_NOTE_SUGGESTIONS] ?: emptySet()
+            prefs[Keys.HIDDEN_NOTE_SUGGESTIONS] = current + suggestion
         }
     }
 

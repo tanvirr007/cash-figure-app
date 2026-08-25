@@ -20,6 +20,8 @@ interface SettingsRepository {
     fun getKeepScreenOnEnabled(): Flow<Boolean>
     fun getDynamicColorEnabled(): Flow<Boolean>
     fun getLastSuccessfulCheck(): Flow<Long?>
+    fun getHiddenNoteSuggestions(): Flow<Set<String>>
+    suspend fun hideNoteSuggestion(suggestion: String)
     suspend fun setTheme(theme: AppTheme)
     suspend fun setLanguage(language: AppLanguage)
     suspend fun setFont(font: AppFont)

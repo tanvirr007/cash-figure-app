@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface SheetRepository {
     fun getAllSheets(): Flow<List<Sheet>>
     fun searchSheets(query: String): Flow<List<Sheet>>
+    fun getFrequentRemarks(limit: Int = 30): Flow<List<String>>
     fun getCurrentSheet(): Flow<Sheet?>
     suspend fun getSheetById(id: Long): Sheet?
     suspend fun saveCurrentSheet(quantities: Map<Int, String>, grandTotal: Long, totalPieces: Long, activeDenominations: Int)
