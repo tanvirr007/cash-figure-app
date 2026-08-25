@@ -57,14 +57,10 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -99,10 +95,9 @@ fun CalculatorScreen(
     // Discard-note confirmation: shown on back press / outside tap while the
     // notes dialog is open, so a typed note is never lost silently.
     var showDiscardNoteConfirmation by remember { mutableStateOf(false) }
-    // Auto-focuses the note field so the keyboard is already up when the dialog opens.
-    val notesFocusRequester = remember { FocusRequester() }
-    @Suppress("DEPRECATION")
-    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Suggestion pending delete confirmation (null = no dialog)
+    var pendingDeleteSuggestion by remember { mutableStateOf<String?>(null) }
 
     // Denomination value pending single-row clear confirmation (null = no dialog)
     var pendingClearDenomination by remember { mutableStateOf<Int?>(null) }
@@ -465,15 +460,6 @@ fun CalculatorScreen(
             ).firstOrNull() ?: if (isBangla) "ব্র্যাক ব্যাংক" else "BRAC BANK PLC"
         }
 
-        // Focus the note field and raise the keyboard on open, and again
-        // whenever the discard confirmation returns ("Keep editing").
-        LaunchedEffect(showDiscardNoteConfirmation) {
-            if (!showDiscardNoteConfirmation) {
-                withFrameNanos { }
-                notesFocusRequester.requestFocus()
-                keyboardController?.show()
-            }
-        }
         AlertDialog(
             onDismissRequest = {
                 HapticHelper.vibrate(context)
@@ -512,9 +498,7 @@ fun CalculatorScreen(
                                 notesInputText = sanitized
                             }
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .focusRequester(notesFocusRequester),
+                        modifier = Modifier.fillMaxWidth(),
                         label = {
                             if (notesInputText.isNotEmpty() || isNotesFocused) {
                                 Text(if (isBangla) "মন্তব্য" else "Notes")
@@ -565,7 +549,7 @@ fun CalculatorScreen(
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                                 Text(
-                                    text = if (isBangla) "পূর্বের ব্যবহৃত" else "Recent / Most used",
+                                    text = if (isBangla) "পূর্বের ব্যবহৃত" else "Recent",
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.primary
@@ -613,7 +597,7 @@ fun CalculatorScreen(
                                             IconButton(
                                                 onClick = {
                                                     HapticHelper.vibrate(context)
-                                                    viewModel.removeSuggestedNote(suggestion)
+                                                    pendingDeleteSuggestion = suggestion
                                                 },
                                                 modifier = Modifier.size(20.dp)
                                             ) {
@@ -722,6 +706,56 @@ fun CalculatorScreen(
                     showDiscardNoteConfirmation = false
                 }) {
                     Text(if (isBangla) "চালিয়ে যান" else "Keep editing", fontWeight = FontWeight.SemiBold)
+                }
+            }
+        )
+    }
+
+    // Remove suggestion confirmation dialog
+    pendingDeleteSuggestion?.let { suggestion ->
+        AlertDialog(
+            onDismissRequest = {
+                HapticHelper.vibrate(context)
+                pendingDeleteSuggestion = null
+            },
+            title = {
+                Text(
+                    text = if (isBangla) "পরামর্শ মুছবেন?" else "Remove suggestion?",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = if (isBangla) {
+                        "আপনি কি \"$suggestion\" পরামর্শ তালিকা থেকে মুছে ফেলতে চান?"
+                    } else {
+                        "Are you sure you want to remove \"$suggestion\" from suggestions?"
+                    }
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        viewModel.removeSuggestedNote(suggestion)
+                        pendingDeleteSuggestion = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                ) {
+                    Text(if (isBangla) "মুছুন" else "Remove", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        HapticHelper.vibrate(context)
+                        pendingDeleteSuggestion = null
+                    }
+                ) {
+                    Text(if (isBangla) "বাতিল" else "Cancel", fontWeight = FontWeight.SemiBold)
                 }
             }
         )
