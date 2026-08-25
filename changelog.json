@@ -1,6 +1,27 @@
 {
   "releases": [
     {
+      "tagName": "v4.5.49",
+      "publishedAt": "2026-08-25T14:39:08Z",
+      "items": [
+        {
+          "title": "fix: block tap passthrough in easter egg",
+          "subItems": [
+            "Consume pointer tap gestures on the easter egg game overlay container.",
+            "Prevent taps from falling through and activating author links underneath."
+          ]
+        },
+        {
+          "title": "feat: polish note suggestion dialog",
+          "subItems": [
+            "Open soft keyboard only when clicking the note input field.",
+            "Rename note suggestion section header to Recent.",
+            "Add confirmation dialog before removing a suggested note."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.5.48",
       "publishedAt": "2026-08-25T14:22:13Z",
       "items": [

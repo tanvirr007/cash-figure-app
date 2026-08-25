@@ -1,7 +1,7 @@
 {
-  "versionCode": 99,
-  "versionName": "v4.5.48",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.5.48/CashFigure.apk",
-  "changelog": "* **feat: suggest typed names in notes** (324346a)\n  - Rank and suggest notes learned strictly from user history by usage frequency and recency.\n  - Dynamically filter suggestions matching typed keystrokes with prefix priority.\n  - Add an inline cross icon on each suggestion chip to remove unwanted suggestions.\n  - Persist dismissed note suggestions in DataStore preferences.\n",
+  "versionCode": 100,
+  "versionName": "v4.5.49",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.5.49/CashFigure.apk",
+  "changelog": "* **fix: block tap passthrough in easter egg** (9a38ae7)\n  - Consume pointer tap gestures on the easter egg game overlay container.\n  - Prevent taps from falling through and activating author links underneath.\n* **feat: polish note suggestion dialog** (a9dd605)\n  - Open soft keyboard only when clicking the note input field.\n  - Rename note suggestion section header to Recent.\n  - Add confirmation dialog before removing a suggested note.\n",
   "fileSize": 6323716
 }
