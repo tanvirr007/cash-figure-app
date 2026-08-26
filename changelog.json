@@ -1,6 +1,28 @@
 {
   "releases": [
     {
+      "tagName": "v4.5.50",
+      "publishedAt": "2026-08-26T17:40:53Z",
+      "items": [
+        {
+          "title": "feat: show 2x2 note suggestions",
+          "subItems": [
+            "Display up to 4 note suggestions in a 2x2 grid layout.",
+            "Truncate suggestion chip labels at 16 characters with trailing ellipsis dots.",
+            "Dynamically filter and show matching suggestions based on typing input."
+          ]
+        },
+        {
+          "title": "fix: prevent app lock screen flicker",
+          "subItems": [
+            "Keep the splash screen visible until the initial lock preference is resolved from DataStore.",
+            "Evaluate timeout and lock state synchronously during onStart on app resume to prevent rendering unauthenticated frames.",
+            "Render an empty background box while lock state is initializing."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.5.49",
       "publishedAt": "2026-08-25T14:39:08Z",
       "items": [

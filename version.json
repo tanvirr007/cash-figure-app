@@ -1,7 +1,7 @@
 {
-  "versionCode": 100,
-  "versionName": "v4.5.49",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.5.49/CashFigure.apk",
-  "changelog": "* **fix: block tap passthrough in easter egg** (9a38ae7)\n  - Consume pointer tap gestures on the easter egg game overlay container.\n  - Prevent taps from falling through and activating author links underneath.\n* **feat: polish note suggestion dialog** (a9dd605)\n  - Open soft keyboard only when clicking the note input field.\n  - Rename note suggestion section header to Recent.\n  - Add confirmation dialog before removing a suggested note.\n",
+  "versionCode": 101,
+  "versionName": "v4.5.50",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.5.50/CashFigure.apk",
+  "changelog": "* **feat: show 2x2 note suggestions** (315124f)\n  - Display up to 4 note suggestions in a 2x2 grid layout.\n  - Truncate suggestion chip labels at 16 characters with trailing ellipsis dots.\n  - Dynamically filter and show matching suggestions based on typing input.\n* **fix: prevent app lock screen flicker** (0ee003c)\n  - Keep the splash screen visible until the initial lock preference is resolved from DataStore.\n  - Evaluate timeout and lock state synchronously during onStart on app resume to prevent rendering unauthenticated frames.\n  - Render an empty background box while lock state is initializing.\n",
   "fileSize": 6323716
 }
