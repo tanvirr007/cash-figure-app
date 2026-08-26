@@ -60,6 +60,8 @@ class MainActivity : FragmentActivity() {
     lateinit var updateRepository: UpdateRepository
 
     private var isAppLocked by mutableStateOf(false)
+    private var isBiometricEnabled = false
+    private var isInitialLockCheckDone by mutableStateOf(false)
     private var backgroundTimestamp: Long = 0L
     private var isFirstLaunch = true
     private var promptInProgress = false
@@ -67,7 +69,8 @@ class MainActivity : FragmentActivity() {
     private var isUpdateAvailable by mutableStateOf<UpdateManifest?>(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
+        splashScreen.setKeepOnScreenCondition { !isInitialLockCheckDone }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.auto(
@@ -97,6 +100,27 @@ class MainActivity : FragmentActivity() {
             isAppLocked = savedInstanceState.getBoolean("is_app_locked", false)
             isFirstLaunch = savedInstanceState.getBoolean("is_first_launch", true)
             backgroundTimestamp = savedInstanceState.getLong("background_timestamp", 0L)
+            isBiometricEnabled = savedInstanceState.getBoolean("is_biometric_enabled", false)
+            isInitialLockCheckDone = savedInstanceState.getBoolean("is_initial_lock_check_done", false)
+
+            if (isBiometricEnabled && backgroundTimestamp != 0L && (System.currentTimeMillis() - backgroundTimestamp > 40000)) {
+                isAppLocked = true
+            }
+        }
+
+        lifecycleScope.launch {
+            preferencesManager.biometricEnabledFlow.collect { enabled ->
+                isBiometricEnabled = enabled
+                if (!isInitialLockCheckDone) {
+                    if (enabled) {
+                        isAppLocked = true
+                    }
+                    isInitialLockCheckDone = true
+                    isFirstLaunch = false
+                } else if (!enabled) {
+                    isAppLocked = false
+                }
+            }
         }
 
         setContent {
@@ -146,16 +170,16 @@ class MainActivity : FragmentActivity() {
             }
 
             // Show biometric prompt when locked
-            LaunchedEffect(isAppLocked) {
-                if (isAppLocked) {
+            LaunchedEffect(isAppLocked, isInitialLockCheckDone) {
+                if (isInitialLockCheckDone && isAppLocked) {
                     showBiometricPrompt(isBangla)
                 }
             }
 
             // One-shot silent OTA check (runs once per process, never while locked or onboarding)
             val navController = rememberNavController()
-            LaunchedEffect(isAppLocked, showOnboarding) {
-                if (!isAppLocked && !showOnboarding && !updateCheckDone) {
+            LaunchedEffect(isAppLocked, showOnboarding, isInitialLockCheckDone) {
+                if (isInitialLockCheckDone && !isAppLocked && !showOnboarding && !updateCheckDone) {
                     updateCheckDone = true
                     val (installedName, installedCode) = getInstalledVersion(this@MainActivity)
                     val manifest = updateRepository.fetchManifest()
@@ -179,8 +203,8 @@ class MainActivity : FragmentActivity() {
             }
 
             // "Update complete" toast when the app was just updated via OTA
-            LaunchedEffect(isAppLocked, showOnboarding) {
-                if (!isAppLocked && !showOnboarding) {
+            LaunchedEffect(isAppLocked, showOnboarding, isInitialLockCheckDone) {
+                if (isInitialLockCheckDone && !isAppLocked && !showOnboarding) {
                     val installedCode = getInstalledVersion(this@MainActivity).second
                     val lastKnown = preferencesManager.lastKnownVersionFlow.first()
                     if (lastKnown != null && installedCode > lastKnown) {
@@ -204,7 +228,10 @@ class MainActivity : FragmentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (!onboardingCompleted && showOnboarding) {
+                    if (!isInitialLockCheckDone) {
+                        // Empty container while splash screen is active and initial lock check resolves
+                        Box(modifier = Modifier.fillMaxSize())
+                    } else if (!onboardingCompleted && showOnboarding) {
                         // First-launch wizard — runs before the lock screen and the main app
                         OnboardingScreen(onDone = {})
                     } else if (isAppLocked) {
@@ -217,7 +244,7 @@ class MainActivity : FragmentActivity() {
                     }
 
                     // Lightweight launch update dialog — hands off to the Update screen for the full flow
-                    if (!isAppLocked && onboardingCompleted && isUpdateAvailable != null) {
+                    if (isInitialLockCheckDone && !isAppLocked && onboardingCompleted && isUpdateAvailable != null) {
                         val availableManifest = isUpdateAvailable!!
                         Dialog(
                             onDismissRequest = {},
@@ -287,13 +314,14 @@ class MainActivity : FragmentActivity() {
         outState.putBoolean("is_app_locked", isAppLocked)
         outState.putBoolean("is_first_launch", isFirstLaunch)
         outState.putLong("background_timestamp", backgroundTimestamp)
+        outState.putBoolean("is_biometric_enabled", isBiometricEnabled)
+        outState.putBoolean("is_initial_lock_check_done", isInitialLockCheckDone)
     }
 
     override fun onStart() {
         super.onStart()
-        lifecycleScope.launch {
-            val enabled = preferencesManager.biometricEnabledFlow.first()
-            if (enabled) {
+        if (isInitialLockCheckDone) {
+            if (isBiometricEnabled) {
                 val elapsed = System.currentTimeMillis() - backgroundTimestamp
                 if (isFirstLaunch || (backgroundTimestamp != 0L && elapsed > 40000)) {
                     isAppLocked = true
