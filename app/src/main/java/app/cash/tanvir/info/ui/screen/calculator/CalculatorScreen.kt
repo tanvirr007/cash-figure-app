@@ -63,6 +63,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.cash.tanvir.info.data.local.preferences.AppLanguage
@@ -448,7 +449,7 @@ fun CalculatorScreen(
                 history = uiState.frequentRemarks,
                 hidden = uiState.hiddenNoteSuggestions,
                 query = notesInputText,
-                limit = 15
+                limit = 4
             )
         }
         val notePlaceholder = remember(uiState.frequentRemarks, uiState.hiddenNoteSuggestions, isBangla) {
@@ -555,62 +556,77 @@ fun CalculatorScreen(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             }
-                            LazyRow(
+                            val rows = remember(noteSuggestions) { noteSuggestions.chunked(2) }
+                            Column(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                contentPadding = PaddingValues(vertical = 2.dp)
+                                verticalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                items(noteSuggestions, key = { it }) { suggestion ->
-                                    val isSelected = notesInputText.trim().equals(suggestion, ignoreCase = true)
-                                    Surface(
-                                        onClick = {
-                                            HapticHelper.vibrate(context)
-                                            notesInputText = suggestion.take(30)
-                                        },
-                                        shape = RoundedCornerShape(16.dp),
-                                        color = if (isSelected) {
-                                            MaterialTheme.colorScheme.primaryContainer
-                                        } else {
-                                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-                                        },
-                                        border = if (isSelected) {
-                                            BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
-                                        } else {
-                                            BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
-                                        }
+                                rows.forEach { rowSuggestions ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                                     ) {
-                                        Row(
-                                            modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp),
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                        ) {
-                                            Text(
-                                                text = suggestion,
-                                                style = MaterialTheme.typography.bodySmall,
-                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                                                color = if (isSelected) {
-                                                    MaterialTheme.colorScheme.onPrimaryContainer
-                                                } else {
-                                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                                }
-                                            )
-                                            IconButton(
+                                        rowSuggestions.forEach { suggestion ->
+                                            val isSelected = notesInputText.trim().equals(suggestion, ignoreCase = true)
+                                            val displayText = if (suggestion.length > 16) {
+                                                suggestion.take(16) + "...."
+                                            } else {
+                                                suggestion
+                                            }
+                                            Surface(
                                                 onClick = {
                                                     HapticHelper.vibrate(context)
-                                                    pendingDeleteSuggestion = suggestion
+                                                    notesInputText = suggestion.take(30)
                                                 },
-                                                modifier = Modifier.size(20.dp)
+                                                shape = RoundedCornerShape(16.dp),
+                                                color = if (isSelected) {
+                                                    MaterialTheme.colorScheme.primaryContainer
+                                                } else {
+                                                    MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                                                },
+                                                border = if (isSelected) {
+                                                    BorderStroke(1.dp, MaterialTheme.colorScheme.primary)
+                                                } else {
+                                                    BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+                                                },
+                                                modifier = Modifier.weight(1f, fill = false)
                                             ) {
-                                                Icon(
-                                                    imageVector = Icons.Rounded.Close,
-                                                    contentDescription = if (isBangla) "পরামর্শ সরান" else "Remove suggestion",
-                                                    modifier = Modifier.size(13.dp),
-                                                    tint = if (isSelected) {
-                                                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                                                    } else {
-                                                        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                                Row(
+                                                    modifier = Modifier.padding(start = 10.dp, end = 2.dp, top = 3.dp, bottom = 3.dp),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                                ) {
+                                                    Text(
+                                                        text = displayText,
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                                        maxLines = 1,
+                                                        overflow = TextOverflow.Ellipsis,
+                                                        color = if (isSelected) {
+                                                            MaterialTheme.colorScheme.onPrimaryContainer
+                                                        } else {
+                                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                                        }
+                                                    )
+                                                    IconButton(
+                                                        onClick = {
+                                                            HapticHelper.vibrate(context)
+                                                            pendingDeleteSuggestion = suggestion
+                                                        },
+                                                        modifier = Modifier.size(20.dp)
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = Icons.Rounded.Close,
+                                                            contentDescription = if (isBangla) "পরামর্শ সরান" else "Remove suggestion",
+                                                            modifier = Modifier.size(13.dp),
+                                                            tint = if (isSelected) {
+                                                                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                                                            } else {
+                                                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                                                            }
+                                                        )
                                                     }
-                                                )
+                                                }
                                             }
                                         }
                                     }
