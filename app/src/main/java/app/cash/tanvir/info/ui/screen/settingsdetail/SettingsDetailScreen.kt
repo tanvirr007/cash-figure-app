@@ -35,7 +35,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BrightnessHigh
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.CloudDownload
 import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.DeleteSweep
@@ -60,6 +62,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -1081,7 +1084,11 @@ private fun CurrencyContent(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Switch(checked = isEnabled, onCheckedChange = null)
+                Switch(
+                    checked = isEnabled,
+                    onCheckedChange = null,
+                    thumbContent = { SwitchThumbIcon(checked = isEnabled) }
+                )
             }
         }
     }
@@ -1371,8 +1378,21 @@ private fun ToggleRow(
                 )
             }
         }
-        Switch(checked = checked, onCheckedChange = null)
+        Switch(
+            checked = checked,
+            onCheckedChange = null,
+            thumbContent = { SwitchThumbIcon(checked = checked) }
+        )
     }
+}
+
+@Composable
+private fun SwitchThumbIcon(checked: Boolean) {
+    Icon(
+        imageVector = if (checked) Icons.Rounded.Check else Icons.Rounded.Close,
+        contentDescription = null,
+        modifier = Modifier.size(SwitchDefaults.IconSize)
+    )
 }
 
 private fun authenticateWithFingerprint(
@@ -1591,4 +1611,3 @@ private fun FontPreviewCard(
         }
     }
 }
-

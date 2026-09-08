@@ -36,7 +36,7 @@ Rules: data flows one way (Screen → ViewModel → Repository → DB/DataStore)
 ## Large Files — Edit With Care
 
 - `ui/screen/settings/SettingsScreen.kt` (~365 lines) and `SettingsViewModel.kt` (~680)
-- `ui/screen/settingsdetail/SettingsDetailScreen.kt` (~1590 lines)
+- `ui/screen/settingsdetail/SettingsDetailScreen.kt` (~1610 lines)
 - `ui/screen/calculator/CalculatorScreen.kt` (~560 lines)
 - `util/report/PdfReportGenerator.kt` (~330 lines)
 - `ui/MainActivity.kt` — app lock (fingerprint or device screen lock), FLAG_SECURE, edge-to-edge, screen-on logic, launch OTA check
