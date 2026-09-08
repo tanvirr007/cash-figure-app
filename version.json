@@ -1,7 +1,7 @@
 {
-  "versionCode": 101,
-  "versionName": "v4.5.50",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.5.50/CashFigure.apk",
-  "changelog": "* **feat: show 2x2 note suggestions** (315124f)\n  - Display up to 4 note suggestions in a 2x2 grid layout.\n  - Truncate suggestion chip labels at 16 characters with trailing ellipsis dots.\n  - Dynamically filter and show matching suggestions based on typing input.\n* **fix: prevent app lock screen flicker** (0ee003c)\n  - Keep the splash screen visible until the initial lock preference is resolved from DataStore.\n  - Evaluate timeout and lock state synchronously during onStart on app resume to prevent rendering unauthenticated frames.\n  - Render an empty background box while lock state is initializing.\n",
-  "fileSize": 6323716
+  "versionCode": 102,
+  "versionName": "v4.5.51",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.5.51/CashFigure.apk",
+  "changelog": "* **feat: add thumb icons to switches** (11613b3)\n  - Render check and close icons inside switch thumbs.\n  - Apply thumb icons to miscellaneous and currency toggles.\n  - Update documentation and file line counts in docs.\n",
+  "fileSize": 6323712
 }

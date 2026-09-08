@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tagName": "v4.5.51",
+      "publishedAt": "2026-09-08T18:13:30Z",
+      "items": [
+        {
+          "title": "feat: add thumb icons to switches",
+          "subItems": [
+            "Render check and close icons inside switch thumbs.",
+            "Apply thumb icons to miscellaneous and currency toggles.",
+            "Update documentation and file line counts in docs."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.5.50",
       "publishedAt": "2026-08-26T17:40:53Z",
       "items": [
