@@ -47,6 +47,10 @@ class SettingsRepositoryImpl @Inject constructor(
         preferencesManager.hideNoteSuggestion(suggestion)
     }
 
+    override suspend fun unhideNoteSuggestion(suggestion: String) {
+        preferencesManager.unhideNoteSuggestion(suggestion)
+    }
+
     override suspend fun setTheme(theme: AppTheme) {
         preferencesManager.setTheme(theme)
     }

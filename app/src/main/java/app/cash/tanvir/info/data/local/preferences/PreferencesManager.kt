@@ -211,6 +211,18 @@ class PreferencesManager @Inject constructor(
         }
     }
 
+    suspend fun unhideNoteSuggestion(suggestion: String) {
+        val target = suggestion.trim().lowercase()
+        if (target.isBlank()) return
+        context.dataStore.edit { prefs ->
+            val current = prefs[Keys.HIDDEN_NOTE_SUGGESTIONS] ?: emptySet()
+            val filtered = current.filterNot { it.trim().lowercase() == target }.toSet()
+            if (filtered.size != current.size) {
+                prefs[Keys.HIDDEN_NOTE_SUGGESTIONS] = filtered
+            }
+        }
+    }
+
     suspend fun clearAll() {
         context.dataStore.edit { prefs ->
             prefs.clear()

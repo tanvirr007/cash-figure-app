@@ -97,4 +97,27 @@ class NoteSuggestionHelperTest {
         assertEquals(5, result.size)
         assertEquals(listOf("Note 1", "Note 2", "Note 3", "Note 4", "Note 5"), result)
     }
+
+    @Test
+    fun `unhidden note suggestion reappears in suggestions list`() {
+        val history = listOf("BRAC BANK PLC", "City Bank")
+        val hidden = mutableSetOf("brac bank plc")
+
+        // While hidden, "BRAC BANK PLC" is excluded
+        val initialResult = NoteSuggestionHelper.getSuggestions(
+            history = history,
+            hidden = hidden,
+            query = ""
+        )
+        assertEquals(listOf("City Bank"), initialResult)
+
+        // After unhiding (e.g. user re-enters and saves the note)
+        hidden.removeIf { it.equals("BRAC BANK PLC", ignoreCase = true) }
+        val updatedResult = NoteSuggestionHelper.getSuggestions(
+            history = history,
+            hidden = hidden,
+            query = ""
+        )
+        assertEquals(listOf("BRAC BANK PLC", "City Bank"), updatedResult)
+    }
 }

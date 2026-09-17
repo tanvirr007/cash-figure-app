@@ -292,6 +292,10 @@ class CalculatorViewModel @Inject constructor(
         }
         val savedAmountFormatted = state.grandTotalFormatted
         viewModelScope.launch {
+            val trimmedRemark = remark.trim()
+            if (trimmedRemark.isNotBlank()) {
+                settingsRepository.unhideNoteSuggestion(trimmedRemark)
+            }
             val rows = Denomination.ALL.map { denom ->
                 val qtyStr = state.quantities[denom.value] ?: ""
                 val qty = qtyStr.toLongOrNull() ?: 0L

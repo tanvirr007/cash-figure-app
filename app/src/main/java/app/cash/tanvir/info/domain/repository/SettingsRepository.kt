@@ -22,6 +22,7 @@ interface SettingsRepository {
     fun getLastSuccessfulCheck(): Flow<Long?>
     fun getHiddenNoteSuggestions(): Flow<Set<String>>
     suspend fun hideNoteSuggestion(suggestion: String)
+    suspend fun unhideNoteSuggestion(suggestion: String)
     suspend fun setTheme(theme: AppTheme)
     suspend fun setLanguage(language: AppLanguage)
     suspend fun setFont(font: AppFont)
