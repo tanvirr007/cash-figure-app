@@ -1,6 +1,35 @@
 {
   "releases": [
     {
+      "tagName": "v4.5.52",
+      "publishedAt": "2026-09-17T11:29:24Z",
+      "items": [
+        {
+          "title": "feat: add nav transition animations",
+          "subItems": [
+            "Add directional slide and fade transitions to bottom nav tabs.",
+            "Tabs slide left or right based on bottom navigation bar index.",
+            "Use 300ms duration with Material FastOutSlowIn easing and 25% width offset.",
+            "Add unit tests verifying tab index resolution for all routes."
+          ]
+        },
+        {
+          "title": "fix: unhide note suggestion on save",
+          "subItems": [
+            "Unhide note suggestion in preferences when saving a transaction with that note.",
+            "Add unhideNoteSuggestion to SettingsRepository and PreferencesManager.",
+            "Add unit test verifying unhidden note reappears in suggestion list."
+          ]
+        },
+        {
+          "title": "style: reduce note chip row space",
+          "subItems": [
+            "Reduce vertical spacing between note suggestion chip rows from 6dp to 4dp."
+          ]
+        }
+      ]
+    },
+    {
       "tagName": "v4.5.51",
       "publishedAt": "2026-09-08T18:13:30Z",
       "items": [

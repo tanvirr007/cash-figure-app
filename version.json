@@ -1,7 +1,7 @@
 {
-  "versionCode": 102,
-  "versionName": "v4.5.51",
-  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.5.51/CashFigure.apk",
-  "changelog": "* **feat: add thumb icons to switches** (11613b3)\n  - Render check and close icons inside switch thumbs.\n  - Apply thumb icons to miscellaneous and currency toggles.\n  - Update documentation and file line counts in docs.\n",
-  "fileSize": 6323712
+  "versionCode": 103,
+  "versionName": "v4.5.52",
+  "downloadUrl": "https://github.com/tanvirr007/cash-figure-app/releases/download/v4.5.52/CashFigure.apk",
+  "changelog": "* **feat: add nav transition animations** (ecf383c)\n  - Add directional slide and fade transitions to bottom nav tabs.\n  - Tabs slide left or right based on bottom navigation bar index.\n  - Use 300ms duration with Material FastOutSlowIn easing and 25% width offset.\n  - Add unit tests verifying tab index resolution for all routes.\n* **fix: unhide note suggestion on save** (061734c)\n  - Unhide note suggestion in preferences when saving a transaction with that note.\n  - Add unhideNoteSuggestion to SettingsRepository and PreferencesManager.\n  - Add unit test verifying unhidden note reappears in suggestion list.\n* **style: reduce note chip row space** (128cc8f)\n  - Reduce vertical spacing between note suggestion chip rows from 6dp to 4dp.\n",
+  "fileSize": 6340100
 }
