@@ -1,6 +1,7 @@
 package app.cash.tanvir.info.ui.animation
 
 import android.provider.Settings
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -27,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavBackStackEntry
 
 /**
  * Single source of truth for app-wide motion: durations, easings, and the
@@ -102,31 +104,89 @@ fun screenPopExitTransition(reducedMotion: Boolean): ExitTransition {
     ) + fadeOut(tween(AppMotion.DurationNormal, easing = AppMotion.ExitEasing))
 }
 
-/** Bottom-tab switch: subtle scale + cross-fade (tabs are peers, no slide). */
-fun tabEnterTransition(reducedMotion: Boolean): EnterTransition {
+private const val SLIDE_OFFSET_FRACTION = 4 // 1/4 = 25% of width
+
+/**
+ * Returns the bottom-navigation tab index (0 = Calculator, 1 = History, 2 = Settings),
+ * or -1 if the route is not a bottom-nav tab.
+ */
+fun tabIndex(route: String?): Int = when {
+    route?.startsWith("calculator") == true -> 0
+    route == "history" -> 1
+    route == "settings" -> 2
+    else -> -1
+}
+
+/**
+ * Directional slide + fade transition for entering a bottom-navigation tab.
+ * Tabs slide left or right based on their bottom bar position (higher index = slide from right, lower = from left).
+ * Falls back to screenPopEnterTransition when returning from a sub-screen.
+ */
+fun AnimatedContentTransitionScope<NavBackStackEntry>.tabEnterTransition(reducedMotion: Boolean): EnterTransition {
     if (reducedMotion) return EnterTransition.None
-    return scaleIn(
-        initialScale = 0.98f,
-        animationSpec = tween(AppMotion.DurationNormal, easing = AppMotion.EnterEasing)
-    ) + fadeIn(tween(AppMotion.DurationNormal, easing = AppMotion.EnterEasing))
+    val initialTab = tabIndex(initialState.destination.route)
+    val targetTab = tabIndex(targetState.destination.route)
+    if (initialTab != -1 && targetTab != -1) {
+        val forward = targetTab >= initialTab
+        return slideInHorizontally(
+            initialOffsetX = { fullWidth -> if (forward) fullWidth / SLIDE_OFFSET_FRACTION else -fullWidth / SLIDE_OFFSET_FRACTION },
+            animationSpec = tween(AppMotion.DurationMedium, easing = FastOutSlowInEasing)
+        ) + fadeIn(tween(AppMotion.DurationMedium, easing = FastOutSlowInEasing))
+    }
+    return screenPopEnterTransition(reducedMotion)
 }
 
-fun tabExitTransition(reducedMotion: Boolean): ExitTransition {
+/**
+ * Directional slide + fade transition for exiting a bottom-navigation tab.
+ * When switching between tabs, slides out to left if moving forward or to right if moving backward.
+ * Falls back to screenExitTransition when opening a sub-screen.
+ */
+fun AnimatedContentTransitionScope<NavBackStackEntry>.tabExitTransition(reducedMotion: Boolean): ExitTransition {
     if (reducedMotion) return ExitTransition.None
-    return fadeOut(tween(AppMotion.DurationFast, easing = AppMotion.ExitEasing))
+    val initialTab = tabIndex(initialState.destination.route)
+    val targetTab = tabIndex(targetState.destination.route)
+    if (initialTab != -1 && targetTab != -1) {
+        val forward = targetTab >= initialTab
+        return slideOutHorizontally(
+            targetOffsetX = { fullWidth -> if (forward) -fullWidth / SLIDE_OFFSET_FRACTION else fullWidth / SLIDE_OFFSET_FRACTION },
+            animationSpec = tween(AppMotion.DurationMedium, easing = FastOutSlowInEasing)
+        ) + fadeOut(tween(AppMotion.DurationMedium, easing = FastOutSlowInEasing))
+    }
+    return screenExitTransition(reducedMotion)
 }
 
-fun tabPopEnterTransition(reducedMotion: Boolean): EnterTransition {
+/**
+ * Directional slide + fade transition for re-entering a tab via back/pop.
+ */
+fun AnimatedContentTransitionScope<NavBackStackEntry>.tabPopEnterTransition(reducedMotion: Boolean): EnterTransition {
     if (reducedMotion) return EnterTransition.None
-    return fadeIn(tween(AppMotion.DurationNormal, easing = AppMotion.EnterEasing))
+    val initialTab = tabIndex(initialState.destination.route)
+    val targetTab = tabIndex(targetState.destination.route)
+    if (initialTab != -1 && targetTab != -1) {
+        val forward = targetTab >= initialTab
+        return slideInHorizontally(
+            initialOffsetX = { fullWidth -> if (forward) fullWidth / SLIDE_OFFSET_FRACTION else -fullWidth / SLIDE_OFFSET_FRACTION },
+            animationSpec = tween(AppMotion.DurationMedium, easing = FastOutSlowInEasing)
+        ) + fadeIn(tween(AppMotion.DurationMedium, easing = FastOutSlowInEasing))
+    }
+    return screenPopEnterTransition(reducedMotion)
 }
 
-fun tabPopExitTransition(reducedMotion: Boolean): ExitTransition {
+/**
+ * Directional slide + fade transition for leaving a tab via back/pop.
+ */
+fun AnimatedContentTransitionScope<NavBackStackEntry>.tabPopExitTransition(reducedMotion: Boolean): ExitTransition {
     if (reducedMotion) return ExitTransition.None
-    return scaleOut(
-        targetScale = 0.98f,
-        animationSpec = tween(AppMotion.DurationFast, easing = AppMotion.ExitEasing)
-    ) + fadeOut(tween(AppMotion.DurationFast, easing = AppMotion.ExitEasing))
+    val initialTab = tabIndex(initialState.destination.route)
+    val targetTab = tabIndex(targetState.destination.route)
+    if (initialTab != -1 && targetTab != -1) {
+        val forward = targetTab >= initialTab
+        return slideOutHorizontally(
+            targetOffsetX = { fullWidth -> if (forward) -fullWidth / SLIDE_OFFSET_FRACTION else fullWidth / SLIDE_OFFSET_FRACTION },
+            animationSpec = tween(AppMotion.DurationMedium, easing = FastOutSlowInEasing)
+        ) + fadeOut(tween(AppMotion.DurationMedium, easing = FastOutSlowInEasing))
+    }
+    return screenPopExitTransition(reducedMotion)
 }
 
 /** Generic in-place content swap: fade + slight scale. */
