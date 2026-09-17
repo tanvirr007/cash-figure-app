@@ -559,7 +559,7 @@ fun CalculatorScreen(
                             val rows = remember(noteSuggestions) { noteSuggestions.chunked(2) }
                             Column(
                                 modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(6.dp)
+                                verticalArrangement = Arrangement.spacedBy(4.dp)
                             ) {
                                 rows.forEach { rowSuggestions ->
                                     Row(
